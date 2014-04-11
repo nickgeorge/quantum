@@ -23,9 +23,9 @@ GL.createGL = function(canvas) {
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND)
-  // gl.enable(gl.CULL_FACE);
+  gl.enable(gl.CULL_FACE);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  // gl.cullFace(gl.BACK);
+  gl.cullFace(gl.BACK);
 
   return gl;
 }

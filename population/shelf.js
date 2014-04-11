@@ -9,22 +9,22 @@ Shelf = function(message) {
   this.alive = message.alive;
   this.parts = [
     new Box([10, 10, .1]).
-        setPosition(0, 0, 2.5).
+        setPosition(0, 0, 5).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),
-    new Box([.1, 10, 5]).
+    new Box([.1, 10, 10]).
         setPosition(-5, 0, 0).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),
-    new Box([.1, 10, 5]).
+    new Box([.1, 10, 10]).
         setPosition(5, 0, 0).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),
-    new Box([10, .1, 5]).
+    new Box([10, .1, 10]).
         setPosition(0, 5, 0).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),
-    new Box([10, .1, 5]).
+    new Box([10, .1, 10]).
         setPosition(0, -5, 0).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),

@@ -97,22 +97,24 @@
 
       var gl;
       var shaderProgram;
+      var framerate;
 
-      function degToRad(degrees) {
-        return degrees * Math.PI / 180;
-      }
+      var world;
+      var camera;
 
       function drawScene() {
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 
-        gl.clearColor(world.clearColorRgba[0],
+        gl.clearColor(
+            world.clearColorRgba[0],
             world.clearColorRgba[1],
             world.clearColorRgba[2],
             1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-        mat4.perspective(gl.pMatrix, PI/4, gl.viewportWidth/gl.viewportHeight,
+        mat4.perspective(gl.pMatrix,
+            PI/4, gl.viewportWidth/gl.viewportHeight,
             0.1, 1000.0);
 
         gl.useProgram(shaderProgram);
@@ -120,7 +122,7 @@
         mat4.identity(gl.mvMatrix);
 
         worldDOTapplyLights();
-        cameraDOTtransorm();
+        camera.transform();
         world.draw();
 
       }
@@ -133,24 +135,14 @@
       function worldDOTapplyLights() {
 
         gl.uniform1i(shaderProgram.useLightingUniform, true);
-        gl.uniform3f(shaderProgram.ambientColorUniform, .2, .2, .2);
-        gl.uniform3f(shaderProgram.pointLightingLocationUniform, lightPosX, lightPosY, -13 + lightPosZ);
-        gl.uniform3f(shaderProgram.pointLightingColorUniform, .8, .8, .8);
+        gl.uniform3f(shaderProgram.ambientColorUniform, .175, .175, .175);
+        gl.uniform3f(shaderProgram.pointLightingLocationUniform,
+            lightPosX, 
+            lightPosY,
+            -9 + lightPosZ);
+        gl.uniform3f(shaderProgram.pointLightingColorUniform, .8, .4, .2);
 
         gl.uniform1i(shaderProgram.useTexturesUniform, true);
-      }
-      var deg = 0;
-      function cameraDOTtransorm() {
-        mat4.rotate(gl.mvMatrix, gl.mvMatrix, degToRad(180), [0, 1, 0]);
-        mat4.translate(gl.mvMatrix, gl.mvMatrix, [0, 0, 13]);
-        deg += 10;
-
-      }
-
-      function worldDOTdraw() {
-        dumbCrate.phi = degToRad(cubeAngle);
-        dumbCrate.theta = degToRad(cubeAngle * 2);
-        dumbCrate.draw();
       }
 
 
@@ -160,11 +152,10 @@
           var elapsed = timeNow - framerate.lastTime;
           if (elapsed < 100) {
             var dt = elapsed/1000;
-            // camera.advance(dt)
             world.advance(dt);
-            lightPosX = 4 * Math.sin(timeNow / 400);
-            lightPosY = 4 * Math.sin(timeNow / 500);
-            lightPosZ = 2 + 2 * Math.sin(timeNow / 600);
+            lightPosX = 4.25 * Math.sin(timeNow / 400);
+            lightPosY = 4.25 * Math.sin(timeNow / 500);
+            lightPosZ = 4.25 * Math.sin(timeNow / 600);
  
           }
           framerate.snapshot();
@@ -178,7 +169,6 @@
         requestAnimFrame(tick);
         drawScene();
         animate();
-        // world.updateLists();
       }
 
 
@@ -197,16 +187,11 @@
         framerate = new Framerate('framerate');
 
 
-        // camera = new Camera();
-        // camera.setPosition([10, 0, 0])
-        // camera.phi = Math.PI/2;
+        camera = new Camera();
+        camera.setPosition([0, 0, -9])
+        camera.yaw = Math.PI;
 
-        world = {
-          clearColorRgba: [0, 0, 0, 1]
-        }
         world = new World();
-
-
         world.populate();
 
         tick();
@@ -220,15 +205,11 @@
       };
 
     </script>
-
-
   </head>
-
 
   <body onload="webGLStart();">
     <div id='game-div'>
       <canvas id='gl-canvas'></canvas>
     </div>
   </body>
-
 </html>
