@@ -1,0 +1,234 @@
+<html>
+
+  <head>
+    <title>Quantum</title>
+    <meta http-equiv='content-type' content='text/html; charset=ISO-8859-1'>
+    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon' />
+    <link rel='stylesheet' href='style.css' type='text/css' />
+
+    <script src='util/framerate.js'></script>
+    <script src='util/light.js'></script>
+    <script src='util/physics.js'></script>
+    <script src='util/util.js'></script>
+    <script src='util/vector.js'></script>
+    <script src='population/thing.js'></script>
+    <script src='population/box.js'></script>
+    <script src='population/dumb_crate.js'></script>
+    <script src='population/shelf.js'></script>
+    <script src='gl/gl.js'></script>
+    <script src='gl-matrix/common.js'></script>
+    <script src='gl-matrix/mat3.js'></script>
+    <script src='gl-matrix/mat4.js'></script>
+    <script src='gl-matrix/vec3.js'></script>
+    <script src='gl-matrix/vec4.js'></script>
+    <script src='gl/shader_program.js'></script>
+    <script src='gl/webgl-utils.js'></script>
+    <script src='media/texture.js'></script>
+    <script src='media/sound_manager.js'></script>
+    <script src='effects/double_explosion.js'></script>
+    <script src='effects/image_cross.js'></script>
+    <script src='ui/camera.js'></script>
+    <script src='world.js'></script>
+
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      varying vec2 vTextureCoord;
+      varying vec3 vTransformedNormal;
+      varying vec4 vPosition;
+
+      uniform bool uUseLighting;
+      uniform bool uUseTexture;
+
+      uniform vec3 uAmbientColor;
+
+      uniform vec3 uPointLightingLocation;
+      uniform vec3 uPointLightingColor;
+
+      uniform sampler2D uSampler;
+
+
+      void main(void) {
+        vec3 lightWeighting;
+        if (!uUseLighting) {
+          lightWeighting = vec3(1.0, 1.0, 1.0);
+        } else {
+          vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+
+          float directionalLightWeighting = max(dot(normalize(vTransformedNormal), lightDirection), 0.0);
+          lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+        }
+
+        vec4 fragmentColor;
+        if (uUseTexture) {
+          fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        } else {
+          fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+        gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
+      }
+    </script>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute vec3 aVertexNormal;
+      attribute vec2 aTextureCoord;
+
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      uniform mat3 uNMatrix;
+
+      varying vec2 vTextureCoord;
+      varying vec3 vTransformedNormal;
+      varying vec4 vPosition;
+
+
+      void main(void) {
+        vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+        gl_Position = uPMatrix * vPosition;
+        vTextureCoord = aTextureCoord;
+        vTransformedNormal = uNMatrix * aVertexNormal;
+      }
+    </script>
+
+
+    <script type="text/javascript">
+
+      var gl;
+      var shaderProgram;
+
+      function degToRad(degrees) {
+        return degrees * Math.PI / 180;
+      }
+
+      function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+
+        gl.clearColor(world.clearColorRgba[0],
+            world.clearColorRgba[1],
+            world.clearColorRgba[2],
+            1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+
+        mat4.perspective(gl.pMatrix, PI/4, gl.viewportWidth/gl.viewportHeight,
+            0.1, 1000.0);
+
+        gl.useProgram(shaderProgram);
+
+        mat4.identity(gl.mvMatrix);
+
+        worldDOTapplyLights();
+        cameraDOTtransorm();
+        world.draw();
+
+      }
+
+
+      var lightPosX = 0;
+      var lightPosY = 0;
+      var lightPosZ = 0;
+
+      function worldDOTapplyLights() {
+
+        gl.uniform1i(shaderProgram.useLightingUniform, true);
+        gl.uniform3f(shaderProgram.ambientColorUniform, .2, .2, .2);
+        gl.uniform3f(shaderProgram.pointLightingLocationUniform, lightPosX, lightPosY, -13 + lightPosZ);
+        gl.uniform3f(shaderProgram.pointLightingColorUniform, .8, .8, .8);
+
+        gl.uniform1i(shaderProgram.useTexturesUniform, true);
+      }
+      var deg = 0;
+      function cameraDOTtransorm() {
+        mat4.rotate(gl.mvMatrix, gl.mvMatrix, degToRad(180), [0, 1, 0]);
+        mat4.translate(gl.mvMatrix, gl.mvMatrix, [0, 0, 13]);
+        deg += 10;
+
+      }
+
+      function worldDOTdraw() {
+        dumbCrate.phi = degToRad(cubeAngle);
+        dumbCrate.theta = degToRad(cubeAngle * 2);
+        dumbCrate.draw();
+      }
+
+
+      function animate() {
+        var timeNow = new Date().getTime();
+        if (framerate.lastTime != 0) {
+          var elapsed = timeNow - framerate.lastTime;
+          if (elapsed < 100) {
+            var dt = elapsed/1000;
+            // camera.advance(dt)
+            world.advance(dt);
+            lightPosX = 4 * Math.sin(timeNow / 400);
+            lightPosY = 4 * Math.sin(timeNow / 500);
+            lightPosZ = 2 + 2 * Math.sin(timeNow / 600);
+ 
+          }
+          framerate.snapshot();
+        }
+        framerate.lastTime = timeNow;
+
+      }
+
+
+      function tick() {
+        requestAnimFrame(tick);
+        drawScene();
+        animate();
+        // world.updateLists();
+      }
+
+
+      function webGLStart() {
+        var glCanvas = document.getElementById("gl-canvas");
+        gl = GL.createGL(glCanvas);
+        shaderProgram = ShaderProgram.createShaderProgram();
+        Textures.initTextures();
+
+        window.addEventListener('resize',
+            util.partial(resize, glCanvas, gl));
+        resize(glCanvas, gl);
+
+        Textures.initTextures();
+
+        framerate = new Framerate('framerate');
+
+
+        // camera = new Camera();
+        // camera.setPosition([10, 0, 0])
+        // camera.phi = Math.PI/2;
+
+        world = {
+          clearColorRgba: [0, 0, 0, 1]
+        }
+        world = new World();
+
+
+        world.populate();
+
+        tick();
+      }
+
+      function resize(glCanvas, gl) {
+        glCanvas.width = window.innerWidth;
+        glCanvas.height = window.innerHeight;
+        gl.viewportWidth = window.innerWidth;
+        gl.viewportHeight = window.innerHeight;
+      };
+
+    </script>
+
+
+  </head>
+
+
+  <body onload="webGLStart();">
+    <div id='game-div'>
+      <canvas id='gl-canvas'></canvas>
+    </div>
+  </body>
+
+</html>

@@ -1,0 +1,78 @@
+
+    <script>
+      // Globals
+      var gl = null;
+      var shaderProgram = null;
+      var framerate = null;
+      var world = null;
+      var camera = null;
+      var logger = null;
+      var traceTime = 0;
+
+      function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clearColor(world.clearColorRgba[0],
+            world.clearColorRgba[1],
+            world.clearColorRgba[2],
+            1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        mat4.perspective(gl.pMatrix, PI/4, gl.viewportWidth/gl.viewportHeight,
+            0.1, 1000.0);
+
+        mat4.identity(gl.mvMatrix);
+        shaderProgram.reset();
+
+        camera.transform();
+
+        world.draw();
+        world.applyLights();
+        animate();
+      }
+
+
+      function webGLStart() {
+        var glCanvas = document.getElementById('gl-canvas');
+        gl = GL.createGL(glCanvas);
+
+        window.addEventListener('resize',
+            util.partial(resize, glCanvas, gl));
+        resize(glCanvas, gl);
+
+        shaderProgram = ShaderProgram.getShaderProgram();
+        Textures.initTextures();
+
+        camera = new Camera();
+        camera.setPosition([10, 0, 0])
+        camera.phi = Math.PI/2;
+
+        framerate = new Framerate('framerate');
+
+        world = new World();
+        world.populate();
+
+        requestAnimFrame(tick);
+      };
+
+      function resize(glCanvas, gl) {
+        console.log(window.innerWidth + " x " + window.innerHeight);
+        glCanvas.width = window.innerWidth;
+        glCanvas.height = window.innerHeight;
+        gl.viewportWidth = window.innerWidth;
+        gl.viewportHeight = window.innerHeight;
+      };
+
+      function trace(msg) {
+        var newTraceTime = new Date().getTime();
+        console.log((newTraceTime) - traceTime + " : " + msg);
+        traceTime = newTraceTime;
+      }
+    </script>
+  </head>
+
+  <body onload='webGLStart();'>
+    <div id='game-div'>
+      <canvas id='gl-canvas'></canvas>
+    </div>
+  </body>
+
+</html>
