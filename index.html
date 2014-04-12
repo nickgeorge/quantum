@@ -14,6 +14,7 @@
     <script src='population/thing.js'></script>
     <script src='population/box.js'></script>
     <script src='population/dumb_crate.js'></script>
+    <script src='population/sun.js'></script>
     <script src='population/shelf.js'></script>
     <script src='gl/gl.js'></script>
     <script src='gl-matrix/common.js'></script>
@@ -121,30 +122,10 @@
 
         mat4.identity(gl.mvMatrix);
 
-        worldDOTapplyLights();
+        world.applyLights();
         camera.transform();
         world.draw();
-
       }
-
-
-      var lightPosX = 0;
-      var lightPosY = 0;
-      var lightPosZ = 0;
-
-      function worldDOTapplyLights() {
-
-        gl.uniform1i(shaderProgram.useLightingUniform, true);
-        gl.uniform3f(shaderProgram.ambientColorUniform, .175, .175, .175);
-        gl.uniform3f(shaderProgram.pointLightingLocationUniform,
-            lightPosX, 
-            lightPosY,
-            -9 + lightPosZ);
-        gl.uniform3f(shaderProgram.pointLightingColorUniform, .8, .4, .2);
-
-        gl.uniform1i(shaderProgram.useTexturesUniform, true);
-      }
-
 
       function animate() {
         var timeNow = new Date().getTime();
@@ -153,10 +134,6 @@
           if (elapsed < 100) {
             var dt = elapsed/1000;
             world.advance(dt);
-            lightPosX = 4.25 * Math.sin(timeNow / 400);
-            lightPosY = 4.25 * Math.sin(timeNow / 500);
-            lightPosZ = 4.25 * Math.sin(timeNow / 600);
- 
           }
           framerate.snapshot();
         }

@@ -67,36 +67,49 @@ World.prototype.applyLights = function() {
 };
 
 World.prototype.populate = function() {
-  // var light = new Light();
-  //light.setPosition([-4, 0, 0])
-  // light.setDirection([-45, -1, 0]);
-  // light.setAmbientColor([.1, .1, .1]);
-  // light.setDirectionalColor([.8, .8, .8]);
-  // this.addLight(light);
-  // camera.anchor = new StaticAnchor();
-  // camera.position = [0, -15, 0];
-  // camera.vTheta = .8;
+  var light = new Light();
+  light.setPosition([0, 0, -4])
+  light.setAmbientColor([.175, .175, .175]);
+  light.setDirectionalColor([1, .5, .25]);
+  this.addLight(light);
 
   var crate = new DumbCrate({
     theta: 0 * Math.random() * 2 * PI,
     phi: 0 * Math.random() * 2 * PI,
     position: [0, 0, 0],
     alive: true,
-    size: 1
+    size: 1.5
   });
 
   crate.box.setTexture(Textures.THWOMP);
-  // light.anchor = crate;
 
   crate.rTheta = .6;
   crate.rPhi = .8;
+
+
+  var sun = new Sun({
+    theta: 0 * Math.random() * 2 * PI,
+    phi: 0 * Math.random() * 2 * PI,
+    position: [2.5, 0, 0],
+    alive: true,
+    size: .25
+  });
+  // sun.rPhi = 4 * PI;
+  // sun.rTheta = 3 * PI;
+  world.add(sun);
+
+
 
   var shelf = new Shelf({
     position: [0, 0, 0]
   })
 
+  // var sphere = new Sphere(1, [1, 1, 1]);
+  // sphere.position = [0, 2, 0];
+  // this.add(sphere);
+
   this.add(shelf);
-  this.add(crate);
+  //this.add(crate);
 };
 
 World.prototype.reset = function() {

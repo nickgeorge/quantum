@@ -3,7 +3,7 @@ Light = function() {
   this.directionalColor = vec3.create();
   this.position = vec3.create();
   this.anchor = null;
-  this.swappedPosition = vec3.create();
+  this.finalPosition = vec3.create();
 };
 
 Light.prototype.setAmbientColor = function(rgb) {
@@ -21,11 +21,11 @@ Light.prototype.setPosition = function(xyz) {
 
 Light.prototype.apply = function() {
   if (this.anchor) this.position = this.anchor.position;
-  var position = vec3.copy(this.swappedPosition, this.position);
-  var swap = this.swappedPosition[2];
-  this.swappedPosition[2] = -this.swappedPosition[1];
-  this.swappedPosition[1] = swap;
-  gl.uniform3fv(shaderProgram.lightingPositionUniform, this.position);
+
+  vec3.add(this.finalPosition, this.position, camera.position);
+
   gl.uniform3fv(shaderProgram.ambientColorUniform, this.ambientColor);
-  gl.uniform3fv(shaderProgram.directionalColorUniform, this.directionalColor);
+  gl.uniform3fv(shaderProgram.pointLightingLocationUniform,
+      this.finalPosition);
+  gl.uniform3fv(shaderProgram.pointLightingColorUniform, this.directionalColor);
 };

@@ -36,9 +36,6 @@ DumbCrate.prototype.advance = function(dt) {
 
   this.theta += this.rTheta * dt;
   this.phi += this.rPhi * dt;
-
-  // this.position[1] = -2.5 + 5 * Math.sin(this.t * 2);
-  //this.position[2] = 5 * Math.sin(this.t/ROOT_2);
 };
 
 DumbCrate.prototype.draw = function() {

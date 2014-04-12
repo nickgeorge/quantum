@@ -24,6 +24,7 @@ Box.prototype.advance = function(dt) {};
 Box.prototype.draw = function() {
   gl.pushMatrix();
   if (this.fulcrum) {
+    // This is dumb.  fix this.
     mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.theta, Vector.K);
     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.phi, Vector.J);
@@ -42,15 +43,19 @@ Box.prototype.draw = function() {
 Box.prototype.render = function() {
   !this.colorBuffer && this.setColor(Vector.WHITE);
 
-    
   if (this.texture) {
     if (!this.texture.loaded) return;
     gl.uniform1i(shaderProgram.useTextureUniform, true);
     Textures.bindTexture(this.texture);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
     gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  };
+  } else {
+    gl.uniform1i(shaderProgram.useTextureUniform, false);
+  }
 
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, this.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -145,6 +150,7 @@ Box.prototype.createVertexBuffer = function(size) {
     -halfSize[0],  halfSize[1],  halfSize[2],
     -halfSize[0],  halfSize[1], -halfSize[2]
   ];
+
   this.vertexBuffer = util.generateBuffer(verticies, 3);
 };
 
@@ -206,41 +212,41 @@ Box.prototype.createTextureBuffer = function(opt_faces){
 
 Box.initBuffers = function() {
   var vertexNormals = [
-    // Front face
-     0.0,  0.0,  1.0,
-     0.0,  0.0,  1.0,
-     0.0,  0.0,  1.0,
-     0.0,  0.0,  1.0,
+      // Front face
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
+       0.0,  0.0,  1.0,
 
-    // Back face
-     0.0,  0.0, -1.0,
-     0.0,  0.0, -1.0,
-     0.0,  0.0, -1.0,
-     0.0,  0.0, -1.0,
+      // Back face
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
+       0.0,  0.0, -1.0,
 
-    // Top face
-     0.0,  1.0,  0.0,
-     0.0,  1.0,  0.0,
-     0.0,  1.0,  0.0,
-     0.0,  1.0,  0.0,
+      // Top face
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
+       0.0,  1.0,  0.0,
 
-    // Bottom face
-     0.0, -1.0,  0.0,
-     0.0, -1.0,  0.0,
-     0.0, -1.0,  0.0,
-     0.0, -1.0,  0.0,
+      // Bottom face
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
+       0.0, -1.0,  0.0,
 
-    // Right face
-     1.0,  0.0,  0.0,
-     1.0,  0.0,  0.0,
-     1.0,  0.0,  0.0,
-     1.0,  0.0,  0.0,
+      // Right face
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
+       1.0,  0.0,  0.0,
 
-    // Left face
-    -1.0,  0.0,  0.0,
-    -1.0,  0.0,  0.0,
-    -1.0,  0.0,  0.0,
-    -1.0,  0.0,  0.0
+      // Left face
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
+      -1.0,  0.0,  0.0,
   ];
   Box.normalBuffer = util.generateBuffer(vertexNormals, 3);
 
