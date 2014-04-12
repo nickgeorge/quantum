@@ -9,7 +9,7 @@ Shelf = function(message) {
   this.alive = message.alive;
   this.parts = [
     new Box([10, 10, .1]).
-        setPosition(0, 0, 5).
+        setPosition(0, 0, -5).
         setColor([1, 1, 1]).
         setTexture(Textures.CRATE, true),
     new Box([.1, 10, 10]).

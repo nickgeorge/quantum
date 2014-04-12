@@ -22,7 +22,7 @@ Light.prototype.setPosition = function(xyz) {
 Light.prototype.apply = function() {
   if (this.anchor) this.position = this.anchor.position;
 
-  vec3.add(this.finalPosition, this.position, camera.position);
+  vec3.subtract(this.finalPosition, this.position, world.camera.position);
 
   gl.uniform3fv(shaderProgram.ambientColorUniform, this.ambientColor);
   gl.uniform3fv(shaderProgram.pointLightingLocationUniform,

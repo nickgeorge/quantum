@@ -121,9 +121,7 @@
         gl.useProgram(shaderProgram);
 
         mat4.identity(gl.mvMatrix);
-
-        world.applyLights();
-        camera.transform();
+        
         world.draw();
       }
 
@@ -162,11 +160,6 @@
         Textures.initTextures();
 
         framerate = new Framerate('framerate');
-
-
-        camera = new Camera();
-        camera.setPosition([0, 0, -9])
-        camera.yaw = Math.PI;
 
         world = new World();
         world.populate();

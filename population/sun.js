@@ -21,16 +21,16 @@ Sun = function(message) {
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
-  this.t += Number(dt);
+  this.t += Number(dt* 1000);
 
   this.theta += this.rTheta * dt;
   this.phi += this.rPhi * dt;
 
-  // this.position = [
-  //   4.25 * Math.sin(this.t / 400),
-  //   4.25 * Math.sin(this.t / 500),
-  //   4.25 * Math.sin(this.t / 600)
-  // ];
+  this.position = [
+    4.25 * Math.sin(this.t / 400),
+    4.25 * Math.sin(this.t / 500),
+    4.25 * Math.sin(this.t / 600)
+  ];
 };
 
 Sun.prototype.draw = function() {

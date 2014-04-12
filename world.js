@@ -9,6 +9,7 @@ World = function() {
   this.board = null;
   this.G = 30;
   this.clearColorRgba = [.0, .0, .0, 1];
+  this.camera = null;
 
 
   this.thingsToAdd = [];
@@ -33,6 +34,10 @@ World.prototype.add = function(thing) {
 };
 
 World.prototype.draw = function() {
+
+  world.applyLights();
+  this.camera.transform();
+
   mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.theta, Vector.K);
   shaderProgram.reset();
   this.board && this.board.draw();
@@ -47,9 +52,9 @@ World.prototype.advance = function(dt) {
 
   if (this.paused) return;
 
-  util.array.apply(this.things, 'advance', [dt]);
-  util.array.apply(this.projectiles, 'advance', [dt]);
-  util.array.apply(this.effects, 'advance', [dt]);
+  util.array.apply(this.things, 'advance', dt);
+  util.array.apply(this.projectiles, 'advance', dt);
+  util.array.apply(this.effects, 'advance', dt);
   // txhis.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
@@ -67,8 +72,13 @@ World.prototype.applyLights = function() {
 };
 
 World.prototype.populate = function() {
+  this.camera = new Camera();
+  this.camera.setPosition([0, 0, 9])
+  // camera.yaw = Math.PI;
+
+
   var light = new Light();
-  light.setPosition([0, 0, -4])
+  light.setPosition([0, 0, 0])
   light.setAmbientColor([.175, .175, .175]);
   light.setDirectionalColor([1, .5, .25]);
   this.addLight(light);
@@ -90,12 +100,13 @@ World.prototype.populate = function() {
   var sun = new Sun({
     theta: 0 * Math.random() * 2 * PI,
     phi: 0 * Math.random() * 2 * PI,
-    position: [2.5, 0, 0],
+    position: [0, 0, 0],
     alive: true,
-    size: .25
+    size: .125
   });
   // sun.rPhi = 4 * PI;
   // sun.rTheta = 3 * PI;
+  light.anchor = sun;
   world.add(sun);
 
 
@@ -109,7 +120,7 @@ World.prototype.populate = function() {
   // this.add(sphere);
 
   this.add(shelf);
-  //this.add(crate);
+  this.add(crate);
 };
 
 World.prototype.reset = function() {
