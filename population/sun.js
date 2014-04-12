@@ -9,7 +9,7 @@ Sun = function(message) {
   this.alive = message.alive;
   this.size = message.size || 1;
   this.box = new Box([this.size, this.size, this.size]).
-      setColor([1, 1, 0]);
+      setColor([1, 1, .6]);
 
   this.parts = [this.box];
 
@@ -21,15 +21,15 @@ Sun = function(message) {
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
-  this.t += Number(dt* 1000);
+  this.t += Number(dt);
 
   this.theta += this.rTheta * dt;
   this.phi += this.rPhi * dt;
 
   this.position = [
-    4.25 * Math.sin(this.t / 400),
-    4.25 * Math.sin(this.t / 500),
-    4.25 * Math.sin(this.t / 600)
+    4.25 * Math.sin(this.t / .4),
+    4.25 * Math.sin(this.t / .5),
+    4.25 * Math.sin(this.t / .6)
   ];
 };
 

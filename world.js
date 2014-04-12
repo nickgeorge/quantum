@@ -80,7 +80,7 @@ World.prototype.populate = function() {
   var light = new Light();
   light.setPosition([0, 0, 0])
   light.setAmbientColor([.175, .175, .175]);
-  light.setDirectionalColor([1, .5, .25]);
+  light.setDirectionalColor([1, .6, .3]);
   this.addLight(light);
 
   var crate = new DumbCrate({
@@ -102,10 +102,10 @@ World.prototype.populate = function() {
     phi: 0 * Math.random() * 2 * PI,
     position: [0, 0, 0],
     alive: true,
-    size: .125
+    size: .075
   });
-  // sun.rPhi = 4 * PI;
-  // sun.rTheta = 3 * PI;
+  sun.rPhi = 8 * PI;
+  sun.rTheta = 6 * PI;
   light.anchor = sun;
   world.add(sun);
 
