@@ -30,11 +30,11 @@ Vector.distanceSquared = function(v1, v2) {
       (v1[2]-v2[2])*(v1[2]-v2[2]);
 };
 
-Vector.thetaTo = function(v1, v2) {
+Vector.yawTo = function(v1, v2) {
   return Math.atan2(v2[1] - v1[1], v2[0] - v1[0]);
 };
 
-Vector.phiTo = function(v1, v2) {
+Vector.pitchTo = function(v1, v2) {
   var diff = Vector.difference(v1, v2);
   var d_ground = Math.sqrt(util.sqr(diff[0]) + util.sqr(diff[1]));
 

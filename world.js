@@ -4,7 +4,7 @@ World = function() {
   this.projectiles = [];
   this.effects = [];
   this.lights = [];
-  this.theta = 0;
+  this.yaw = 0;
   this.rotSpeed = .1;
   this.board = null;
   this.G = 30;
@@ -38,7 +38,7 @@ World.prototype.draw = function() {
   world.applyLights();
   this.camera.transform();
 
-  mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.theta, Vector.K);
+  mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
   shaderProgram.reset();
   this.board && this.board.draw();
   util.array.apply(this.things, 'draw');
@@ -84,8 +84,8 @@ World.prototype.populate = function() {
   this.addLight(light);
 
   var crate = new DumbCrate({
-    theta: 0 * Math.random() * 2 * PI,
-    phi: 0 * Math.random() * 2 * PI,
+    yaw: 0 * Math.random() * 2 * PI,
+    pitch: 0 * Math.random() * 2 * PI,
     position: [0, 0, 0],
     alive: true,
     size: 1.5
@@ -93,19 +93,19 @@ World.prototype.populate = function() {
 
   crate.box.setTexture(Textures.THWOMP);
 
-  crate.rTheta = .6;
-  crate.rPhi = .8;
+  crate.rYaw = .6;
+  crate.rPitch = .8;
 
 
   var sun = new Sun({
-    theta: 0 * Math.random() * 2 * PI,
-    phi: 0 * Math.random() * 2 * PI,
+    yaw: 0 * Math.random() * 2 * PI,
+    pitch: 0 * Math.random() * 2 * PI,
     position: [0, 0, 0],
     alive: true,
     size: .075
   });
-  sun.rPhi = 8 * PI;
-  sun.rTheta = 6 * PI;
+  sun.rPitch = 8 * PI;
+  sun.rYaw = 6 * PI;
   light.anchor = sun;
   world.add(sun);
 

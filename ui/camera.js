@@ -29,13 +29,3 @@ Camera.prototype.setPosition = function(xyz) {
 Camera.prototype.center = function() {
   return this.position;
 };
-
-StaticAnchor = function() {
-  this.yaw = 0;
-  // this.pitch = -PI/4;
-  // this.position = [0, -10, 40];
-}
-
-StaticAnchor.prototype.eyeLevel = function() {
-  return this.position;
-}

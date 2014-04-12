@@ -1,48 +1,27 @@
 Sun = function(message) {
-  this.theta = message.theta || 0;
-  this.phi = message.phi || 0;
-  this.rTheta = message.rTheta || 0;
-  this.rPhi = message.rPhi || 0;
-  this.velocity = message.velocity || [0, 0, 0];
+  this.super();
 
-  this.position = message.position;
-  this.alive = message.alive;
   this.size = message.size || 1;
   this.box = new Box([this.size, this.size, this.size]).
       setColor([1, 1, .6]);
 
   this.parts = [this.box];
 
-  this.outerRadius = .867;
   this.klass = "Sun";
-
-  this.t = 0;
 };
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
-  this.t += Number(dt);
-
-  this.theta += this.rTheta * dt;
-  this.phi += this.rPhi * dt;
-
+  util.base(this, 'advance', dt);
   this.position = [
-    4.25 * Math.sin(this.t / .4),
-    4.25 * Math.sin(this.t / .5),
-    4.25 * Math.sin(this.t / .6)
+    4.25 * Math.sin(this.age / .4),
+    4.25 * Math.sin(this.age / .5),
+    4.25 * Math.sin(this.age / .6)
   ];
 };
 
-Sun.prototype.draw = function() {
-  gl.pushMatrix();
-
-  this.transform();
+Sun.prototype.render = function() {
   shaderProgram.setUseLighting(false);
   this.box.draw();
   shaderProgram.setUseLighting(true);
-
-  gl.popMatrix();
-
-  gl.pushMatrix();
-
 };

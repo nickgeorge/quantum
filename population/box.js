@@ -21,24 +21,24 @@ Box.indexBuffer = null;
 
 Box.prototype.advance = function(dt) {};
 
-Box.prototype.draw = function() {
-  gl.pushMatrix();
-  if (this.fulcrum) {
-    // This is dumb.  fix this.
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.theta, Vector.K);
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.phi, Vector.J);
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.scale([], this.fulcrum, -1));
-  } else {
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, this.position);
+// Box.prototype.draw = function() {
+//   gl.pushMatrix();
+//   if (this.fulcrum) {
+//     // This is dumb.  fix this.
+//     mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
+//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
+//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
+//     mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.scale([], this.fulcrum, -1));
+//   } else {
+//     mat4.translate(gl.mvMatrix, gl.mvMatrix, this.position);
 
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.theta, Vector.K);
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.phi, Vector.J);
-  }
-  this.render();
-  gl.popMatrix();
+//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
+//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
+//   }
+//   this.render();
+//   gl.popMatrix();
 
-};
+// };
 
 Box.prototype.render = function() {
   !this.colorBuffer && this.setColor(Vector.WHITE);

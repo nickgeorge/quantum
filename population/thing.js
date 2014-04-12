@@ -1,14 +1,25 @@
-Thing = function() {
-  this.id = Thing.nextId++;
-  this.phi =  0;
-  this.theta = 0;
-  this.position = vec3.create();
-  this.fulcrum = null;
-  this.color = null;
-  this.tribe = null;
+Thing = function(message) {
+  message = message || {};
+  this.pitch = message.pitch || 0;
+  this.rPitch = message.rPitch || 0;
+  this.yaw = message.yaw || 0;
+  this.rYaw = message.rYaw || 0;
+  this.roll = message.roll || 0;
+  this.rRoll = message.rRoll || 0;
+  this.velocity = message.velocity ?
+      vec3.clone(message.velocity) :
+      vec3.create();
+
+  this.position = message.position ?
+      vec3.clone(message.position) :
+      vec3.create();
+  this.alive = message.alive;
+
+  this.parts = [this.box];
+
+  this.age = 0;
 
   this.klass = "Thing";
-  this.outerRadius = null;
 };
 
 Thing.nextId = 0;
@@ -17,17 +28,6 @@ Thing.prototype.setId = function(id) {
   this.id = id;
   return this;
 }
-
-Thing.prototype.setTheta = function(theta) {
-  this.theta = theta;
-  return this;
-};
-
-
-Thing.prototype.setPhi = function(phi) {
-  this.phi = phi;
-  return this;
-};
 
 Thing.prototype.setPosition = function(a, b, c) {
   if (a.length == 3) {
@@ -57,10 +57,11 @@ Thing.prototype.setTribe = function(tribe) {
   return this;
 };
 
-Thing.prototype.transform = function(ignorePhi) {
+Thing.prototype.transform = function() {
   gl.translate(this.position);
-  gl.rotate(this.theta, Vector.K);
-  if (!ignorePhi) gl.rotate(this.phi, Vector.J);
+  gl.rotate(this.pitch, Vector.I);
+  gl.rotate(this.yaw, Vector.J);
+  gl.rotate(this.roll, Vector.K);
 };
 
 Thing.prototype.getClosestThing = function() {
@@ -88,25 +89,24 @@ Thing.prototype.die = function() {
   this.tribe.remove(this);
 };
 
-Thing.prototype.setColorInternal = function() {
-  throw 'Error: setColorInternal unimplemented for ' + this.klass
-};
 
 Thing.prototype.draw = function() {
-  throw 'Error: draw unimplemented for type ' + this.klass;
+  gl.pushMatrix();
+
+  this.transform();
+  this.render();
+
+  gl.popMatrix();
+}
+
+Thing.prototype.advance = function(dt) {
+  this.age += dt;
+  this.yaw += this.rYaw * dt;
+  this.pitch += this.rPitch * dt;
+  this.roll += this.rRoll * dt;
 };
 
-Thing.prototype.advance = function() {
-  throw 'Error: advance unimplemented for type ' + this.klass;
-};
-
-Thing.prototype.update = function(message) {
-  throw 'Error: update unimplemented for type ' + this.klass;
-};
-
-Thing.prototype.getOuterRadius = function() {
-  if (!this.outerRadius) {
-    throw 'Error: outerRadius not set for ' + this.klass;
-  }
-  return this.outerRadius;
-};
+Thing.prototype.setColorInternal = util.unimplemented;
+Thing.prototype.update = util.unimplemented;
+Thing.prototype.render = util.unimplemented;
+Thing.prototype.getOuterRadius = util.unimplemented;

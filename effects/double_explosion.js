@@ -1,7 +1,7 @@
 DoubleExplosion = function(message) {
   this.super();
-  this.theta = message.theta;
-  this.phi = message.phi;
+  this.yaw = message.yaw;
+  this.pitch = message.pitch;
   this.position = message.position;
   this.alive = message.alive;
   this.size = message.size;
@@ -16,8 +16,8 @@ DoubleExplosion = function(message) {
 util.inherits(DoubleExplosion, Thing);
 
 DoubleExplosion.prototype.update = function(message) {
-  this.theta = message.theta;
-  this.phi = message.phi;
+  this.yaw = message.yaw;
+  this.pitch = message.pitch;
   this.position = message.position;
   this.alive = message.alive;
   this.size = message.size;
