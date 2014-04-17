@@ -1,18 +1,14 @@
 Thing = function(message) {
   message = message || {};
   this.pitch = message.pitch || 0;
-  this.rPitch = message.rPitch || 0;
   this.yaw = message.yaw || 0;
-  this.rYaw = message.rYaw || 0;
   this.roll = message.roll || 0;
+  this.rPitch = message.rPitch || 0;
+  this.rYaw = message.rYaw || 0;
   this.rRoll = message.rRoll || 0;
-  this.velocity = message.velocity ?
-      vec3.clone(message.velocity) :
-      vec3.create();
+  this.velocity = vec3.nullableClone(message.velocity);
 
-  this.position = message.position ?
-      vec3.clone(message.position) :
-      vec3.create();
+  this.position = vec3.nullableClone(message.position);
   this.alive = message.alive;
 
   this.parts = [this.box];
@@ -38,16 +34,10 @@ Thing.prototype.setPosition = function(a, b, c) {
   return this;
 };
 
+
 Thing.prototype.setFulcrum = function(xyz) {
   if (!this.fulcrum) this.fulcrum = vec3.create();
   vec3.copy(this.fulcrum, xyz);
-  return this;
-};
-
-Thing.prototype.setColor = function(rgba) {
-  rgba[3] || (rgba[3] = 1);
-  this.color = rgba;
-  this.setColorInternal();
   return this;
 };
 
@@ -104,9 +94,11 @@ Thing.prototype.advance = function(dt) {
   this.yaw += this.rYaw * dt;
   this.pitch += this.rPitch * dt;
   this.roll += this.rRoll * dt;
+  vec3.scaleAndAdd(this.position, this.position,
+      this.velocity, dt);
+
 };
 
-Thing.prototype.setColorInternal = util.unimplemented;
 Thing.prototype.update = util.unimplemented;
-Thing.prototype.render = util.unimplemented;
+Thing.prototype.render = util.emptyImplementation;
 Thing.prototype.getOuterRadius = util.unimplemented;

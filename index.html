@@ -11,15 +11,19 @@
     <script src='util/physics.js'></script>
     <script src='util/util.js'></script>
     <script src='util/vector.js'></script>
+    <script src='input/hero_listener.js'></script>
     <script src='population/thing.js'></script>
     <script src='population/box.js'></script>
     <script src='population/dumb_crate.js'></script>
     <script src='population/sun.js'></script>
     <script src='population/shelf.js'></script>
+    <script src='population/hero.js'></script>
+    <script src='population/pane.js'></script>
     <script src='gl/gl.js'></script>
     <script src='gl-matrix/common.js'></script>
     <script src='gl-matrix/mat3.js'></script>
     <script src='gl-matrix/mat4.js'></script>
+    <script src='gl-matrix/vec2.js'></script>
     <script src='gl-matrix/vec3.js'></script>
     <script src='gl-matrix/vec4.js'></script>
     <script src='gl/shader_program.js'></script>
@@ -80,11 +84,11 @@
       attribute vec3 aVertexPosition;
       attribute vec3 aVertexNormal;
       attribute vec2 aTextureCoord;
-      attribute vec4 aVertexColor;
 
       uniform mat4 uMVMatrix;
       uniform mat4 uPMatrix;
       uniform mat3 uNMatrix;
+      uniform vec4 uColor; 
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
@@ -97,7 +101,7 @@
         gl_Position = uPMatrix * vPosition;
         vTextureCoord = aTextureCoord;
         vTransformedNormal = uNMatrix * aVertexNormal;
-        vColor = aVertexColor;
+        vColor = uColor;
       }
     </script>
 
@@ -124,7 +128,7 @@
 
         mat4.perspective(gl.pMatrix,
             PI/4, gl.viewportWidth/gl.viewportHeight,
-            0.1, 1000.0);
+            0.01, 1000.0);
 
         gl.useProgram(shaderProgram);
 
@@ -168,6 +172,9 @@
         Textures.initTextures();
 
         framerate = new Framerate('framerate');
+        var gameDiv = document.getElementById('game-div');
+        heroListener = new HeroListener(gameDiv);
+        heroListener.attachEvents();
 
         world = new World();
         world.populate();

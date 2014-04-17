@@ -4,6 +4,7 @@ Light = function() {
   this.position = vec3.create();
   this.anchor = null;
   this.finalPosition = vec3.create();
+  this.cameraMatrix = mat3.create();
 };
 
 Light.prototype.setAmbientColor = function(rgb) {
@@ -18,11 +19,14 @@ Light.prototype.setPosition = function(xyz) {
   vec3.copy(this.position, xyz);
 };
 
-
 Light.prototype.apply = function() {
   if (this.anchor) this.position = this.anchor.position;
 
-  vec3.subtract(this.finalPosition, this.position, world.camera.position);
+  // mat3.copy(this.cameraMatrix, );
+  
+
+  vec3.subtract(this.finalPosition, this.position, [0,0,0]);//world.camera.getPosition());
+
 
   gl.uniform3fv(shaderProgram.ambientColorUniform, this.ambientColor);
   gl.uniform3fv(shaderProgram.pointLightingLocationUniform,

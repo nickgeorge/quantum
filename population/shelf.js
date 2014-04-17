@@ -1,30 +1,57 @@
 Shelf = function(message) {
-  this.super();
+  this.super(message);
+  this.size = message.size;
+
+
   this.parts = [
-    new Box([10, 10, .1]).
-        setPosition(0, 0, -5).
-        setColor([1, 1, 1]).
-        setTexture(Textures.CRATE, true),
-    new Box([.1, 10, 10]).
-        setPosition(-5, 0, 0).
-        setColor([1, 1, 1]).
-        setTexture(Textures.CRATE, true),
-    new Box([.1, 10, 10]).
-        setPosition(5, 0, 0).
-        setColor([1, 1, 1]).
-        setTexture(Textures.CRATE, true),
-    new Box([10, .1, 10]).
-        setPosition(0, 5, 0).
-        setColor([1, 1, 1]).
-        setTexture(Textures.CRATE, true),
-    new Box([10, .1, 10]).
-        setPosition(0, -5, 0).
-        setColor([1, 1, 1]).
-        setTexture(Textures.CRATE, true),
+    new Pane({
+      // texture: Textures.CRATE,
+      size: [this.size, this.size, 0],
+      position: [0, 0, -this.size/2]
+    }),
+    new Pane({
+      // texture: Textures.CRATE,
+      size: [this.size, this.size, 0],
+      position: [-this.size/2, 0, 0],
+      yaw: PI/2
+    }),
+    new Pane({
+      // texture: Textures.CRATE,
+      size: [this.size, this.size, 0],
+      position: [this.size/2, 0, 0],
+      yaw: 3*PI/2
+    }),
+    new Pane({
+      // texture: Textures.CRATE,
+      size: [this.size, this.size, 0],
+      position: [0, this.size/2, 0],
+      pitch: PI/2
+    }),
+    new Pane({
+      texture: Textures.FLOOR,
+      textureCounts: [60, 60],
+      size: [this.size, this.size, 0],
+      position: [0, -this.size/2, 0],
+      pitch: 3*PI/2
+    }),
+    new Pane({
+      // texture: Textures.CRATE,
+      size: [this.size, this.size, 0],
+      position: [0, 0, this.size/2],
+      yaw: PI
+    })
   ];
   this.klass = "Shelf";
 };
 util.inherits(Shelf, Thing);
+
+Shelf.prototype.lowBound = function(axis) {
+  return -this.size / 2;
+};
+
+Shelf.prototype.highBound = function(axis) {
+  return this.size / 2;
+};
 
 
 Shelf.prototype.render = function() {

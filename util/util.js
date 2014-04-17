@@ -22,6 +22,8 @@ util.unimplemented = function() {
   throw new Error("Unsupported Operation");
 };
 
+util.emptyImplementation = function(){};
+
 util.partial = function(fn, var_args) {
   var args = Array.prototype.slice.call(arguments, 1);
   return function() {

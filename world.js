@@ -5,12 +5,11 @@ World = function() {
   this.effects = [];
   this.lights = [];
   this.yaw = 0;
-  this.rotSpeed = .1;
-  this.board = null;
+  this.rotSpeed = 0;
   this.G = 30;
   this.clearColorRgba = [.0, .0, .0, 1];
   this.camera = null;
-
+  this.shelf = null;
 
   this.thingsToAdd = [];
   this.effectsToAdd = [];
@@ -38,9 +37,9 @@ World.prototype.draw = function() {
   world.applyLights();
   this.camera.transform();
 
-  mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
+  mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
-  this.board && this.board.draw();
+  this.shelf && this.shelf.draw();
   util.array.apply(this.things, 'draw');
   util.array.apply(this.effects, 'draw');
   util.array.apply(this.projectiles, 'draw');
@@ -55,7 +54,8 @@ World.prototype.advance = function(dt) {
   util.array.apply(this.things, 'advance', dt);
   util.array.apply(this.projectiles, 'advance', dt);
   util.array.apply(this.effects, 'advance', dt);
-  // txhis.checkCollisions();
+  this.yaw += this.rotSpeed * dt;
+  this.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
   while (this.effects.length > 200) this.effects.shift().dispose();
@@ -72,29 +72,33 @@ World.prototype.applyLights = function() {
 };
 
 World.prototype.populate = function() {
-  this.camera = new Camera();
-  this.camera.setPosition([0, 0, 9])
-  // camera.yaw = Math.PI;
-
-
   var light = new Light();
   light.setPosition([0, 0, 0])
   light.setAmbientColor([.175, .175, .175]);
   light.setDirectionalColor([1, .6, .3]);
   this.addLight(light);
 
+  this.shelf = new Shelf({
+    position: [0, 0, 0],
+    size: 15
+  })
+  // this.add(this.shelf);
+
   var crate = new DumbCrate({
     yaw: 0 * Math.random() * 2 * PI,
     pitch: 0 * Math.random() * 2 * PI,
-    position: [0, 0, 0],
+    position: [0, -7, 3],
     alive: true,
-    size: 1.5
+    size: .05,
+    rYaw: .6,
+    rpitch: .8,
+    texture: Textures.THWOMP
   });
 
-  crate.box.setTexture(Textures.THWOMP);
-
+  // crate.box.setTexture(Textures.THWOMP);
   crate.rYaw = .6;
   crate.rPitch = .8;
+  this.add(crate);
 
 
   var sun = new Sun({
@@ -109,18 +113,14 @@ World.prototype.populate = function() {
   light.anchor = sun;
   world.add(sun);
 
+  this.camera = new Camera();
+  var hero = new Hero({
+    position: [0, -7, 5]
+  });
+  this.camera.setAnchor(hero);
+  heroListener.hero = hero;
+  world.add(hero);
 
-
-  var shelf = new Shelf({
-    position: [0, 0, 0]
-  })
-
-  // var sphere = new Sphere(1, [1, 1, 1]);
-  // sphere.position = [0, 2, 0];
-  // this.add(sphere);
-
-  this.add(shelf);
-  this.add(crate);
 };
 
 World.prototype.reset = function() {
@@ -133,7 +133,7 @@ World.prototype.reset = function() {
 }
 
 World.prototype.inBounds = function(xyz) {
-  return this.board.inBounds(xyz);
+  return this.shelf.inBounds(xyz);
 };
 
 World.prototype.updateLists = function() {
@@ -163,33 +163,33 @@ World.prototype.updateLists = function() {
 
 
 World.prototype.checkCollisions = function() {
-  for (var i = 0; this.projectiles[i]; i++) {
-    for (var j = 0; this.things[j]; j++) {
-      var projectile = this.projectiles[i];
-      var thing = this.things[j];
-      if (projectile.parent == thing) {
-        continue;
-      }
-      if (Collision.check(projectile, thing)) {
-        if (projectile.parent.tribe == thing.tribe) {
-          this.projectilesToRemove.push(this);
-        } else {
-          if (thing.alive) {
-            if (thing instanceof DumbCrate &&
-                projectile.parent instanceof Hero) {
-              projectile.parent.ammo.arrows += 3;
-              logger.log("Picked up 3 arrows.");
-            }
-            thing.die();
-            projectile.detonate();
-          }
-        }
-      }
-    }
-  }
+  // for (var i = 0; this.projectiles[i]; i++) {
+  //   for (var j = 0; this.things[j]; j++) {
+  //     var projectile = this.projectiles[i];
+  //     var thing = this.things[j];
+  //     if (projectile.parent == thing) {
+  //       continue;
+  //     }
+  //     if (Collision.check(projectile, thing)) {
+  //       if (projectile.parent.tribe == thing.tribe) {
+  //         this.projectilesToRemove.push(this);
+  //       } else {
+  //         if (thing.alive) {
+  //           if (thing instanceof DumbCrate &&
+  //               projectile.parent instanceof Hero) {
+  //             projectile.parent.ammo.arrows += 3;
+  //             logger.log("Picked up 3 arrows.");
+  //           }
+  //           thing.die();
+  //           projectile.detonate();
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
-      if (Collision.closeEnough(thingA, thingB)) {
+      if (this.closeEnough(thingA, thingB)) {
         var vectorTo = Vector.difference(thingA.position, thingB.position);
         var distance = Vector.mag(vectorTo);
         var outerRadiusA = thingA.getOuterRadius();
@@ -197,12 +197,23 @@ World.prototype.checkCollisions = function() {
         var delta = distance -
             Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB);
 
-        var push = Vector.multiply(vectorTo, (delta/distance)/2);
-        thingA.position = Vector.minus(thingA.position, push);
-        thingB.position = Vector.sum(thingB.position, push);
+        console.log("hit!");
+
+        // var push = Vector.multiply(vectorTo, (delta/distance)/2);
+        // thingA.position = Vector.minus(thingA.position, push);
+        // thingB.position = Vector.sum(thingB.position, push);
       }
     }
   }
+};
+
+World.prototype.closeEnough = function(thingA, thingB) {
+  var vectorTo = Vector.difference(thingA.position, thingB.position);
+  var distance = Vector.mag(vectorTo);
+  var outerRadiusA = thingA.getOuterRadius();
+  var outerRadiusB = thingB.getOuterRadius();
+  return distance <
+      Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB); 
 };
 
 World.prototype.getThing = function(id) {

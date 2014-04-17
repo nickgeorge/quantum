@@ -53,6 +53,18 @@ vec3.clone = function(a) {
     return out;
 };
 
+vec3.nullableClone = function(a) {
+    if (a) {
+        return vec3.clone(a);
+    } else {
+        return vec3.create();
+    }
+};
+
+vec3.rotate = function(out, a, yaw, pitch, roll) {
+    
+};
+
 /**
  * Creates a new vec3 initialized with the given values
  *

@@ -13,7 +13,8 @@ Textures.initTextures = function() {
     GRASS: Textures.initTexture(Textures.ROOT + 'grass.png'),
     SPARK: Textures.initTexture(Textures.ROOT + 'spark.png'),
     ENERGY: Textures.initTexture(Textures.ROOT + 'energybwa.png'),
-    QUESTION: Textures.initTexture(Textures.ROOT + 'question.png')
+    QUESTION: Textures.initTexture(Textures.ROOT + 'question.png'),
+    FLOOR: Textures.initTexture(Textures.ROOT + 'floor.png')
   };
 
   for (key in textures) {

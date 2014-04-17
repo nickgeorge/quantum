@@ -1,16 +1,18 @@
-Box = function(size) {
+Box = function(message) {
   this.super();
   if (!Box.normalBuffer) Box.initBuffers();
 
-  this.size = size;
+  this.size = message.size;
+  this.color = message.color;
   this.fulcrum = null;
 
-  this.colorBuffer = null;
   this.vertexBuffer = null;
   this.texture = null;
   this.textureBuffer = null;
 
   this.createVertexBuffer(this.size);
+
+  if (!this.textureBuffer) this.createTextureBuffer();
 
   this.alive = true;
 };
@@ -21,43 +23,42 @@ Box.indexBuffer = null;
 
 Box.prototype.advance = function(dt) {};
 
-// Box.prototype.draw = function() {
-//   gl.pushMatrix();
-//   if (this.fulcrum) {
-//     // This is dumb.  fix this.
-//     mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
-//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
-//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
-//     mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.scale([], this.fulcrum, -1));
-//   } else {
-//     mat4.translate(gl.mvMatrix, gl.mvMatrix, this.position);
+Box.prototype.draw = function() {
+  gl.pushMatrix();
+  if (this.fulcrum) {
+    // This is dumb.  fix this.
+    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
+    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
+    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
+    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.scale([], this.fulcrum, -1));
+  } else {
+    mat4.translate(gl.mvMatrix, gl.mvMatrix, this.position);
 
-//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
-//     mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
-//   }
-//   this.render();
-//   gl.popMatrix();
+    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
+    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
+  }
+  this.render();
+  gl.popMatrix();
 
-// };
+};
 
 Box.prototype.render = function() {
-  !this.colorBuffer && this.setColor(Vector.WHITE);
-
+  // console.log(this.texture || Textures.CRATE);
+  Textures.bindTexture(this.texture || Textures.CRATE);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
   if (this.texture) {
     if (!this.texture.loaded) return;
-    gl.uniform1i(shaderProgram.useTextureUniform, true);
-    Textures.bindTexture(this.texture);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    shaderProgram.setUseTexture(true);
   } else {
-    gl.uniform1i(shaderProgram.useTextureUniform, false);
+    shaderProgram.setUseTexture(false);
+  }
+  if (this.color) {
+    shaderProgram.setUniformColor(this.color);
   }
 
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, this.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, Box.normalBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, Box.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -70,32 +71,6 @@ Box.prototype.render = function() {
   shaderProgram.reset();
 };
 
-Box.prototype.setColorInternal = function() {
-  var unpackedColors = [];
-  for (var j = 0; j < 24; j++) {
-    unpackedColors = unpackedColors.concat(this.color);
-  }
-  this.colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-  this.colorBuffer.itemSize = 4;
-  this.colorBuffer.numItems = 24;
-  return this;
-};
-
-Box.prototype.setSwirl = function(rgba1, rgba2) {
-  var unpackedColors = [];
-  for (var j = 0; j < 24; j++) {
-    unpackedColors = Math.random() > .5 ? unpackedColors.concat(rgba1) : unpackedColors.concat(rgba2);
-  }
-  this.colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-  this.colorBuffer.itemSize = 4;
-  this.colorBuffer.numItems = 24;
-  return this;
-};
-
 Box.prototype.min = function(index) {
   return this.position[index] - this.size[index]/2;
 };
@@ -105,9 +80,8 @@ Box.prototype.max = function(index) {
 };
 
 Box.prototype.setTexture = function(texture, opt_buildBuffer) {
+  console.log("a");
   this.texture = texture;
-  if (opt_buildBuffer) this.createTextureBuffer();
-  console.log(this.texture);
   return this;
 };
 
@@ -262,7 +236,6 @@ Box.initBuffers = function() {
 };
 
 Box.prototype.dispose = function() {
-  this.colorBuffer = null;
   this.vertexBuffer = null;
   this.texture = null;
 };

@@ -1,8 +1,8 @@
 ShaderProgram = function() {}
 
 ShaderProgram.USE_TEXTURE_DEFAULT = false;
-ShaderProgram.SCALE_DEFAULT = [1, 1, 1];
 ShaderProgram.USE_LIGHTING_DEFAULT = true;
+ShaderProgram.UNIFORM_COLOR_DEFAULT = [1, 1, 1, 1];
 
 ShaderProgram.getShader = function(gl, id) {
   var shaderScript = document.getElementById(id);
@@ -48,7 +48,6 @@ ShaderProgram.createShaderProgram = function() {
   gl.useProgram(shaderProgram);
 
   shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
-  shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, 'aVertexColor');
   shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
   shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, 'aVertexNormal');
   shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, 'aTextureCoord');
@@ -63,13 +62,13 @@ ShaderProgram.createShaderProgram = function() {
   shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix');
   shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, 'uNMatrix');
   shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, 'uSampler');
-  shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, 'uUseLighting');
   shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, 'uAmbientColor');
   shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, 'uPointLightingLocation');
   shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, 'uPointLightingColor');
 
-
+  shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, 'uUseLighting');
   shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, 'uUseTexture');
+  shaderProgram.uniformColor = gl.getUniformLocation(shaderProgram, 'uColor');
 
   for (var key in ShaderProgram.prototype) {
     shaderProgram[key] = ShaderProgram.prototype[key];
@@ -81,8 +80,19 @@ ShaderProgram.createShaderProgram = function() {
 
 ShaderProgram.prototype.reset = function() {
   this.setUseLighting(ShaderProgram.USE_LIGHTING_DEFAULT);
+  this.setUseTexture(ShaderProgram.USE_TEXTURE_DEFAULT)
+  this.setUniformColor(ShaderProgram.UNIFORM_COLOR_DEFAULT)
 };
 
 ShaderProgram.prototype.setUseLighting = function(useLighting) {
   gl.uniform1i(this.useLightingUniform, useLighting);
 };
+
+ShaderProgram.prototype.setUseTexture = function(useTexture) {
+  gl.uniform1i(this.useTextureUniform, useTexture);
+};
+
+ShaderProgram.prototype.setUniformColor = function(uniformColor) {
+  gl.uniform4fv(this.uniformColor, uniformColor);
+};
+
