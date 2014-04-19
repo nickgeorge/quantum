@@ -34,8 +34,8 @@ World.prototype.add = function(thing) {
 
 World.prototype.draw = function() {
 
-  world.applyLights();
   this.camera.transform();
+  world.applyLights();
 
   mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
@@ -102,9 +102,9 @@ World.prototype.populate = function() {
   this.add(crate);
 
 
-  for (var i = -5; i <= 5; i += 1.5) {
-    for (var j = -5; j <= 5; j += 1.5) {
-      for (var k = -5; k <= 5; k += 1.5) {
+  for (var i = -6; i <= 6; i += 1.5) {
+    for (var j = -6; j <= 6; j += 1.5) {
+      for (var k = -6; k <= 6; k += 1.5) {
         var cairn = new DumbCrate({
           position: [i, j, k],
           size: .1

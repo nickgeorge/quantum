@@ -19,7 +19,7 @@ ImageCross.vertexBuffer = null;
 ImageCross.prototype.advance = function(dt) {};
 
 ImageCross.prototype.draw = function() {
-  gl.pushMatrix();
+  gl.pushModelMatrix();
 
   if (this.texture && this.texture.loaded) {
     gl.uniform1i(shaderProgram.useTextureUniform, true);
@@ -40,7 +40,7 @@ ImageCross.prototype.draw = function() {
   gl.setMatrixUniforms();
   gl.drawElements(gl.TRIANGLES, ImageCross.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
-  gl.popMatrix();
+  gl.popModelMatrix();
 
   shaderProgram.reset();
 };

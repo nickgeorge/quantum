@@ -29,7 +29,7 @@ DoubleExplosion.prototype.draw = function() {
   gl.enable(gl.BLEND);
   gl.depthMask(false);
 
-  gl.pushMatrix();
+  gl.pushModelMatrix();
   this.transform();
 
   gl.uniform3fv(shaderProgram.scaleUniform,
@@ -44,6 +44,6 @@ DoubleExplosion.prototype.draw = function() {
   this.big.draw();
 
   gl.depthMask(true);
-  gl.popMatrix();
+  gl.popModelMatrix();
   shaderProgram.reset();
 };

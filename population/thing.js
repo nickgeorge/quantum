@@ -81,12 +81,12 @@ Thing.prototype.die = function() {
 
 
 Thing.prototype.draw = function() {
-  gl.pushMatrix();
+  gl.pushModelMatrix();
 
   this.transform();
   this.render();
 
-  gl.popMatrix();
+  gl.popModelMatrix();
 }
 
 Thing.prototype.advance = function(dt) {

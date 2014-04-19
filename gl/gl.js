@@ -11,11 +11,11 @@ GL.createGL = function(canvas) {
   gl.modelMatrix = mat4.create();
   gl.viewMatrix = mat4.create();
   gl.pMatrix = mat4.create();
-
-  gl.stack = [];
-  gl.stackIndex = -1;
-
   gl.normalMatrix = mat3.create();
+
+  gl.modelMatrixStack = new MatrixStack();
+  gl.viewMatrixStack = new MatrixStack();
+
   gl.canvas = canvas;
 
   for (var key in GL.prototype) {
@@ -31,20 +31,12 @@ GL.createGL = function(canvas) {
   return gl;
 }
 
-GL.prototype.pushMatrix = function() {
-  this.stackIndex++;
-  if (!this.stack[this.stackIndex]) {
-    this.stack.push(mat4.create());
-  }
-  mat4.copy(this.stack[this.stackIndex], this.modelMatrix);
+GL.prototype.pushModelMatrix = function() {
+  this.modelMatrixStack.push(this.modelMatrix);
 };
 
-GL.prototype.popMatrix = function() {
-  if (this.stackIndex == -1) {
-    throw 'Invalid popMatrix!';
-  }
-  mat4.copy(this.modelMatrix, this.stack[this.stackIndex]);
-  this.stackIndex--;
+GL.prototype.popModelMatrix = function() {
+  mat4.copy(this.modelMatrix, this.modelMatrixStack.pop());
 };
 
 GL.prototype.setMatrixUniforms = function() {

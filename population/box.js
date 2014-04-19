@@ -24,7 +24,7 @@ Box.indexBuffer = null;
 Box.prototype.advance = function(dt) {};
 
 Box.prototype.draw = function() {
-  gl.pushMatrix();
+  gl.pushModelMatrix();
   if (this.fulcrum) {
     // This is dumb.  fix this.
     mat4.translate(gl.modelMatrix, gl.modelMatrix, vec3.add([], this.position, this.fulcrum));
@@ -38,7 +38,7 @@ Box.prototype.draw = function() {
     mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.pitch, Vector.J);
   }
   this.render();
-  gl.popMatrix();
+  gl.popModelMatrix();
 
 };
 
