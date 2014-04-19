@@ -10,7 +10,7 @@ GL.createGL = function(canvas) {
 
   gl.modelMatrix = mat4.create();
   gl.viewMatrix = mat4.create();
-  gl.pMatrix = mat4.create();
+  gl.perspectiveMatrix = mat4.create();
   gl.normalMatrix = mat3.create();
 
   gl.modelMatrixStack = new MatrixStack();
@@ -39,8 +39,16 @@ GL.prototype.popModelMatrix = function() {
   mat4.copy(this.modelMatrix, this.modelMatrixStack.pop());
 };
 
+GL.prototype.pushViewMatrix = function() {
+  this.viewMatrixStack.push(this.viewMatrix);
+};
+
+GL.prototype.popViewMatrix = function() {
+  mat4.copy(this.viewMatrix, this.viewMatrixStack.pop());
+};
+
 GL.prototype.setMatrixUniforms = function() {
-  this.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.pMatrix);
+  this.uniformMatrix4fv(shaderProgram.perspectiveMatrixUniform, false, this.perspectiveMatrix);
   this.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, this.modelMatrix);
   this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
 

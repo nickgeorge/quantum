@@ -5,10 +5,10 @@ Camera = function() {
 };
 
 Camera.prototype.transform = function() {
-  mat4.rotate(gl.modelMatrix, gl.modelMatrix, -this.anchor.roll, [0, 0, 1]);
-  mat4.rotate(gl.modelMatrix, gl.modelMatrix, -this.anchor.pitch, [1, 0, 0]);
-  mat4.rotate(gl.modelMatrix, gl.modelMatrix, -this.anchor.yaw, [0, 1, 0]);
-  mat4.translate(gl.modelMatrix, gl.modelMatrix, [
+  mat4.rotate(gl.viewMatrix, gl.viewMatrix, -this.anchor.roll, [0, 0, 1]);
+  mat4.rotate(gl.viewMatrix, gl.viewMatrix, -this.anchor.pitch, [1, 0, 0]);
+  mat4.rotate(gl.viewMatrix, gl.viewMatrix, -this.anchor.yaw, [0, 1, 0]);
+  mat4.translate(gl.viewMatrix, gl.viewMatrix, [
     -this.anchor.position[0],
     -this.anchor.position[1],
     -this.anchor.position[2]

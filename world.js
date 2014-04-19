@@ -33,9 +33,10 @@ World.prototype.add = function(thing) {
 };
 
 World.prototype.draw = function() {
+  gl.pushViewMatrix();
 
-  this.camera.transform();
   world.applyLights();
+  this.camera.transform();
 
   mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
@@ -43,6 +44,8 @@ World.prototype.draw = function() {
   util.array.apply(this.things, 'draw');
   util.array.apply(this.effects, 'draw');
   util.array.apply(this.projectiles, 'draw');
+
+  gl.popViewMatrix();
 };
 
 
@@ -51,9 +54,15 @@ World.prototype.advance = function(dt) {
 
   if (this.paused) return;
 
-  util.array.apply(this.things, 'advance', dt);
-  util.array.apply(this.projectiles, 'advance', dt);
-  util.array.apply(this.effects, 'advance', dt);
+  util.array.forEach(this.things, function(thing) {
+    thing.advance(dt);
+  });
+  util.array.forEach(this.projectiles, function(projectile) {
+    projectile.advance(dt);
+  });
+  util.array.forEach(this.effects, function(effects) {
+    effects.advance(dt);
+  });
   this.yaw += this.rotSpeed * dt;
   this.shelf.advance(dt);
   // this.checkCollisions();
@@ -102,17 +111,17 @@ World.prototype.populate = function() {
   this.add(crate);
 
 
-  for (var i = -6; i <= 6; i += 1.5) {
-    for (var j = -6; j <= 6; j += 1.5) {
-      for (var k = -6; k <= 6; k += 1.5) {
-        var cairn = new DumbCrate({
-          position: [i, j, k],
-          size: .1
-        });
-        world.add(cairn);
-      }
-    }
-  }
+  // for (var i = -6; i <= 6; i += 1.5) {
+  //   for (var j = -6; j <= 6; j += 1.5) {
+  //     for (var k = -6; k <= 6; k += 1.5) {
+  //       var cairn = new DumbCrate({
+  //         position: [i, j, k],
+  //         size: .1
+  //       });
+  //       world.add(cairn);
+  //     }
+  //   }
+  // }
 
 
   var sun = new Sun({
@@ -129,7 +138,8 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, .5, 0]
+    position: [0, .5, 0],
+    yaw: PI
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;

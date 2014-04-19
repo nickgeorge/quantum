@@ -58,7 +58,7 @@ ShaderProgram.createShaderProgram = function() {
   gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
   gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-  shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, 'uPerspectiveMatrix');
+  shaderProgram.perspectiveMatrixUniform = gl.getUniformLocation(shaderProgram, 'uPerspectiveMatrix');
   shaderProgram.modelMatrixUniform = gl.getUniformLocation(shaderProgram, 'uModelMatrix');
   shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, 'uViewMatrix');
   shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, 'uNormalMatrix');
