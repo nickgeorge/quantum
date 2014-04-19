@@ -8,7 +8,8 @@ GL.createGL = function(canvas) {
     gl.viewportHeight = canvas.height;
   } catch (e) {console.log('Didn\'t init GL')}
 
-  gl.mvMatrix = mat4.create();
+  gl.modelMatrix = mat4.create();
+  gl.viewMatrix = mat4.create();
   gl.pMatrix = mat4.create();
 
   gl.stack = [];
@@ -35,35 +36,35 @@ GL.prototype.pushMatrix = function() {
   if (!this.stack[this.stackIndex]) {
     this.stack.push(mat4.create());
   }
-  mat4.copy(this.stack[this.stackIndex], this.mvMatrix);
+  mat4.copy(this.stack[this.stackIndex], this.modelMatrix);
 };
 
 GL.prototype.popMatrix = function() {
   if (this.stackIndex == -1) {
     throw 'Invalid popMatrix!';
   }
-  mat4.copy(this.mvMatrix, this.stack[this.stackIndex]);
+  mat4.copy(this.modelMatrix, this.stack[this.stackIndex]);
   this.stackIndex--;
 };
 
-GL.prototype.setMatrixUniforms = function(opt_shaderProgram) {
-  var thisShaderProgram = opt_shaderProgram || shaderProgram;
-  this.uniformMatrix4fv(thisShaderProgram.pMatrixUniform, false, this.pMatrix);
-  this.uniformMatrix4fv(thisShaderProgram.mvMatrixUniform, false, this.mvMatrix);
+GL.prototype.setMatrixUniforms = function() {
+  this.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.pMatrix);
+  this.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, this.modelMatrix);
+  this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
 
   mat3.fromMat4(this.normalMatrix,
-      mat4.invert([], this.mvMatrix));
+      mat4.invert([], this.modelMatrix));
   mat3.transpose(this.normalMatrix, this.normalMatrix);
   this.uniformMatrix3fv(
-      thisShaderProgram.nMatrixUniform,
+      shaderProgram.nMatrixUniform,
       false,
       this.normalMatrix);
 };
 
 GL.prototype.rotate = function (angle, axis) {
-  mat4.rotate(this.mvMatrix, this.mvMatrix, angle, axis);
+  mat4.rotate(this.modelMatrix, this.modelMatrix, angle, axis);
 };
 
 GL.prototype.translate = function(xyz) {
-  mat4.translate(this.mvMatrix, this.mvMatrix, xyz);
+  mat4.translate(this.modelMatrix, this.modelMatrix, xyz);
 };

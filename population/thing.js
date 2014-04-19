@@ -49,9 +49,9 @@ Thing.prototype.setTribe = function(tribe) {
 
 Thing.prototype.transform = function() {
   gl.translate(this.position);
+  gl.rotate(this.roll, Vector.K);
   gl.rotate(this.pitch, Vector.I);
   gl.rotate(this.yaw, Vector.J);
-  gl.rotate(this.roll, Vector.K);
 };
 
 Thing.prototype.getClosestThing = function() {

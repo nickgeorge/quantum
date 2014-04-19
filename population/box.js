@@ -1,5 +1,5 @@
 Box = function(message) {
-  this.super();
+  this.super(message);
   if (!Box.normalBuffer) Box.initBuffers();
 
   this.size = message.size;
@@ -27,15 +27,15 @@ Box.prototype.draw = function() {
   gl.pushMatrix();
   if (this.fulcrum) {
     // This is dumb.  fix this.
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.add([], this.position, this.fulcrum));
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, vec3.scale([], this.fulcrum, -1));
+    mat4.translate(gl.modelMatrix, gl.modelMatrix, vec3.add([], this.position, this.fulcrum));
+    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.K);
+    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.pitch, Vector.J);
+    mat4.translate(gl.modelMatrix, gl.modelMatrix, vec3.scale([], this.fulcrum, -1));
   } else {
-    mat4.translate(gl.mvMatrix, gl.mvMatrix, this.position);
+    mat4.translate(gl.modelMatrix, gl.modelMatrix, this.position);
 
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.K);
-    mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.pitch, Vector.J);
+    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.K);
+    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.pitch, Vector.J);
   }
   this.render();
   gl.popMatrix();

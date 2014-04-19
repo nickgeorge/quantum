@@ -1,14 +1,16 @@
 DumbCrate = function(message) {
   this.super(message);
 
-  this.size = message.size || 1;
+  this.size = message.size.length ?
+      message.size : 
+      [message.size, message.size, message.size];
   this.box = new Box({
-    size: [this.size, this.size, this.size]
+    size: this.size
   });
 
   this.parts = [this.box];
-  this.outerRadius = Math.sqrt(this.size * this.size/2);
-
+  // this.outerRadius = Math.sqrt(this.size * this.size/2);
+  this.outerRadius = 1;
   if (message.texture) {
     this.box.setTexture(message.texture);
   }

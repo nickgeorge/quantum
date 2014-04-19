@@ -2,13 +2,15 @@ Shelf = function(message) {
   this.super(message);
   this.size = message.size;
 
+// debugger;
+  this.frontPane = new Pane({
+    // texture: Textures.CRATE,
+    size: [this.size, this.size, 0],
+    position: [0, 0, -this.size/2],
+  });
 
   this.parts = [
-    new Pane({
-      // texture: Textures.CRATE,
-      size: [this.size, this.size, 0],
-      position: [0, 0, -this.size/2]
-    }),
+    this.frontPane,
     new Pane({
       // texture: Textures.CRATE,
       size: [this.size, this.size, 0],
@@ -28,8 +30,8 @@ Shelf = function(message) {
       pitch: PI/2
     }),
     new Pane({
-      texture: Textures.FLOOR,
-      textureCounts: [60, 60],
+      // texture: Textures.FLOOR,
+      textureCounts: [120, 120],
       size: [this.size, this.size, 0],
       position: [0, -this.size/2, 0],
       pitch: 3*PI/2
@@ -38,7 +40,7 @@ Shelf = function(message) {
       // texture: Textures.CRATE,
       size: [this.size, this.size, 0],
       position: [0, 0, this.size/2],
-      yaw: PI
+      yaw: PI,
     })
   ];
   this.klass = "Shelf";
@@ -56,4 +58,12 @@ Shelf.prototype.highBound = function(axis) {
 
 Shelf.prototype.render = function() {
   util.array.apply(this.parts, 'draw');
+};
+
+Shelf.prototype.advance = function(dt) {
+  util.base(this, 'advance', dt);
+
+  util.array.forEach(this.parts, function(part) {
+    part.advance(dt);
+  });
 };

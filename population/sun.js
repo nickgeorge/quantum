@@ -4,7 +4,7 @@ Sun = function(message) {
   this.size = message.size || 1;
   this.box = new Box({
     size: [this.size, this.size, this.size],
-    color: [1, .5, .25, 1]
+    color: [.25, .5, 1, 1]
   });
 
   this.parts = [this.box];
@@ -15,11 +15,12 @@ util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
-  // this.position = [
-  //   4.25 * Math.sin(this.age / .4),
-  //   4.25 * Math.sin(this.age / .5),
-  //   4.25 * Math.sin(this.age / .6)
-  // ];
+  this.position = [
+    6.25 * Math.sin(this.age / .4/6),
+    6.25 * Math.sin(this.age / .5/6),
+    6.25 * Math.sin(this.age / .6/6)
+  ];
+  // this.position = [6, 6, 5];
 };
 
 Sun.prototype.render = function() {

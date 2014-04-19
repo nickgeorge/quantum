@@ -11,6 +11,7 @@
     <script src='util/physics.js'></script>
     <script src='util/util.js'></script>
     <script src='util/vector.js'></script>
+    <script src='util/key_code.js'></script>
     <script src='input/hero_listener.js'></script>
     <script src='population/thing.js'></script>
     <script src='population/box.js'></script>
@@ -42,6 +43,7 @@
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
+      varying vec4 vLightPosition;
       varying vec4 vColor;
 
       uniform bool uUseLighting;
@@ -49,7 +51,6 @@
 
       uniform vec3 uAmbientColor;
 
-      uniform vec3 uPointLightingLocation;
       uniform vec3 uPointLightingColor;
 
       uniform sampler2D uSampler;
@@ -60,7 +61,8 @@
         if (!uUseLighting) {
           lightWeighting = vec3(1.0, 1.0, 1.0);
         } else {
-          vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+          vec3 lightDirection = 
+              normalize(vLightPosition.xyz - vPosition.xyz);
 
           float directionalLightWeighting = max(
               dot(
@@ -81,26 +83,33 @@
     </script>
 
     <script id="vertex-shader" type="x-shader/x-vertex">
+      precision mediump float;
+
       attribute vec3 aVertexPosition;
       attribute vec3 aVertexNormal;
       attribute vec2 aTextureCoord;
 
-      uniform mat4 uMVMatrix;
-      uniform mat4 uPMatrix;
-      uniform mat3 uNMatrix;
+      uniform mat4 uModelMatrix;
+      uniform mat4 uViewMatrix;
+      uniform mat4 uPerspectiveMatrix;
+      uniform mat3 uNormalMatrix;
       uniform vec4 uColor; 
+      uniform vec3 uPointLightingLocation;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
+      varying vec4 vLightPosition;
       varying vec4 vColor;
 
 
       void main(void) {
-        vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
-        gl_Position = uPMatrix * vPosition;
+
+        vPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
+        vLightPosition = uModelMatrix * vec4(uPointLightingLocation, 1.0);
+        gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
         vTextureCoord = aTextureCoord;
-        vTransformedNormal = uNMatrix * aVertexNormal;
+        vTransformedNormal = uNormalMatrix * aVertexNormal;
         vColor = uColor;
       }
     </script>
@@ -128,11 +137,11 @@
 
         mat4.perspective(gl.pMatrix,
             PI/4, gl.viewportWidth/gl.viewportHeight,
-            0.01, 1000.0);
+            0.01, 30.0);
 
         gl.useProgram(shaderProgram);
 
-        mat4.identity(gl.mvMatrix);
+        mat4.identity(gl.modelMatrix);
 
         world.draw();
       }

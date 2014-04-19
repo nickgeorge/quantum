@@ -37,7 +37,7 @@ World.prototype.draw = function() {
   world.applyLights();
   this.camera.transform();
 
-  mat4.rotate(gl.mvMatrix, gl.mvMatrix, this.yaw, Vector.J);
+  mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
   this.shelf && this.shelf.draw();
   util.array.apply(this.things, 'draw');
@@ -55,7 +55,8 @@ World.prototype.advance = function(dt) {
   util.array.apply(this.projectiles, 'advance', dt);
   util.array.apply(this.effects, 'advance', dt);
   this.yaw += this.rotSpeed * dt;
-  this.checkCollisions();
+  this.shelf.advance(dt);
+  // this.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
   while (this.effects.length > 200) this.effects.shift().dispose();
@@ -68,6 +69,7 @@ World.prototype.addLight = function(light) {
 World.prototype.applyLights = function() {
   for (var i = 0, light; light = this.lights[i]; i++) {
     light.apply();
+     
   }
 };
 
@@ -87,18 +89,30 @@ World.prototype.populate = function() {
   var crate = new DumbCrate({
     yaw: 0 * Math.random() * 2 * PI,
     pitch: 0 * Math.random() * 2 * PI,
-    position: [0, -7, 3],
+    position: [0, 0, 0],
     alive: true,
-    size: .05,
-    rYaw: .6,
-    rpitch: .8,
-    texture: Textures.THWOMP
+    size: [.05,.05,20],
+    textureCounts: [1, 1, 30],
+    texture: Textures.CRATE
   });
 
   // crate.box.setTexture(Textures.THWOMP);
-  crate.rYaw = .6;
-  crate.rPitch = .8;
+  // crate.rYaw = .6;
+  // crate.rPitch = .8;
   this.add(crate);
+
+
+  for (var i = -5; i <= 5; i += 1.5) {
+    for (var j = -5; j <= 5; j += 1.5) {
+      for (var k = -5; k <= 5; k += 1.5) {
+        var cairn = new DumbCrate({
+          position: [i, j, k],
+          size: .1
+        });
+        world.add(cairn);
+      }
+    }
+  }
 
 
   var sun = new Sun({
@@ -106,7 +120,7 @@ World.prototype.populate = function() {
     pitch: 0 * Math.random() * 2 * PI,
     position: [0, 0, 0],
     alive: true,
-    size: .075
+    size: .3
   });
   sun.rPitch = 8 * PI;
   sun.rYaw = 6 * PI;
@@ -114,8 +128,8 @@ World.prototype.populate = function() {
   world.add(sun);
 
   this.camera = new Camera();
-  var hero = new Hero({
-    position: [0, -7, 5]
+  hero = new Hero({
+    position: [0, .5, 0]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
@@ -196,8 +210,6 @@ World.prototype.checkCollisions = function() {
         var outerRadiusB = thingB.getOuterRadius();
         var delta = distance -
             Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB);
-
-        console.log("hit!");
 
         // var push = Vector.multiply(vectorTo, (delta/distance)/2);
         // thingA.position = Vector.minus(thingA.position, push);
