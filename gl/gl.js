@@ -56,7 +56,7 @@ GL.prototype.setMatrixUniforms = function() {
       mat4.invert([], this.modelMatrix));
   mat3.transpose(this.normalMatrix, this.normalMatrix);
   this.uniformMatrix3fv(
-      shaderProgram.nMatrixUniform,
+      shaderProgram.normalMatrixUniform,
       false,
       this.normalMatrix);
 };
