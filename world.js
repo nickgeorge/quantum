@@ -138,7 +138,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, .5, 0],
+    position: [0, -7, 0],
     yaw: PI
   });
   this.camera.setAnchor(hero);
