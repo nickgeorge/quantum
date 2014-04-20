@@ -41,7 +41,7 @@ Shelf = function(message) {
       size: [this.size, this.size, 0],
       position: [0, 0, this.size/2],
       yaw: PI,
-      rRoll: .3
+      roll: PI/2
     })
   ];
   this.klass = "Shelf";

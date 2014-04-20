@@ -5,11 +5,16 @@ DumbCrate = function(message) {
       message.size : 
       [message.size, message.size, message.size];
   this.box = new Box({
-    size: this.size
+    size: this.size,
+    color: message.color
+  });
+  this.bump = new Bullet({
+    size: [.25, .25, .25],
+    color: [0.25, 0.25, 0.25, 1],
+    position: [1, 1, 1]
   });
 
   this.parts = [this.box];
-  // this.outerRadius = Math.sqrt(this.size * this.size/2);
   this.outerRadius = 1;
   if (message.texture) {
     this.box.setTexture(message.texture);
@@ -31,12 +36,15 @@ DumbCrate.prototype.die = function() {
 
 DumbCrate.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
-  // this.position[0] = 2*Math.sin(this.age)
-  // this.t += Number(dt);
+  util.array.forEach(this.parts, function(part) {
+    part.advance(dt);
+  });
 };
 
 DumbCrate.prototype.render = function() {
-  this.box.draw();
+  util.array.forEach(this.parts, function(part) {
+    part.draw();
+  });
 };
 
 DumbCrate.prototype.dispose = function() {
@@ -44,5 +52,13 @@ DumbCrate.prototype.dispose = function() {
 };
 
 DumbCrate.prototype.getOuterRadius = function() {
-  return this.outerRadius;
+  return this.box.getOuterRadius();
+};
+
+DumbCrate.prototype.glom = function(thing) {
+  this.parts.push(thing);
+  vec3.copy(thing.velocity, Vector.ZERO);
+  // vec3.copy(thing.position, [3, 0, 0])
+  this.relativeCoord(thing.position, thing.position);
+  thing.computeBaseTransform();
 };

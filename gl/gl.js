@@ -68,3 +68,7 @@ GL.prototype.rotate = function (angle, axis) {
 GL.prototype.translate = function(xyz) {
   mat4.translate(this.modelMatrix, this.modelMatrix, xyz);
 };
+
+GL.prototype.transform = function(transformation) {
+  mat4.multiply(this.modelMatrix, this.modelMatrix, transformation);
+};

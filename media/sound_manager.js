@@ -1,5 +1,5 @@
 var root_ = 'media/sounds/';
-
+1
 SoundManager = {
   play: function(sound) {
     new Audio(root_ + sound).play();

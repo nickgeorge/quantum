@@ -6,14 +6,19 @@ Thing = function(message) {
   this.rPitch = message.rPitch || 0;
   this.rYaw = message.rYaw || 0;
   this.rRoll = message.rRoll || 0;
-  this.velocity = vec3.nullableClone(message.velocity);
 
+  this.velocity = vec3.nullableClone(message.velocity);
   this.position = vec3.nullableClone(message.position);
+
   this.alive = message.alive;
 
   this.parts = [this.box];
 
   this.age = 0;
+
+  this.baseTransformation = mat4.create();
+  this.inverseBaseTransformation = mat4.create();
+  this.computeBaseTransform();
 
   this.klass = "Thing";
 };
@@ -48,10 +53,7 @@ Thing.prototype.setTribe = function(tribe) {
 };
 
 Thing.prototype.transform = function() {
-  gl.translate(this.position);
-  gl.rotate(this.yaw, Vector.J);
-  gl.rotate(this.pitch, Vector.I);
-  gl.rotate(this.roll, Vector.K);
+  gl.transform(this.baseTransformation);
 };
 
 Thing.prototype.getClosestThing = function() {
@@ -96,7 +98,47 @@ Thing.prototype.advance = function(dt) {
   this.roll += this.rRoll * dt;
   vec3.scaleAndAdd(this.position, this.position,
       this.velocity, dt);
+  this.computeBaseTransform();
+};
 
+Thing.prototype.computeBaseTransform = function() {
+  mat4.identity(this.baseTransformation);
+  mat4.translate(this.baseTransformation,
+      this.baseTransformation, this.position);
+  mat4.rotate(this.baseTransformation,
+      this.baseTransformation,
+      this.yaw,
+      Vector.J);
+  mat4.rotate(this.baseTransformation,
+      this.baseTransformation,
+      this.pitch,
+      Vector.I);
+  mat4.rotate(this.baseTransformation,
+      this.baseTransformation,
+      this.roll,
+      Vector.K); 
+
+  mat4.invert(this.inverseBaseTransformation, this.baseTransformation);
+};
+
+/**
+ * Transforms a vector in "thing-space" for this thing
+ * into world coordinates.
+ * @param out The receiving Vector3
+ * @param v Vector3 in "thing-space"
+ */
+Thing.prototype.transformCoord = function(out, v) {
+  vec3.transformMat4(out, v, this.baseTransformation);
+  return out;
+};
+
+/**
+ * @param out The Vector3 in "thing-space"
+ * @param v Vector3 in "world-space"
+ */
+Thing.prototype.relativeCoord = function(out, v) {
+  vec3.transformMat4(out, v, this.inverseBaseTransformation);
+  return out;
 };
 
 Thing.prototype.update = util.unimplemented;

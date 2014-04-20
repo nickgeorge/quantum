@@ -1,6 +1,5 @@
 Sun = function(message) {
-  this.super();
-
+  this.super(message);
   this.size = message.size || 1;
   this.box = new Box({
     size: [this.size, this.size, this.size],
@@ -14,21 +13,21 @@ Sun = function(message) {
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
+  // this.position = [
+  //   6.25 * Math.sin(this.age / .5/6),
+  //   0 * Math.sin(this.age / .6/6),
+  //   0 * Math.sin(this.age / .4/6),
+  // ];
+  this.position = [6, 6, 6];
   util.base(this, 'advance', dt);
-  this.position = [
-    6.25,// * Math.sin(this.age / .5/6),
-    6.25,// * Math.sin(this.age / .6/6),
-    6.25,// * Math.sin(this.age / .4/6),
-  ];
-  // this.position = [6, 6, 5];
 };
 
 Sun.prototype.render = function() {
   shaderProgram.setUseLighting(false);
-  this.box.draw();
+  this.box.render();
   shaderProgram.setUseLighting(true);
 };
 
 Sun.prototype.getOuterRadius = function() {
-  return 0;
+  return this.box.getOuterRadius();
 };

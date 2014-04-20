@@ -14,6 +14,11 @@ Box = function(message) {
 
   if (!this.textureBuffer) this.createTextureBuffer();
 
+  this.outerRadius = Math.sqrt(
+    util.sqr(this.size[0]/2) +
+    util.sqr(this.size[1]/2) +
+    util.sqr(this.size[2]/2));
+
   this.alive = true;
 };
 util.inherits(Box, Thing);
@@ -25,18 +30,7 @@ Box.prototype.advance = function(dt) {};
 
 Box.prototype.draw = function() {
   gl.pushModelMatrix();
-  if (this.fulcrum) {
-    // This is dumb.  fix this.
-    mat4.translate(gl.modelMatrix, gl.modelMatrix, vec3.add([], this.position, this.fulcrum));
-    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.K);
-    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.pitch, Vector.J);
-    mat4.translate(gl.modelMatrix, gl.modelMatrix, vec3.scale([], this.fulcrum, -1));
-  } else {
-    mat4.translate(gl.modelMatrix, gl.modelMatrix, this.position);
-
-    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.K);
-    mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.pitch, Vector.J);
-  }
+  this.transform();
   this.render();
   gl.popModelMatrix();
 
@@ -80,7 +74,6 @@ Box.prototype.max = function(index) {
 };
 
 Box.prototype.setTexture = function(texture, opt_buildBuffer) {
-  console.log("a");
   this.texture = texture;
   return this;
 };
@@ -238,4 +231,8 @@ Box.initBuffers = function() {
 Box.prototype.dispose = function() {
   this.vertexBuffer = null;
   this.texture = null;
+};
+
+Box.prototype.getOuterRadius = function() {
+  return this.outerRadius;
 };

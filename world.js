@@ -27,7 +27,15 @@ World = function() {
   hero = null;
 };
 
+World.prototype.remove = function(thing) {
+  this.thingsToRemove.push(thing);
+};
+
 World.prototype.add = function(thing) {
+  this.thingsToAdd.push(thing);
+};
+
+World.prototype.addDirectly_ = function(thing) {
   this.things.push(thing);
   this.thingsById[thing.id] = thing;
 };
@@ -65,7 +73,7 @@ World.prototype.advance = function(dt) {
   });
   this.yaw += this.rotSpeed * dt;
   this.shelf.advance(dt);
-  // this.checkCollisions();
+  this.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
   while (this.effects.length > 200) this.effects.shift().dispose();
@@ -85,7 +93,7 @@ World.prototype.applyLights = function() {
 World.prototype.populate = function() {
   var light = new Light();
   light.setPosition([0, 0, 0])
-  light.setAmbientColor([.175, .175, .175]);
+  light.setAmbientColor([.2, .2, .2]);
   light.setDirectionalColor([1, .6, .3]);
   this.addLight(light);
 
@@ -94,21 +102,6 @@ World.prototype.populate = function() {
     size: 15
   })
   // this.add(this.shelf);
-
-  var crate = new DumbCrate({
-    yaw: 0 * Math.random() * 2 * PI,
-    pitch: 0 * Math.random() * 2 * PI,
-    position: [0, 0, 0],
-    alive: true,
-    size: [.05,.05,20],
-    textureCounts: [1, 1, 30],
-    texture: Textures.CRATE
-  });
-
-  // crate.box.setTexture(Textures.THWOMP);
-  // crate.rYaw = .6;
-  // crate.rPitch = .8;
-  this.add(crate);
 
 
   // for (var i = -6; i <= 6; i += 1.5) {
@@ -123,6 +116,15 @@ World.prototype.populate = function() {
   //   }
   // }
 
+  this.cairn = new DumbCrate({
+    position: [0, 0, 3],
+    size: 2,
+    texture: Textures.THWOMP,
+    rYaw: PI,
+    rPitch: 1.1,
+    rRoll: 1.2
+  });
+  world.add(this.cairn);
 
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
@@ -138,7 +140,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, -7, 0],
+    position: [0, 0, -5],
     yaw: PI
   });
   this.camera.setAnchor(hero);
@@ -161,15 +163,12 @@ World.prototype.inBounds = function(xyz) {
 };
 
 World.prototype.updateLists = function() {
-  this.thingsToAdd.forEach(
-    function(thing) {
-      this.add(thing);
-    }, this);
+  util.array.forEach(this.thingsToAdd, this.addDirectly_, this);
 
   util.array.pushAll(this.effects, this.effectsToAdd);
   util.array.pushAll(this.projectiles, this.projectilesToAdd);
 
-  // this.things = World.filterOutThings(this.things, this.thingsToRemove);
+  util.array.removeAll(this.things, this.thingsToRemove);
   util.array.removeAll(this.effects, this.effectsToRemove);
   util.array.removeAll(this.projectiles, this.projectilesToRemove);
 
@@ -214,12 +213,21 @@ World.prototype.checkCollisions = function() {
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
       if (this.closeEnough(thingA, thingB)) {
-        var vectorTo = Vector.difference(thingA.position, thingB.position);
-        var distance = Vector.mag(vectorTo);
-        var outerRadiusA = thingA.getOuterRadius();
-        var outerRadiusB = thingB.getOuterRadius();
-        var delta = distance -
-            Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB);
+
+        console.log("hit");
+        if (thingA == this.cairn) {
+          util.array.remove(world.things, thingB);
+          thingA.glom(thingB);
+        } else if (thingB == this.cairn) {
+          util.array.remove(world.things, thingA);
+          thingB.glom(thingA);
+        }
+        // var vectorTo = Vector.difference(thingA.position, thingB.position);
+        // var distance = Vector.mag(vectorTo);
+        // var outerRadiusA = thingA.getOuterRadius();
+        // var outerRadiusB = thingB.getOuterRadius();
+        // var delta = distance -
+        //     Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB);
 
         // var push = Vector.multiply(vectorTo, (delta/distance)/2);
         // thingA.position = Vector.minus(thingA.position, push);
@@ -234,6 +242,7 @@ World.prototype.closeEnough = function(thingA, thingB) {
   var distance = Vector.mag(vectorTo);
   var outerRadiusA = thingA.getOuterRadius();
   var outerRadiusB = thingB.getOuterRadius();
+  // console.log([vectorTo, distance, outerRadiusA, outerRadiusB]);
   return distance <
       Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB); 
 };
