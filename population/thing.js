@@ -12,13 +12,13 @@ Thing = function(message) {
 
   this.alive = message.alive;
 
-  this.parts = [this.box];
+  this.parts = [];
 
   this.age = 0;
 
-  this.baseTransformation = mat4.create();
-  this.inverseBaseTransformation = mat4.create();
-  this.computeBaseTransform();
+  this.toWorldTransform = mat4.create();
+  this.toLocalTransform = mat4.create();
+  this.computeTransforms();
 
   this.klass = "Thing";
 };
@@ -53,7 +53,7 @@ Thing.prototype.setTribe = function(tribe) {
 };
 
 Thing.prototype.transform = function() {
-  gl.transform(this.baseTransformation);
+  gl.transform(this.toWorldTransform);
 };
 
 Thing.prototype.getClosestThing = function() {
@@ -77,11 +77,6 @@ Thing.prototype.center = function() {
   return this.position;
 };
 
-Thing.prototype.die = function() {
-  this.tribe.remove(this);
-};
-
-
 Thing.prototype.draw = function() {
   gl.pushModelMatrix();
 
@@ -98,27 +93,32 @@ Thing.prototype.advance = function(dt) {
   this.roll += this.rRoll * dt;
   vec3.scaleAndAdd(this.position, this.position,
       this.velocity, dt);
-  this.computeBaseTransform();
+  this.computeTransforms();
+
+
+  util.array.forEach(this.parts, function(part){
+    part.advance(dt);
+  });
 };
 
-Thing.prototype.computeBaseTransform = function() {
-  mat4.identity(this.baseTransformation);
-  mat4.translate(this.baseTransformation,
-      this.baseTransformation, this.position);
-  mat4.rotate(this.baseTransformation,
-      this.baseTransformation,
+Thing.prototype.computeTransforms = function() {
+  mat4.identity(this.toWorldTransform);
+  mat4.translate(this.toWorldTransform,
+      this.toWorldTransform, this.position);
+  mat4.rotate(this.toWorldTransform,
+      this.toWorldTransform,
       this.yaw,
       Vector.J);
-  mat4.rotate(this.baseTransformation,
-      this.baseTransformation,
+  mat4.rotate(this.toWorldTransform,
+      this.toWorldTransform,
       this.pitch,
       Vector.I);
-  mat4.rotate(this.baseTransformation,
-      this.baseTransformation,
+  mat4.rotate(this.toWorldTransform,
+      this.toWorldTransform,
       this.roll,
       Vector.K); 
 
-  mat4.invert(this.inverseBaseTransformation, this.baseTransformation);
+  mat4.invert(this.toLocalTransform, this.toWorldTransform);
 };
 
 /**
@@ -127,20 +127,38 @@ Thing.prototype.computeBaseTransform = function() {
  * @param out The receiving Vector3
  * @param v Vector3 in "thing-space"
  */
-Thing.prototype.transformCoord = function(out, v) {
-  vec3.transformMat4(out, v, this.baseTransformation);
+Thing.prototype.toWorldCoords = function(out, v) {
+  vec3.transformMat4(out, v, this.toWorldTransform);
   return out;
 };
 
 /**
- * @param out The Vector3 in "thing-space"
- * @param v Vector3 in "world-space"
+ * Transforms a vector in world coordinates to local coordinates
+ * @param out The receiving Vector3
+ * @param v Vector3 in world coordinates
  */
-Thing.prototype.relativeCoord = function(out, v) {
-  vec3.transformMat4(out, v, this.inverseBaseTransformation);
+Thing.prototype.toLocalCoords = function(out, v) {
+  vec3.transformMat4(out, v, this.toLocalTransform);
   return out;
 };
 
+
+Thing.prototype.render = function() {
+  util.array.forEach(this.parts, function(part){
+    part.render();
+  });
+};
+
+Thing.prototype.dispose = function() {
+  this.toWorldTransform = null;
+  this.toLocalTransform = null;
+  this.velocity = null;
+  this.position = null;
+
+  util.array.forEach(this.parts, function(part){
+    part.dispose();
+  });
+};
+
 Thing.prototype.update = util.unimplemented;
-Thing.prototype.render = util.emptyImplementation;
 Thing.prototype.getOuterRadius = util.unimplemented;

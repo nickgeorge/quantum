@@ -30,7 +30,7 @@ Shelf = function(message) {
       pitch: PI/2
     }),
     new Pane({
-      // texture: Textures.FLOOR,
+      texture: Textures.FLOOR,
       textureCounts: [120, 120],
       size: [this.size, this.size, 0],
       position: [0, -this.size/2, 0],

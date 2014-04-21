@@ -8,11 +8,6 @@ DumbCrate = function(message) {
     size: this.size,
     color: message.color
   });
-  this.bump = new Bullet({
-    size: [.25, .25, .25],
-    color: [0.25, 0.25, 0.25, 1],
-    position: [1, 1, 1]
-  });
 
   this.parts = [this.box];
   this.outerRadius = 1;
@@ -47,18 +42,48 @@ DumbCrate.prototype.render = function() {
   });
 };
 
-DumbCrate.prototype.dispose = function() {
-  this.box.dispose();
-};
-
 DumbCrate.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();
 };
 
+DumbCrate.prototype.contains = function(v, opt_axesToCheck) {
+  var axesToCheck = opt_axesToCheck || [true, true, true];
+  for (var i = 0; i < 3; i++) {
+    if (!axesToCheck[i]) continue;
+    if (v[i] < -this.size[i]/2 || v[i] > this.size[i]/2) {
+      return false;
+    }
+  }
+  return true;
+};
+
 DumbCrate.prototype.glom = function(thing) {
+  util.array.remove(world.things, thing);
   this.parts.push(thing);
   vec3.copy(thing.velocity, Vector.ZERO);
-  // vec3.copy(thing.position, [3, 0, 0])
-  this.relativeCoord(thing.position, thing.position);
-  thing.computeBaseTransform();
+
+  this.toLocalCoords(thing.position, thing.position);
+  thing.computeTransforms();
+};
+
+DumbCrate.prototype.pushOut = function(v, opt_tolerance, opt_extraPush) {
+  var tolerance = opt_tolerance || 0;
+  var extraPush = opt_extraPush || 0;
+  this.toLocalCoords(v, v); 
+  var closestAxis = undefined;
+  var closestDistance = undefined;
+  var direction = undefined;
+  for (var i = 0; i < 3; i++) {
+    var delta = Math.abs(v[i]) - Math.abs(this.size[i] / 2);
+    if (!closestDistance || Math.abs(delta) < closestDistance ) {
+      closestDistance = Math.abs(delta);
+      closestAxis = i;
+      direction = v[i] > 0 ? 1 : -1;
+    }
+  }
+  console.log([closestDistance, closestAxis]);
+  if (closestDistance > tolerance) {
+    v[closestAxis] = (this.size[closestAxis]/2 + extraPush) * direction;
+  }
+  this.toWorldCoords(v, v);
 };

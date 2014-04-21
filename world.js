@@ -93,7 +93,7 @@ World.prototype.applyLights = function() {
 World.prototype.populate = function() {
   var light = new Light();
   light.setPosition([0, 0, 0])
-  light.setAmbientColor([.2, .2, .2]);
+  light.setAmbientColor([.4, .4, .4]);
   light.setDirectionalColor([1, .6, .3]);
   this.addLight(light);
 
@@ -104,27 +104,33 @@ World.prototype.populate = function() {
   // this.add(this.shelf);
 
 
-  // for (var i = -6; i <= 6; i += 1.5) {
-  //   for (var j = -6; j <= 6; j += 1.5) {
-  //     for (var k = -6; k <= 6; k += 1.5) {
-  //       var cairn = new DumbCrate({
-  //         position: [i, j, k],
-  //         size: .1
-  //       });
-  //       world.add(cairn);
-  //     }
+  // for (var i = -4; i <= 4; i += 2) {
+  //   for (var j = -4; j <= 4; j += 2) {
+      for (var k = 0; k < 50; k++) {
+        var cairn = new DumbCrate({
+          position: [
+            (Math.random() - .5) * 15,
+            (Math.random() - .5) * 15,
+            (Math.random() - .5) * 15,
+          ],
+          size: 1,
+          texture: Textures.THWOMP,
+          yaw: Math.random() * 2*PI
+        });
+        world.add(cairn);
+      }
   //   }
   // }
 
-  this.cairn = new DumbCrate({
-    position: [0, 0, 3],
-    size: 2,
-    texture: Textures.THWOMP,
-    rYaw: PI,
-    rPitch: 1.1,
-    rRoll: 1.2
-  });
-  world.add(this.cairn);
+  // var cairn = new DumbCrate({
+  //   position: [0, -3, 0],
+  //   size: 3,
+  //   texture: Textures.THWOMP,
+  //   // rYaw: PI,
+  //   // rPitch: 1.1,
+  //   // rRoll: 1.2
+  // });
+  // world.add(cairn);
 
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
@@ -140,7 +146,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, 0, -5],
+    position: [0, 0, -8],
     yaw: PI
   });
   this.camera.setAnchor(hero);
@@ -214,24 +220,41 @@ World.prototype.checkCollisions = function() {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
       if (this.closeEnough(thingA, thingB)) {
 
-        console.log("hit");
-        if (thingA == this.cairn) {
-          util.array.remove(world.things, thingB);
-          thingA.glom(thingB);
-        } else if (thingB == this.cairn) {
-          util.array.remove(world.things, thingA);
-          thingB.glom(thingA);
-        }
-        // var vectorTo = Vector.difference(thingA.position, thingB.position);
-        // var distance = Vector.mag(vectorTo);
-        // var outerRadiusA = thingA.getOuterRadius();
-        // var outerRadiusB = thingB.getOuterRadius();
-        // var delta = distance -
-        //     Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB);
+        var cairn = null;
+        var otherThing = null;
+        var hero = null;
 
-        // var push = Vector.multiply(vectorTo, (delta/distance)/2);
-        // thingA.position = Vector.minus(thingA.position, push);
-        // thingB.position = Vector.sum(thingB.position, push);
+        if (thingA instanceof DumbCrate) {
+          cairn = thingA;
+          if (thingB instanceof Hero) {
+            hero = thingB;
+          } else {
+            otherThing = thingB;
+          }
+        } else if (thingA instanceof DumbCrate) {
+          cairn = thingB;
+          if (thingB instanceof Hero) {
+            hero = thingA;
+          } else {
+            otherThing = thingA;
+          }
+        }
+
+        if (cairn && otherThing) {
+          var relPosition = cairn.toLocalCoords(vec3.create(), otherThing.position);
+          if (cairn.contains(relPosition)) {
+            cairn.pushOut(otherThing.position, .0125);
+            cairn.glom(otherThing);
+          }
+        }
+
+        if (cairn && hero) {
+          var relPosition = cairn.toLocalCoords(vec3.create(), hero.position);
+          if (cairn.contains(relPosition)) {
+            cairn.pushOut(hero.position, 0, .06);
+            hero.land(cairn);
+          }
+        }
       }
     }
   }
@@ -242,7 +265,6 @@ World.prototype.closeEnough = function(thingA, thingB) {
   var distance = Vector.mag(vectorTo);
   var outerRadiusA = thingA.getOuterRadius();
   var outerRadiusB = thingB.getOuterRadius();
-  // console.log([vectorTo, distance, outerRadiusA, outerRadiusB]);
   return distance <
       Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB); 
 };

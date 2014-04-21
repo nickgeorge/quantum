@@ -72,3 +72,7 @@ GL.prototype.translate = function(xyz) {
 GL.prototype.transform = function(transformation) {
   mat4.multiply(this.modelMatrix, this.modelMatrix, transformation);
 };
+
+GL.prototype.transformView = function(transformation) {
+  mat4.multiply(this.viewMatrix, this.viewMatrix, transformation);
+};
