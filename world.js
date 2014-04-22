@@ -106,7 +106,7 @@ World.prototype.populate = function() {
 
   // for (var i = -4; i <= 4; i += 2) {
   //   for (var j = -4; j <= 4; j += 2) {
-      for (var k = 0; k < 50; k++) {
+      for (var k = 0; k < 10; k++) {
         var cairn = new DumbCrate({
           position: [
             (Math.random() - .5) * 15,
