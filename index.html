@@ -19,6 +19,7 @@
     <script src='population/sun.js'></script>
     <script src='population/bullet.js'></script>
     <script src='population/shelf.js'></script>
+    <script src='population/sphere.js'></script>
     <script src='population/hero.js'></script>
     <script src='population/pane.js'></script>
     <script src='gl/gl.js'></script>
@@ -34,21 +35,22 @@
     <script src='media/sound_manager.js'></script>
     <script src='effects/double_explosion.js'></script>
     <script src='effects/image_cross.js'></script>
+    <script src='ui/hud.js'></script>
     <script src='ui/camera.js'></script>
     <script src='world.js'></script>
 
 
     <script id="fragment-shader" type="x-shader/x-fragment">
-      precision mediump float;
+      precision highp float;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
-      varying vec4 vLightPosition;
 
       uniform bool uUseLighting;
       uniform bool uUseTexture;
 
+      uniform vec3 uPointLightingLocation;
       uniform vec4 uColor; 
       uniform vec3 uAmbientColor;
       uniform vec3 uPointLightingColor;
@@ -60,18 +62,23 @@
         if (!uUseLighting) {
           lightWeighting = vec3(1.0, 1.0, 1.0);
         } else {
-          vec3 lightDirection = normalize(vLightPosition.xyz - vPosition.xyz);
+          vec3 relativeLightPosition = uPointLightingLocation - vPosition.xyz;
+          vec3 lightDirection = normalize(relativeLightPosition);
 
           float directionalLightWeighting = max(0.0, dot(
               normalize(vTransformedNormal),
               lightDirection));
-          lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+          float distance = length(relativeLightPosition);
+          float distanceDropoff = (1.0/(distance*distance/100.0 + 1.0));
+          // float distanceDropoff = 1.0;
+          
+          lightWeighting = uAmbientColor + 
+              uPointLightingColor * directionalLightWeighting * distanceDropoff;
         }
 
         vec4 fragmentColor;
         if (uUseTexture) {
-          fragmentColor = texture2D(uSampler, 
-              vec2(vTextureCoord.s, vTextureCoord.t));
+          fragmentColor = texture2D(uSampler, vTextureCoord);
         } else {
           fragmentColor = uColor;
         }
@@ -80,7 +87,7 @@
     </script>
 
     <script id="vertex-shader" type="x-shader/x-vertex">
-      precision mediump float;
+      precision highp float;
 
       attribute vec3 aVertexPosition;
       attribute vec3 aVertexNormal;
@@ -90,21 +97,16 @@
       uniform mat4 uViewMatrix;
       uniform mat4 uPerspectiveMatrix;
       uniform mat3 uNormalMatrix;
-      uniform vec4 uColor; 
-      uniform vec3 uPointLightingLocation;
+      uniform vec4 uColor;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
-      varying vec4 vLightPosition;
       varying vec4 vColor;
 
 
       void main(void) {
         vPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
-
-        // TODO: compute this in CPU 
-        vLightPosition = uModelMatrix * vec4(uPointLightingLocation, 1.0);
         
         gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
         vTextureCoord = aTextureCoord;
@@ -127,7 +129,7 @@
 
         gl.clearColor(
             world.clearColorRgba[0],
-            world.clearColorRgba[1],
+          world.clearColorRgba[1],
             world.clearColorRgba[2],
             1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -135,13 +137,15 @@
 
         mat4.perspective(gl.perspectiveMatrix,
             PI/4, gl.viewportWidth/gl.viewportHeight,
-            0.01, 30.0);
+            0.0007, 30.0);
 
         gl.useProgram(shaderProgram);
 
         mat4.identity(gl.modelMatrix);
 
         world.draw();
+
+        hud.render();
       }
 
       function animate() {
@@ -155,30 +159,33 @@
           framerate.snapshot();
         }
         framerate.lastTime = timeNow;
-
       }
 
 
       function tick() {
         requestAnimationFrame(tick);
+        if (!heroListener.mouseIsLocked) return;
         drawScene();
         animate();
       }
 
 
       function webGLStart() {
+        framerate = new Framerate('framerate');
+        var hudCanvas = document.getElementById('hud-canvas')
         var glCanvas = document.getElementById("gl-canvas");
         gl = GL.createGL(glCanvas);
         shaderProgram = ShaderProgram.createShaderProgram();
         Textures.initTextures();
 
+
         window.addEventListener('resize',
-            util.partial(resize, glCanvas, gl));
-        resize(glCanvas, gl);
+            util.partial(resize, hudCanvas, glCanvas, gl));
+        resize(hudCanvas, glCanvas, gl);
 
         Textures.initTextures();
 
-        framerate = new Framerate('framerate');
+        hud = new HUD(hudCanvas, framerate);
         var gameDiv = document.getElementById('game-div');
         heroListener = new HeroListener(gameDiv);
         heroListener.attachEvents();
@@ -189,7 +196,9 @@
         tick();
       }
 
-      function resize(glCanvas, gl) {
+      function resize(hudCanvas, glCanvas, gl) {
+        hudCanvas.width = window.innerWidth;
+        hudCanvas.height = window.innerHeight;
         glCanvas.width = window.innerWidth;
         glCanvas.height = window.innerHeight;
         gl.viewportWidth = window.innerWidth;
@@ -197,7 +206,7 @@
       };
 
       /**
-       * Provides requestAnimationFrame in a cross browser way.
+       * Provides requestAnimationFrame in a cross-browser way.
        */
       requestAnimationFrame = (function() {
         return window.requestAnimationFrame ||
@@ -216,6 +225,7 @@
   <body onload="webGLStart();">
     <div id='game-div'>
       <canvas id='gl-canvas'></canvas>
+      <canvas id='hud-canvas'></canvas>
     </div>
   </body>
 </html>

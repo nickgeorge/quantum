@@ -8,29 +8,34 @@ Hero = function(message) {
 };
 util.inherits(Hero, Thing);
 
-Hero.JUMP_VELOCITY = 3;
-Hero.HEIGHT = .06;
+Hero.JUMP_VELOCITY = 4;
+Hero.HEIGHT = .03;
 
 
 Hero.prototype.advance = function(dt) {
+  // not sure it's ok to do basic advance first...
+  // might add a frame of latency.
+  // TODO: think about this more.
+  util.base(this, 'advance', dt);
   var landedHeight = world.shelf.lowBound(i) + Hero.HEIGHT;
 
   if (this.position[1] < landedHeight && this.velocity[1] <= 0) {
+    this.position[1] = landedHeight 
     this.land();
   }
 
   if (this.landed) {
-    this.velocity[0] = 1 * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] = .5 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = 1 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = .5 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
     if (this.ground) {
       var relPosition = this.ground.toLocalCoords(vec3.create(), this.position);
-      if (!this.ground.contains(relPosition, [true, false, true])){
-        this.landed = false;
-        this.ground = null;
-      }
+      // if (!this.ground.contains(relPosition, [true, false, true])){
+      //   this.landed = false;
+      //   this.ground = null;
+      // }
 
     }
   } else {
@@ -58,7 +63,6 @@ Hero.prototype.advance = function(dt) {
       }
     }
   }
-  util.base(this, 'advance', dt);
 };
 
 Hero.prototype.jump = function() {
@@ -78,7 +82,7 @@ Hero.prototype.getOuterRadius = function() {
 
 
 Hero.prototype.shoot = function() {
-  var v = 6;
+  var v = 12;
   var v_xz =  Math.cos(this.pitch)*v;
 
   var v_shot = [
@@ -89,10 +93,12 @@ Hero.prototype.shoot = function() {
   world.add(new Bullet({
     position: this.position,
     velocity: v_shot,
-    size: .025,
+    size: .02,
     yaw: this.yaw,
     pitch: this.pitch,
     roll: this.roll,
-    texture: Textures.CRATE
+    texture: Textures.CRATE,
+    rYaw: Math.random()*80,
+    rPitch: Math.random()*90
   }))
 };

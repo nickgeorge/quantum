@@ -9,6 +9,10 @@ Camera.prototype.transform = function() {
   gl.transformView(this.anchor.toLocalTransform);
 };
 
+Camera.prototype.advance = function(dt) {
+  this.bob = Math.cos(this.age);
+};
+
 Camera.prototype.setAnchor = function(anchor) {
   this.anchor = anchor;
 };

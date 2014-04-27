@@ -7,7 +7,7 @@ Box = function(message) {
   this.fulcrum = null;
 
   this.vertexBuffer = null;
-  this.texture = null;
+  this.texture = message.texture || null;
   this.textureBuffer = null;
 
   this.createVertexBuffer(this.size);

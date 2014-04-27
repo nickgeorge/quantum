@@ -28,6 +28,9 @@ GL.createGL = function(canvas) {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.cullFace(gl.BACK);
 
+  gl.extensions = {};
+  gl.extensions.anisotropicFilter
+
   return gl;
 }
 

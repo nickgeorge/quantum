@@ -25,7 +25,6 @@ HeroListener = function(canvas) {
 };
 
 HeroListener.prototype.attachEvents = function() {
-  // var gameDiv = document.getElementById('game-div');
   document.addEventListener('keydown',
       util.bind(this.onKey, this), true);
   document.addEventListener('keyup',
@@ -46,7 +45,7 @@ HeroListener.prototype.attachEvents = function() {
 
 HeroListener.prototype.onMouseDown = function(e) {
   if (!document.webkitCurrentFullScreenElement) {
-    //this.canvas.requestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+    // this.canvas.requestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
   }
   if (!this.mouseIsLocked) {
     // this.enableMouseLock();
@@ -58,7 +57,10 @@ HeroListener.prototype.onMouseDown = function(e) {
   if (e.button == 0) {
     this.hero && this.hero.shoot();
   } else if (e.button == 2) {
-    // this.hero && this.hero.shootRail();
+    console.log("Bang!");
+    e.preventDefault();
+  } else {
+    console.log(e.button);
   }
 };
 
@@ -86,6 +88,9 @@ HeroListener.prototype.onMouseMove = function(event) {
     //console.log(movementX + " : " + movementY);
     this.hero.yaw -= movementX * this.sensitivityX;
     this.hero.pitch -= movementY * this.sensitivityY;
+
+    this.hero.pitch = Math.max(-PI/2,
+        Math.min(PI/2, this.hero.pitch));
   }
 };
 

@@ -1,18 +1,18 @@
 Bullet = function(message) {
   this.super(message);
-  this.size = message.size.length ?
-      message.size : 
-      [message.size, message.size, message.size];
-  this.box = new Box({
-    size: this.size,
-    color: [1, 0, 0, 1],
-    position: [0, 0, 0]
+  this.radius = this.radius || .025;
+  this.sphere = new Sphere({
+    radius: this.radius,
+    // color: [.3, 1, .3, 1],
+    position: [0, 0, 0],
+    texture: Textures.GREEN_PLASMA,
   });
 
-  this.parts = [this.box];
+
+  this.parts = [this.sphere];
 };
 util.inherits(Bullet, Thing);
 
 Bullet.prototype.getOuterRadius = function() {
-  return this.box.getOuterRadius();
+  return this.sphere.getOuterRadius();
 };

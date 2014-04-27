@@ -105,6 +105,12 @@ util.assert = function(bool, message) {
   }
 };
 
+util.assertNotNull = function(ref, message) {
+  if (ref === null || ref === undefined) {
+    throw new Error(message);
+  }
+};
+
 util.assertEquals = function(a, b, message) {
   if (a != b) {
     throw new Error(message);

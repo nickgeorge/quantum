@@ -9,6 +9,7 @@ Thing = function(message) {
 
   this.velocity = vec3.nullableClone(message.velocity);
   this.position = vec3.nullableClone(message.position);
+  this.lastPosition = vec3.clone(this.position);
 
   this.alive = message.alive;
 
@@ -87,6 +88,7 @@ Thing.prototype.draw = function() {
 }
 
 Thing.prototype.advance = function(dt) {
+  vec3.copy(this.lastPosition, this.position);
   this.age += dt;
   this.yaw += this.rYaw * dt;
   this.pitch += this.rPitch * dt;

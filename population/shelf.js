@@ -4,7 +4,8 @@ Shelf = function(message) {
 
 // debugger;
   this.frontPane = new Pane({
-    // texture: Textures.CRATE,
+    texture: Textures.CRATE,
+      textureCounts: [50, 50],
     size: [this.size, this.size, 0],
     position: [0, 0, -this.size/2],
   });
@@ -12,36 +13,39 @@ Shelf = function(message) {
   this.parts = [
     this.frontPane,
     new Pane({
-      // texture: Textures.CRATE,
+      texture: Textures.CRATE,
+      textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [-this.size/2, 0, 0],
       yaw: PI/2
     }),
     new Pane({
-      // texture: Textures.CRATE,
+      texture: Textures.CRATE,
+      textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [this.size/2, 0, 0],
       yaw: 3*PI/2
     }),
     new Pane({
-      // texture: Textures.CRATE,
+      texture: Textures.CRATE,
+      textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [0, this.size/2, 0],
       pitch: PI/2
     }),
     new Pane({
       texture: Textures.FLOOR,
-      textureCounts: [120, 120],
+      textureCounts: [400, 400],
       size: [this.size, this.size, 0],
       position: [0, -this.size/2, 0],
       pitch: 3*PI/2
     }),
     new Pane({
-      // texture: Textures.CRATE,
+      texture: Textures.CRATE,
+      textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [0, 0, this.size/2],
-      yaw: PI,
-      rRoll: 1/3
+      yaw: PI
     })
   ];
   this.klass = "Shelf";
