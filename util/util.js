@@ -143,6 +143,10 @@ util.generateIndexBuffer = function(primitives) {
   return buffer;
 };
 
+util.square = function(x) {
+  return x*x;
+};
+
 /*********************/
 /*    util.style     */
 /*********************/

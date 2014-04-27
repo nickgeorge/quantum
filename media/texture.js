@@ -15,9 +15,10 @@ Textures.initTextures = function() {
     ENERGY: Textures.initTexture(Textures.ROOT + 'energybwa.png'),
     QUESTION: Textures.initTexture(Textures.ROOT + 'question.png'),
     MOON: Textures.initTexture(Textures.ROOT + 'moon.gif'),
-    EARTH: Textures.initTexture(Textures.ROOT + 'earth_light.jpg'),
+    EARTH: Textures.initTexture(Textures.ROOT + 'earth_bright.jpg'),
     SUN: Textures.initTexture(Textures.ROOT + 'sun.gif'),
     FLOOR: Textures.initTexture(Textures.ROOT + 'floor.png'),
+    BYZANTINE: Textures.initTexture(Textures.ROOT + 'byzantine.jpg'),
     GREEN_PLASMA: Textures.initTexture(Textures.ROOT + 'green_plasma.jpg')
   };
 

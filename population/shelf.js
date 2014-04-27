@@ -4,7 +4,7 @@ Shelf = function(message) {
 
 // debugger;
   this.frontPane = new Pane({
-    texture: Textures.CRATE,
+    texture: Textures.BYZANTINE,
       textureCounts: [50, 50],
     size: [this.size, this.size, 0],
     position: [0, 0, -this.size/2],
@@ -13,21 +13,21 @@ Shelf = function(message) {
   this.parts = [
     this.frontPane,
     new Pane({
-      texture: Textures.CRATE,
+      texture: Textures.BYZANTINE,
       textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [-this.size/2, 0, 0],
       yaw: PI/2
     }),
     new Pane({
-      texture: Textures.CRATE,
+      texture: Textures.BYZANTINE,
       textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [this.size/2, 0, 0],
       yaw: 3*PI/2
     }),
     new Pane({
-      texture: Textures.CRATE,
+      texture: Textures.BYZANTINE,
       textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [0, this.size/2, 0],
@@ -41,14 +41,14 @@ Shelf = function(message) {
       pitch: 3*PI/2
     }),
     new Pane({
-      texture: Textures.CRATE,
+      texture: Textures.BYZANTINE,
       textureCounts: [50, 50],
       size: [this.size, this.size, 0],
       position: [0, 0, this.size/2],
       yaw: PI
     })
   ];
-  this.klass = "Shelf";
+  this.klass = 'Shelf';
 };
 util.inherits(Shelf, Thing);
 

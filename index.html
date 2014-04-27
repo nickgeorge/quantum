@@ -43,9 +43,12 @@
     <script id="fragment-shader" type="x-shader/x-fragment">
       precision highp float;
 
+      uniform mat4 uViewMatrix;
+
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
+      varying vec3 vEyeDirection;
 
       uniform bool uUseLighting;
       uniform bool uUseTexture;
@@ -64,15 +67,27 @@
         } else {
           vec3 relativeLightPosition = uPointLightingLocation - vPosition.xyz;
           vec3 lightDirection = normalize(relativeLightPosition);
+          vec3 normal = normalize(vTransformedNormal);
+          vec3 reflectionDirection = reflect(-lightDirection, normal);
 
           float directionalLightWeighting = max(0.0, dot(
-              normalize(vTransformedNormal),
+              normal,
               lightDirection));
+
+          float specularLightWeighting = 0.0;
+          if (directionalLightWeighting > 0.0) {
+            specularLightWeighting = pow(
+              max(
+                  dot(reflectionDirection, vEyeDirection),
+                  0.0),
+              8.0) * 1.0;
+          }
+
           float distance = length(relativeLightPosition);
           float distanceDropoff = (1.0/(distance*distance/100.0 + 1.0));
-          // float distanceDropoff = 1.0;
           
           lightWeighting = uAmbientColor + 
+              uPointLightingColor * specularLightWeighting * distanceDropoff +
               uPointLightingColor * directionalLightWeighting * distanceDropoff;
         }
 
@@ -98,11 +113,13 @@
       uniform mat4 uPerspectiveMatrix;
       uniform mat3 uNormalMatrix;
       uniform vec4 uColor;
+      uniform vec3 uPointLightingLocation;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
       varying vec4 vColor;
+      varying vec3 vEyeDirection;
 
 
       void main(void) {
@@ -111,6 +128,7 @@
         gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
         vTextureCoord = aTextureCoord;
         vTransformedNormal = normalize(uNormalMatrix * aVertexNormal);
+        vEyeDirection = normalize(uPointLightingLocation - vPosition.xyz);
       }
     </script>
 

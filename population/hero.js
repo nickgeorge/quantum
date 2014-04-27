@@ -5,6 +5,8 @@ Hero = function(message) {
 
   this.landed = false;
   this.ground = null;
+
+  this.klass = 'Hero';
 };
 util.inherits(Hero, Thing);
 
@@ -98,7 +100,7 @@ Hero.prototype.shoot = function() {
     pitch: this.pitch,
     roll: this.roll,
     texture: Textures.CRATE,
-    rYaw: Math.random()*80,
-    rPitch: Math.random()*90
+    rYaw: 50,
+    rPitch: 55
   }))
 };

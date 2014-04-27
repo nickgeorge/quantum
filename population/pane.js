@@ -17,6 +17,7 @@ Pane = function(message) {
 
   this.createVertexBuffer(this.size);
 
+  this.klass = 'Pane';
 };
 util.inherits(Pane, Thing);
 

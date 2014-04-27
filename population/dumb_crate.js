@@ -46,12 +46,12 @@ DumbCrate.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();
 };
 
-DumbCrate.prototype.contains = function(v, opt_tolerance) {
-  var tolerance = opt_tolerance || 0;
+DumbCrate.prototype.contains = function(v, opt_extra) {
+  var extra = opt_extra || 0;
   var axesToCheck = [true, true, true];
   for (var i = 0; i < 3; i++) {
     if (!axesToCheck[i]) continue;
-    var size = this.size[i]/2 + tolerance;
+    var size = this.size[i]/2 + extra;
     if (v[i] < -size || v[i] > size) {
       return false;
     }

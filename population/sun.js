@@ -9,16 +9,16 @@ Sun = function(message) {
 
   this.parts = [this.sphere];
 
-  this.klass = "Sun";
+  this.klass = 'Sun';
 };
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
   this.position = [
-    6.25 * Math.sin(this.age / .5/6),
-    -5 + 2 * Math.sin(this.age / .6/6),
-    6.25 * Math.sin(this.age / .4/6),
+    2.75 * Math.sin(this.age / .5/6),
+    2.75 * Math.sin(this.age / .6/6),
+    2.75 * Math.sin(this.age / .4/6),
   ];
 };
 

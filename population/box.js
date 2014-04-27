@@ -20,6 +20,8 @@ Box = function(message) {
     util.sqr(this.size[2]/2));
 
   this.alive = true;
+
+  this.klass = 'Box';
 };
 util.inherits(Box, Thing);
 

@@ -8,8 +8,9 @@ Bullet = function(message) {
     texture: Textures.GREEN_PLASMA,
   });
 
-
   this.parts = [this.sphere];
+
+  this.klass = 'Bullet';
 };
 util.inherits(Bullet, Thing);
 

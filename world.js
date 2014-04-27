@@ -21,11 +21,168 @@ World = function() {
 
   this.paused = false;
 
+  this.collisionFunctions = {};
+  this.registerCollisionTypes();
+
   this.scoresMap = [];
 
   this.heroId = -1;
   hero = null;
 };
+
+
+World.prototype.populate = function() {
+  var light = new Light();
+  light.setPosition([0, 0, 0])
+  light.setAmbientColor([.275, .275, .275]);
+  light.setDirectionalColor([.7, .5, .3]);
+  this.addLight(light);
+
+  this.shelf = new Shelf({
+    position: [0, 0, 0],
+    size: 15
+  })
+  // this.add(this.shelf);
+
+
+  for (var k = 0; k < 30; k++) {
+    var cairn = new DumbCrate({
+      position: [
+        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 15,
+      ],
+      size: [
+        .1 + Math.random() * 2,
+        .1 + Math.random() * 2,
+        .1 + Math.random() * 2,
+      ],
+      texture: Textures.THWOMP,
+      // yaw: Math.random() * PI,
+      pitch: Math.random() * PI,
+      // roll: Math.random() * PI,
+      // rPitch: Math.random() * PI,
+      // rRoll: Math.random() * PI,
+      // rYaw: Math.random() * PI,
+    });
+    world.add(cairn);
+
+    var sphere = new Sphere({
+      position: [
+        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 15,
+      ],
+      radius: .1 + Math.random(),
+      // color: [
+      //   Math.random(),
+      //   Math.random(),
+      //   Math.random(),
+      //   1
+      // ],
+      texture: Textures.EARTH,
+      // yaw: Math.random() * PI,
+      // pitch: Math.random() * PI,
+      // roll: Math.random() * PI,
+      rYaw: Math.random() * PI,
+    });
+    world.add(sphere);
+  }
+
+
+  var sun = new Sun({
+    yaw: 0 * Math.random() * 2 * PI,
+    pitch: 0 * Math.random() * 2 * PI,
+    position: [0, 0, 0],
+    alive: true,
+    rPitch: 8*PI,
+    rYaw: 8*.9*PI,
+  });
+  light.anchor = sun;
+  world.add(sun);
+
+  this.camera = new Camera();
+  hero = new Hero({
+    position: [0, 0, -8],
+    yaw: PI
+  });
+  this.camera.setAnchor(hero);
+  heroListener.hero = hero;
+  world.add(hero);
+
+};
+
+
+World.prototype.checkCollisions = function() {
+  // for (var i = 0; this.projectiles[i]; i++) {
+  //   for (var j = 0; this.things[j]; j++) {
+  //     var projectile = this.projectiles[i];
+  //     var thing = this.things[j];
+  //     if (projectile.parent == thing) {
+  //       continue;
+  //     }
+  //     if (Collision.check(projectile, thing)) {
+  //       if (projectile.parent.tribe == thing.tribe) {
+  //         this.projectilesToRemove.push(this);
+  //       } else {
+  //         if (thing.alive) {
+  //           if (thing instanceof DumbCrate &&
+  //               projectile.parent instanceof Hero) {
+  //             projectile.parent.ammo.arrows += 3;
+  //             logger.log("Picked up 3 arrows.");
+  //           }
+  //           thing.die();
+  //           projectile.detonate();
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  for (var i = 0, thingA; thingA = this.things[i]; i++) {
+    for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
+      if (this.closeEnough(thingA, thingB)) {
+        this.collide(thingA, thingB);
+      }
+    }
+  }
+};
+
+
+World.prototype.registerCollisionTypes = function() {
+  this.registerCollisionType('DumbCrate', 'Bullet', function(dumbCrate, bullet) {
+    var intersection = dumbCrate.findThingIntersection(bullet);
+    if (intersection) {
+      dumbCrate.glom(bullet, intersection.point);
+    }
+  });
+
+  this.registerCollisionType('DumbCrate', 'Hero', function(dumbCrate, hero) {
+    var relPosition = dumbCrate.toLocalCoords(vec3.create(), hero.position);
+    if (dumbCrate.contains(relPosition, Hero.HEIGHT)) {
+      dumbCrate.pushOut(hero.position, 0, Hero.HEIGHT);
+      hero.land(dumbCrate);
+    }
+  });
+};
+
+
+World.prototype.registerCollisionType = function(klassA, klassB, fn) {
+  this.collisionFunctions[klassA] = this.collisionFunctions[klassA] || {};
+  this.collisionFunctions[klassB] = this.collisionFunctions[klassB] || {};
+
+  this.collisionFunctions[klassA][klassB] = fn;
+  this.collisionFunctions[klassB][klassA] = function(thingB, thingA) {
+    fn(thingA, thingB);
+  }
+};
+
+World.prototype.collide = function(thingA, thingB) {
+  var collisionFunction = this.collisionFunctions[thingA.klass] ? 
+      this.collisionFunctions[thingA.klass][thingB.klass] :
+      null;
+  if (collisionFunction) collisionFunction(thingA, thingB);
+};
+
 
 World.prototype.remove = function(thing) {
   this.thingsToRemove.push(thing);
@@ -125,164 +282,7 @@ World.prototype.updateLists = function() {
   while (this.effects.length > 200) this.effects.shift().dispose();
 };
 
-World.prototype.populate = function() {
-  var light = new Light();
-  light.setPosition([0, 0, 0])
-  light.setAmbientColor([.4, .4, .4]);
-  light.setDirectionalColor([.7, .5, .3]);
-  this.addLight(light);
 
-  this.shelf = new Shelf({
-    position: [0, 0, 0],
-    size: 15
-  })
-  // this.add(this.shelf);
-
-
-  for (var k = 0; k < 30; k++) {
-    var cairn = new DumbCrate({
-      position: [
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-      ],
-      size: [
-        .1 + Math.random() * 2,
-        .1 + Math.random() * 2,
-        .1 + Math.random() * 2,
-      ],
-      texture: Textures.THWOMP,
-      // yaw: Math.random() * PI,
-      pitch: Math.random() * PI,
-      // roll: Math.random() * PI,
-      // rPitch: Math.random() * PI,
-      // rRoll: Math.random() * PI,
-      // rYaw: Math.random() * PI,
-    });
-    world.add(cairn);
-
-    var sphere = new Sphere({
-      position: [
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-      ],
-      radius: .1 + Math.random(),
-      // color: [
-      //   Math.random(),
-      //   Math.random(),
-      //   Math.random(),
-      //   1
-      // ],
-      texture: Textures.EARTH,
-      // yaw: Math.random() * PI,
-      // pitch: Math.random() * PI,
-      // roll: Math.random() * PI,
-      rYaw: Math.random() * PI,
-    });
-    world.add(sphere);
-  }
-
-
-  var sun = new Sun({
-    yaw: 0 * Math.random() * 2 * PI,
-    pitch: 0 * Math.random() * 2 * PI,
-    position: [0, 0, 0],
-    alive: true,
-  });
-  sun.rPitch = PI;
-  sun.rYaw = .9*PI;
-  light.anchor = sun;
-  world.add(sun);
-
-  this.camera = new Camera();
-  hero = new Hero({
-    position: [0, 0, -8],
-    yaw: PI
-  });
-  this.camera.setAnchor(hero);
-  heroListener.hero = hero;
-  world.add(hero);
-
-};
-
-times = [];
-
-times.avg = function() {
-  var sum = times.reduce(function(t, elm) {return t + elm}, 0);
-  return sum / times.length;
-}
-
-World.prototype.checkCollisions = function() {
-  // for (var i = 0; this.projectiles[i]; i++) {
-  //   for (var j = 0; this.things[j]; j++) {
-  //     var projectile = this.projectiles[i];
-  //     var thing = this.things[j];
-  //     if (projectile.parent == thing) {
-  //       continue;
-  //     }
-  //     if (Collision.check(projectile, thing)) {
-  //       if (projectile.parent.tribe == thing.tribe) {
-  //         this.projectilesToRemove.push(this);
-  //       } else {
-  //         if (thing.alive) {
-  //           if (thing instanceof DumbCrate &&
-  //               projectile.parent instanceof Hero) {
-  //             projectile.parent.ammo.arrows += 3;
-  //             logger.log("Picked up 3 arrows.");
-  //           }
-  //           thing.die();
-  //           projectile.detonate();
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-  var t0 = Date.now();
-  for (var i = 0, thingA; thingA = this.things[i]; i++) {
-    for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
-      if (this.closeEnough(thingA, thingB)) {
-
-        var cairn = null;
-        var otherThing = null;
-        var hero = null;
-
-        if (thingA instanceof DumbCrate) {
-          cairn = thingA;
-          if (thingB instanceof Hero) {
-            hero = thingB;
-          } else if (thingB instanceof Bullet) {
-            otherThing = thingB;
-          }
-        } else if (thingB instanceof DumbCrate) {
-          cairn = thingB;
-          if (thingB instanceof Hero) {
-            hero = thingA;
-          } else if (thingB instanceof Bullet) {
-            otherThing = thingA;
-          }
-        }
-
-        if (cairn && otherThing) {
-          var intersection = cairn.findThingIntersection(otherThing);
-          if (intersection) {
-            cairn.glom(otherThing, intersection.point);
-          }
-        }
-
-        if (cairn && hero) {
-          var relPosition = cairn.toLocalCoords(vec3.create(), hero.position);
-          if (cairn.contains(relPosition, Hero.HEIGHT)) {
-            cairn.pushOut(hero.position, 0, Hero.HEIGHT);
-            hero.land(cairn);
-          }
-        }
-      }
-    }
-  }
-  var dt = Date.now() - t0;
-  times.push(dt);
-};
 
 World.prototype.closeEnough = function(thingA, thingB) {
   return true;
