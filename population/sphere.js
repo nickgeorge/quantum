@@ -17,14 +17,43 @@ Sphere = function(message) {
 };
 util.inherits(Sphere, Thing);
 
-Sphere.prototype.draw = function() {
-  gl.pushModelMatrix();
-  this.transform();
-  this.render();
-  gl.popModelMatrix();
+
+Sphere.prototype.findIntersection = function(p_0, p_1) {
+  p_0 = this.toLocalCoords(vec3.create(), p_0);
+  p_1 = this.toLocalCoords(vec3.create(), p_1);
+  var delta = vec3.subtract([], p_1, p_0);
+  var a = 0, b = 0, c = 0;
+
+  for (var i = 0; i < 3; i++) {
+    a += util.math.sqr(delta[i]);
+    b += 2 * delta[i] * (p_0[i]);
+    c += util.math.sqr(p_0[i]);
+  }
+  c -= util.math.sqr(this.radius);
+
+  var discriminant = b*b - 4*a*c;
+  if (discriminant < 0) return null;
+
+  // TODO: If both points are on one side, we can return.
+
+  var rootDiscriminant = Math.sqrt(discriminant);
+  // n.b. t_0 < t_1 because a > 0 (local min)
+  var t_0 = (-b - rootDiscriminant)/(2*a);
+  var t_1 = (-b + rootDiscriminant)/(2*a);
+  var t = t_0 >= 0 ? t_0 : t_1;
+  if (t < 0 || t > 1) return null;
+
+
+  var closestPoint = vec3.scaleAndAdd([], p_0, delta, t);
+  return {
+    part: this,
+    t: t,
+    point: closestPoint
+  }
 };
 
 Sphere.prototype.render = function() {
+  util.base(this, 'render');
   Textures.bindTexture(this.texture || Textures.MOON);
   gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
   gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -47,6 +76,7 @@ Sphere.prototype.render = function() {
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.setMatrixUniforms();
   gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  shaderProgram.reset();
 };
 
 Sphere.prototype.initBuffers = function() {
@@ -100,10 +130,3 @@ Sphere.prototype.initBuffers = function() {
   indexData.reverse();
   this.indexBuffer = util.generateIndexBuffer(indexData);
 };
-
-// DumbCrate.prototype.contains = function(v, opt_extra) {
-//   var extra = opt_extra || 0;
-//   var squaredDistance = vec3.squaredDistance(v, this.position);
-//   return squaredDistance > util.square(this.radius + extra);
-// };
-

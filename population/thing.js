@@ -6,6 +6,7 @@ Thing = function(message) {
   this.rPitch = message.rPitch || 0;
   this.rYaw = message.rYaw || 0;
   this.rRoll = message.rRoll || 0;
+  this.leaf = message.leaf || false;
 
   this.velocity = vec3.nullableClone(message.velocity);
   this.position = vec3.nullableClone(message.position);
@@ -25,6 +26,10 @@ Thing = function(message) {
 };
 
 Thing.nextId = 0;
+
+Thing.prototype.eachPart = function(fn) {
+  util.array.forEach(this.parts, fn, this);
+};
 
 Thing.prototype.setId = function(id) {
   this.id = id;
@@ -97,8 +102,7 @@ Thing.prototype.advance = function(dt) {
       this.velocity, dt);
   this.computeTransforms();
 
-
-  util.array.forEach(this.parts, function(part){
+  this.eachPart(function(part){
     part.advance(dt);
   });
 };
@@ -146,8 +150,11 @@ Thing.prototype.toLocalCoords = function(out, v) {
 
 
 Thing.prototype.render = function() {
-  util.array.forEach(this.parts, function(part){
-    part.render();
+  if (this.leaf) {
+    this.renderSelf();
+  }
+  this.eachPart(function(part){
+    part.draw();
   });
 };
 
@@ -162,5 +169,61 @@ Thing.prototype.dispose = function() {
   });
 };
 
-Thing.prototype.update = util.unimplemented;
-Thing.prototype.getOuterRadius = util.unimplemented;
+
+Thing.prototype.findThingIntersection = function(thing) {
+  return this.findIntersection(thing.lastPosition, thing.position);
+};
+
+
+Thing.prototype.findIntersection = function(p_0, p_1) {
+  for (var i = 0; this.parts[i]; i++) {
+    var intersection = this.parts[i].findIntersection(p_0, p_1);
+    if (intersection) return intersection;
+  };
+  return null;
+};
+
+
+Thing.prototype.glom = function(thing, intersection) {
+  var point = intersection.point;
+
+  if (intersection.part != this) {
+    intersection.part.toWorldCoords(point, point);
+  }
+
+  util.array.remove(world.things, thing);
+  this.parts.push(thing);
+  vec3.copy(thing.velocity, Vector.ZERO);
+
+  vec3.copy(thing.position, point);
+  thing.computeTransforms();
+};
+
+
+Thing.prototype.renderSelf = function() {
+  Textures.bindTexture(this.texture || Textures.CRATE);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  if (this.texture) {
+    if (!this.texture.loaded) return;
+    shaderProgram.setUseTexture(true);
+  } else {
+    shaderProgram.setUseTexture(false);
+  }
+  if (this.color) {
+    shaderProgram.setUniformColor(this.color);
+  }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, Box.normalBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, Box.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Box.indexBuffer);
+  gl.setMatrixUniforms();
+
+  gl.drawElements(gl.TRIANGLES, Box.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+  shaderProgram.reset();
+};

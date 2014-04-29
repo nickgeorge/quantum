@@ -1,6 +1,7 @@
 Pane = function(message) {
   this.super(message);
   this.size = message.size;
+  util.assert(this.size[2] == 0, 'z-size must be 0 for a pane.');
 
   if (!Pane.normalBuffer) Pane.initBuffers();
 
@@ -8,12 +9,11 @@ Pane = function(message) {
       vec2.clone(message.textureCounts) :
       [1, 1];
 
-  this.motley = message.motley;
+  this.texture = message.texture;
 
   this.vertexBuffer = null;
-  this.texture = message.texture;
   this.textureBuffer = null;
-  if (this.texture) this.createTextureBuffer();
+  this.createTextureBuffer();
 
   this.createVertexBuffer(this.size);
 
@@ -87,3 +87,41 @@ Pane.prototype.createTextureBuffer = function(){
   this.textureBuffer = util.generateBuffer(textureCoords, 2);
   return this;
 };
+
+
+Pane.prototype.contains = function(v, opt_extra) {
+  var extra = opt_extra || 0;
+  for (var i = 0; i < 2; i++) {
+    var size = this.size[i]/2 + extra;
+    if (v[i] < -size || v[i] > size) {
+      return false;
+    }
+  }
+  return true;
+};
+
+
+Pane.prototype.findIntersection = function(p_0, p_1) {
+  p_0 = this.toLocalCoords(vec3.create(), p_0);
+  p_1 = this.toLocalCoords(vec3.create(), p_1);
+
+  var p_int = [];
+  var delta = vec3.subtract([], p_1, p_0);
+
+  p_int[2] = 0;
+  var t = -p_0[2] / delta[2];
+
+  if (t < 0 || t > 1) return null;
+
+  p_int[1] = t*(delta[1]) + p_0[1];
+  p_int[0] = t*(delta[0]) + p_0[0];
+  if (this.contains(p_int)) {
+    return {
+      part: this,
+      point: p_int,
+      t: 0
+    };
+  }
+  return null;
+};
+

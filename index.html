@@ -7,12 +7,11 @@
     <link rel='stylesheet' href='style.css' type='text/css' />
 
     <script src='util/framerate.js'></script>
-    <script src='util/light.js'></script>
-    <script src='util/physics.js'></script>
     <script src='util/util.js'></script>
     <script src='util/vector.js'></script>
     <script src='util/key_code.js'></script>
     <script src='input/hero_listener.js'></script>
+    <script src='population/light.js'></script>
     <script src='population/thing.js'></script>
     <script src='population/box.js'></script>
     <script src='population/dumb_crate.js'></script>
@@ -84,7 +83,7 @@
           }
 
           float distance = length(relativeLightPosition);
-          float distanceDropoff = (1.0/(distance*distance/100.0 + 1.0));
+          float distanceDropoff = (1.0/(distance*distance/50.0 + 1.0));
           
           lightWeighting = uAmbientColor + 
               uPointLightingColor * specularLightWeighting * distanceDropoff +
@@ -166,7 +165,7 @@
         hud.render();
       }
 
-      function animate() {
+      function advanceWorld() {
         var timeNow = new Date().getTime();
         if (framerate.lastTime != 0) {
           var elapsed = timeNow - framerate.lastTime;
@@ -184,7 +183,7 @@
         requestAnimationFrame(tick);
         if (!heroListener.mouseIsLocked) return;
         drawScene();
-        animate();
+        advanceWorld();
       }
 
 
@@ -211,6 +210,7 @@
         world = new World();
         world.populate();
 
+        drawScene();
         tick();
       }
 
@@ -242,7 +242,8 @@
 
   <body onload="webGLStart();">
     <div id='game-div'>
-      <canvas id='gl-canvas'></canvas>
+      <canvas id='gl-canvas'>
+      </canvas>
       <canvas id='hud-canvas'></canvas>
     </div>
   </body>

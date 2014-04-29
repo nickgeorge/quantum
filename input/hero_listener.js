@@ -68,8 +68,7 @@ HeroListener.prototype.enableMouseLock = function() {
   if (this.canLockPointer) {
     this.canvas.requestPointerLock();
   } else {
-    // TODO: Something intelligent.
-    console.log('Ye canna\' control that.');
+    console.log('Ye canna\' do that.');
   }
 };
 
@@ -85,7 +84,6 @@ HeroListener.prototype.onMouseMove = function(event) {
         event.webkitMovementY ||
         0;
 
-    //console.log(movementX + " : " + movementY);
     this.hero.yaw -= movementX * this.sensitivityX;
     this.hero.pitch -= movementY * this.sensitivityY;
 

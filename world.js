@@ -34,7 +34,7 @@ World = function() {
 World.prototype.populate = function() {
   var light = new Light();
   light.setPosition([0, 0, 0])
-  light.setAmbientColor([.275, .275, .275]);
+  light.setAmbientColor([.29, .29, .29]);
   light.setDirectionalColor([.7, .5, .3]);
   this.addLight(light);
 
@@ -42,7 +42,7 @@ World.prototype.populate = function() {
     position: [0, 0, 0],
     size: 15
   })
-  // this.add(this.shelf);
+  this.add(this.shelf);
 
 
   for (var k = 0; k < 30; k++) {
@@ -152,7 +152,21 @@ World.prototype.registerCollisionTypes = function() {
   this.registerCollisionType('DumbCrate', 'Bullet', function(dumbCrate, bullet) {
     var intersection = dumbCrate.findThingIntersection(bullet);
     if (intersection) {
-      dumbCrate.glom(bullet, intersection.point);
+      dumbCrate.glom(bullet, intersection);
+    }
+  });
+
+  this.registerCollisionType('Sphere', 'Bullet', function(sphere, bullet) {
+    var intersection = sphere.findThingIntersection(bullet);
+    if (intersection) {
+      sphere.glom(bullet, intersection);
+    }
+  });
+
+  this.registerCollisionType('Shelf', 'Bullet', function(shelf, bullet) {
+    var intersection = shelf.findThingIntersection(bullet);
+    if (intersection) {
+      shelf.glom(bullet, intersection);
     }
   });
 
@@ -205,7 +219,6 @@ World.prototype.draw = function() {
 
   mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
-  this.shelf && this.shelf.draw();
   util.array.apply(this.things, 'draw');
   util.array.apply(this.effects, 'draw');
   util.array.apply(this.projectiles, 'draw');
@@ -229,7 +242,6 @@ World.prototype.advance = function(dt) {
     effects.advance(dt);
   });
   this.yaw += this.rotSpeed * dt;
-  this.shelf.advance(dt);
   this.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();

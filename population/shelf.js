@@ -2,16 +2,13 @@ Shelf = function(message) {
   this.super(message);
   this.size = message.size;
 
-// debugger;
-  this.frontPane = new Pane({
-    texture: Textures.BYZANTINE,
-      textureCounts: [50, 50],
-    size: [this.size, this.size, 0],
-    position: [0, 0, -this.size/2],
-  });
-
   this.parts = [
-    this.frontPane,
+    new Pane({
+      texture: Textures.BYZANTINE,
+        textureCounts: [50, 50],
+      size: [this.size, this.size, 0],
+      position: [0, 0, -this.size/2],
+    }),
     new Pane({
       texture: Textures.BYZANTINE,
       textureCounts: [50, 50],

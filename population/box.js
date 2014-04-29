@@ -1,4 +1,5 @@
 Box = function(message) {
+  message.leaf = true;
   this.super(message);
   if (!Box.normalBuffer) Box.initBuffers();
 
@@ -11,8 +12,7 @@ Box = function(message) {
   this.textureBuffer = null;
 
   this.createVertexBuffer(this.size);
-
-  if (!this.textureBuffer) this.createTextureBuffer();
+  this.createTextureBuffer();
 
   this.outerRadius = Math.sqrt(
     util.sqr(this.size[0]/2) +
@@ -38,34 +38,6 @@ Box.prototype.draw = function() {
 
 };
 
-Box.prototype.render = function() {
-  // console.log(this.texture || Textures.CRATE);
-  Textures.bindTexture(this.texture || Textures.CRATE);
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  if (this.texture) {
-    if (!this.texture.loaded) return;
-    shaderProgram.setUseTexture(true);
-  } else {
-    shaderProgram.setUseTexture(false);
-  }
-  if (this.color) {
-    shaderProgram.setUniformColor(this.color);
-  }
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, Box.normalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, Box.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Box.indexBuffer);
-  gl.setMatrixUniforms();
-
-  gl.drawElements(gl.TRIANGLES, Box.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-  shaderProgram.reset();
-};
 
 Box.prototype.min = function(index) {
   return this.position[index] - this.size[index]/2;

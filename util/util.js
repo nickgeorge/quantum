@@ -249,7 +249,7 @@ util.dom.getData = function(element, key) {
 };
 
 util.dom.getIntData = function(element, key) {
-  return parseInt(element.dataset[key]);
+  return parseInt(util.dom.getData(element, key));
 };
 
 util.dom.hide = function(element) {
@@ -386,6 +386,25 @@ util.array.forEach = function(arr, f, opt_ctx) {
   }
 };
 
+
+util.array.find = function(arr, f, opt_obj) {
+  var i = goog.array.findIndex(arr, f, opt_obj);
+  return i < 0 ? null : arr[i];
+};
+
+
+util.array.findIndex = function(arr, f, opt_obj) {
+  var l = arr.length;
+  var arr2 = goog.isString(arr) ? arr.split('') : arr;
+  for (var i = 0; i < l; i++) {
+    if (i in arr2 && f.call(opt_obj, arr2[i], i, arr)) {
+      return i;
+    }
+  }
+  return -1;
+};
+
+
 util.array.map = function(arr, f, opt_ctx) {
   var l = arr.length;
   var arr2 = arr;
@@ -429,4 +448,14 @@ util.object.shallowClone = function(obj) {
     res[key] = obj[key];
   }
   return res;
+};
+
+
+/***************/
+/*  util.math  */
+/***************/
+util.math = {};
+
+util.math.sqr = function(x) {
+  return x*x;
 };

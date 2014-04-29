@@ -84,7 +84,7 @@ Hero.prototype.getOuterRadius = function() {
 
 
 Hero.prototype.shoot = function() {
-  var v = 12;
+  var v = 20;
   var v_xz =  Math.cos(this.pitch)*v;
 
   var v_shot = [

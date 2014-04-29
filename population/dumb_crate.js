@@ -6,7 +6,8 @@ DumbCrate = function(message) {
       [message.size, message.size, message.size];
   this.box = new Box({
     size: this.size,
-    color: message.color
+    color: message.color,
+    texture: message.texture
   });
 
   this.parts = [this.box];
@@ -18,29 +19,6 @@ DumbCrate = function(message) {
   this.klass = "DumbCrate";
 };
 util.inherits(DumbCrate, Thing);
-
-DumbCrate.DEFAULT_SPEED = 60;
-
-DumbCrate.prototype.die = function() {
-  util.base(this, 'die');
-
-  this.box.setColor([1, 1, 1, 1]);
-  this.box.texture = null;
-  this.alive = false;
-};
-
-DumbCrate.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
-  util.array.forEach(this.parts, function(part) {
-    part.advance(dt);
-  });
-};
-
-DumbCrate.prototype.render = function() {
-  util.array.forEach(this.parts, function(part) {
-    part.draw();
-  });
-};
 
 DumbCrate.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();
@@ -57,15 +35,6 @@ DumbCrate.prototype.contains = function(v, opt_extra) {
     }
   }
   return true;
-};
-
-DumbCrate.prototype.glom = function(thing, point) {
-  util.array.remove(world.things, thing);
-  this.parts.push(thing);
-  vec3.copy(thing.velocity, Vector.ZERO);
-
-  vec3.copy(thing.position, point);
-  thing.computeTransforms();
 };
 
 DumbCrate.prototype.pushOut = function(v, opt_tolerance, opt_extraPush) {
@@ -87,10 +56,6 @@ DumbCrate.prototype.pushOut = function(v, opt_tolerance, opt_extraPush) {
     v[closestAxis] = (this.size[closestAxis]/2 + extraPush) * direction;
   }
   this.toWorldCoords(v, v);
-};
-
-DumbCrate.prototype.findThingIntersection = function(thing) {
-  return this.findIntersection(thing.lastPosition, thing.position);
 };
 
 
