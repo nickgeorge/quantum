@@ -1,4 +1,5 @@
 Sphere = function(message) {
+  message.leaf = true;
   this.super(message);
   this.radius = message.radius || 1;
   this.longitudeCount = message.longitudeCount || 25;
@@ -12,7 +13,7 @@ Sphere = function(message) {
 
   this.texture = message.texture;
 
-  this.initBuffers();
+  this.createBuffers();
   this.klass = 'Sphere';
 };
 util.inherits(Sphere, Thing);
@@ -52,34 +53,7 @@ Sphere.prototype.findIntersection = function(p_0, p_1) {
   }
 };
 
-Sphere.prototype.render = function() {
-  util.base(this, 'render');
-  Textures.bindTexture(this.texture || Textures.MOON);
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  if (this.texture) {
-    if (!this.texture.loaded) return;
-    shaderProgram.setUseTexture(true);
-  } else {
-    shaderProgram.setUseTexture(false);
-  }
-  if (this.color) {
-    shaderProgram.setUniformColor(this.color);
-  }
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-  gl.setMatrixUniforms();
-  gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-  shaderProgram.reset();
-};
-
-Sphere.prototype.initBuffers = function() {
+Sphere.prototype.createBuffers = function() {
   var vertexData = [];
   var normalData = [];
   var indexData = [];

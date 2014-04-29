@@ -58,12 +58,8 @@ World.prototype.populate = function() {
         .1 + Math.random() * 2,
       ],
       texture: Textures.THWOMP,
-      // yaw: Math.random() * PI,
+      yaw: Math.random() * PI,
       pitch: Math.random() * PI,
-      // roll: Math.random() * PI,
-      // rPitch: Math.random() * PI,
-      // rRoll: Math.random() * PI,
-      // rYaw: Math.random() * PI,
     });
     world.add(cairn);
 
@@ -74,16 +70,7 @@ World.prototype.populate = function() {
         (Math.random() - .5) * 15,
       ],
       radius: .1 + Math.random(),
-      // color: [
-      //   Math.random(),
-      //   Math.random(),
-      //   Math.random(),
-      //   1
-      // ],
       texture: Textures.EARTH,
-      // yaw: Math.random() * PI,
-      // pitch: Math.random() * PI,
-      // roll: Math.random() * PI,
       rYaw: Math.random() * PI,
     });
     world.add(sphere);
@@ -140,9 +127,7 @@ World.prototype.checkCollisions = function() {
   // }
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
-      if (this.closeEnough(thingA, thingB)) {
-        this.collide(thingA, thingB);
-      }
+      this.collide(thingA, thingB);
     }
   }
 };
@@ -170,13 +155,13 @@ World.prototype.registerCollisionTypes = function() {
     }
   });
 
-  this.registerCollisionType('DumbCrate', 'Hero', function(dumbCrate, hero) {
-    var relPosition = dumbCrate.toLocalCoords(vec3.create(), hero.position);
-    if (dumbCrate.contains(relPosition, Hero.HEIGHT)) {
-      dumbCrate.pushOut(hero.position, 0, Hero.HEIGHT);
-      hero.land(dumbCrate);
-    }
-  });
+  // this.registerCollisionType('DumbCrate', 'Hero', function(dumbCrate, hero) {
+  //   var relPosition = dumbCrate.toLocalCoords(vec3.create(), hero.position);
+  //   if (dumbCrate.contains(relPosition, Hero.HEIGHT)) {
+  //     dumbCrate.pushOut(hero.position, 0, Hero.HEIGHT);
+  //     hero.land(dumbCrate);
+  //   }
+  // });
 };
 
 
@@ -190,6 +175,7 @@ World.prototype.registerCollisionType = function(klassA, klassB, fn) {
   }
 };
 
+
 World.prototype.collide = function(thingA, thingB) {
   var collisionFunction = this.collisionFunctions[thingA.klass] ? 
       this.collisionFunctions[thingA.klass][thingB.klass] :
@@ -202,14 +188,17 @@ World.prototype.remove = function(thing) {
   this.thingsToRemove.push(thing);
 };
 
+
 World.prototype.add = function(thing) {
   this.thingsToAdd.push(thing);
 };
+
 
 World.prototype.addDirectly_ = function(thing) {
   this.things.push(thing);
   this.thingsById[thing.id] = thing;
 };
+
 
 World.prototype.draw = function() {
   gl.pushViewMatrix();
@@ -248,9 +237,11 @@ World.prototype.advance = function(dt) {
   while (this.effects.length > 200) this.effects.shift().dispose();
 };
 
+
 World.prototype.addLight = function(light) {
   this.lights.push(light);
 };
+
 
 World.prototype.applyLights = function() {
   for (var i = 0, light; light = this.lights[i]; i++) {
@@ -259,6 +250,7 @@ World.prototype.applyLights = function() {
   }
 };
 
+
 World.prototype.reset = function() {
   world.things = [];
   world.effects = [];
@@ -266,11 +258,13 @@ World.prototype.reset = function() {
   Tribe.clear();
 
   world.populate();
-}
+};
+
 
 World.prototype.inBounds = function(xyz) {
   return this.shelf.inBounds(xyz);
 };
+
 
 World.prototype.updateLists = function() {
   util.array.forEach(this.thingsToAdd, this.addDirectly_, this);
@@ -294,17 +288,6 @@ World.prototype.updateLists = function() {
   while (this.effects.length > 200) this.effects.shift().dispose();
 };
 
-
-
-World.prototype.closeEnough = function(thingA, thingB) {
-  return true;
-  // var vectorTo = Vector.difference(thingA.position, thingB.position);
-  // var distance = Vector.mag(vectorTo);
-  // var outerRadiusA = thingA.getOuterRadius();
-  // var outerRadiusB = thingB.getOuterRadius();
-  // return distance <
-  //     Math.sqrt(outerRadiusA*outerRadiusA + outerRadiusB*outerRadiusB); 
-};
 
 World.prototype.getThing = function(id) {
   return this.thingsById[id];

@@ -56,16 +56,3 @@ Shelf.prototype.lowBound = function(axis) {
 Shelf.prototype.highBound = function(axis) {
   return this.size / 2;
 };
-
-
-Shelf.prototype.render = function() {
-  util.array.apply(this.parts, 'draw');
-};
-
-Shelf.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
-
-  util.array.forEach(this.parts, function(part) {
-    part.advance(dt);
-  });
-};

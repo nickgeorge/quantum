@@ -1,9 +1,8 @@
 Pane = function(message) {
+  message.leaf = true;
   this.super(message);
   this.size = message.size;
   util.assert(this.size[2] == 0, 'z-size must be 0 for a pane.');
-
-  if (!Pane.normalBuffer) Pane.initBuffers();
 
   this.textureCounts = message.textureCounts ? 
       vec2.clone(message.textureCounts) :
@@ -13,43 +12,24 @@ Pane = function(message) {
 
   this.vertexBuffer = null;
   this.textureBuffer = null;
-  this.createTextureBuffer();
+  this.indexBuffer = null;
+  this.normalBuffer = null;
 
-  this.createVertexBuffer(this.size);
+  this.createBuffers();
 
   this.klass = 'Pane';
 };
 util.inherits(Pane, Thing);
 
-
-Pane.prototype.render = function() {
-  if (this.texture) {
-    if (!this.texture.loaded) return;
-    shaderProgram.setUseTexture(true);
-    Textures.bindTexture(this.texture);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  } else {
-    shaderProgram.setUseTexture(false);
-  }
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, Pane.normalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, Pane.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Pane.indexBuffer);
-  gl.setMatrixUniforms();
-
-  gl.drawElements(gl.TRIANGLES, Pane.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-  shaderProgram.reset();
+Pane.prototype.createBuffers = function() {
+  this.createVertexBuffer();
+  this.createTextureBuffer();
+  this.createNormalBuffer();
+  this.createIndexBuffer();
 };
 
-
-Pane.prototype.createVertexBuffer = function(size) {
-  var halfSize = Vector.multiply(size, .5);
+Pane.prototype.createVertexBuffer = function() {
+  var halfSize = vec2.scale([], this.size, .5);
   var verticies = [
     -halfSize[0], -halfSize[1],  0,
      halfSize[0], -halfSize[1],  0,
@@ -60,19 +40,22 @@ Pane.prototype.createVertexBuffer = function(size) {
   this.vertexBuffer = util.generateBuffer(verticies, 3);
 };
 
-Pane.initBuffers = function() {
+Pane.prototype.createNormalBuffer = function() {
   var vertexNormals = [
     0.0,  0.0,  1.0,
     0.0,  0.0,  1.0,
     0.0,  0.0,  1.0,
     0.0,  0.0,  1.0,
   ];
-  Pane.normalBuffer = util.generateBuffer(vertexNormals, 3);
+  this.normalBuffer = util.generateBuffer(vertexNormals, 3);
+};
 
+
+Pane.prototype.createIndexBuffer = function() {
   var vertexIndices = [
     0, 1, 2,    0, 2, 3
   ];
-  Pane.indexBuffer = util.generateIndexBuffer(vertexIndices);
+  this.indexBuffer = util.generateIndexBuffer(vertexIndices);
 };
 
 Pane.prototype.createTextureBuffer = function(){

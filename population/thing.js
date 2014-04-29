@@ -176,6 +176,9 @@ Thing.prototype.findThingIntersection = function(thing) {
 
 
 Thing.prototype.findIntersection = function(p_0, p_1) {
+  p_0 = this.toLocalCoords(vec3.create(), p_0);
+  p_1 = this.toLocalCoords(vec3.create(), p_1);
+  
   for (var i = 0; this.parts[i]; i++) {
     var intersection = this.parts[i].findIntersection(p_0, p_1);
     if (intersection) return intersection;
@@ -217,13 +220,13 @@ Thing.prototype.renderSelf = function() {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, Box.normalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, Box.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Box.indexBuffer);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.setMatrixUniforms();
 
-  gl.drawElements(gl.TRIANGLES, Box.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   shaderProgram.reset();
 };
