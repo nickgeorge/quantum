@@ -83,11 +83,11 @@
           }
 
           float distance = length(relativeLightPosition);
-          float distanceDropoff = (1.0/(distance*distance/50.0 + 1.0));
+          float distanceDropoff = (1.0/(distance*distance/50625.0 + 1.0)) * 1.0 + 0.0;
           
           lightWeighting = uAmbientColor + 
-              uPointLightingColor * specularLightWeighting * distanceDropoff +
-              uPointLightingColor * directionalLightWeighting * distanceDropoff;
+              1.0 * uPointLightingColor * specularLightWeighting * distanceDropoff +
+              1.0 * uPointLightingColor * directionalLightWeighting * distanceDropoff;
         }
 
         vec4 fragmentColor;
@@ -113,6 +113,7 @@
       uniform mat3 uNormalMatrix;
       uniform vec4 uColor;
       uniform vec3 uPointLightingLocation;
+      uniform vec3 uEyeLocation;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
@@ -126,8 +127,8 @@
         
         gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
         vTextureCoord = aTextureCoord;
-        vTransformedNormal = normalize(uNormalMatrix * aVertexNormal);
-        vEyeDirection = normalize(uPointLightingLocation - vPosition.xyz);
+        vTransformedNormal = uNormalMatrix * aVertexNormal;
+        vEyeDirection = normalize(uEyeLocation - vPosition.xyz);
       }
     </script>
 
@@ -154,7 +155,7 @@
 
         mat4.perspective(gl.perspectiveMatrix,
             PI/4, gl.viewportWidth/gl.viewportHeight,
-            0.0007, 30.0);
+            .1, 9450.0);
 
         gl.useProgram(shaderProgram);
 

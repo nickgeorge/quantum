@@ -65,6 +65,7 @@ ShaderProgram.createShaderProgram = function() {
   shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, 'uSampler');
   shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, 'uAmbientColor');
   shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, 'uPointLightingLocation');
+  shaderProgram.eyeLocationUniform = gl.getUniformLocation(shaderProgram, 'uEyeLocation');
   shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, 'uPointLightingColor');
 
   shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, 'uUseLighting');

@@ -7,6 +7,7 @@ util.inherits(Camera, Thing);
 
 Camera.prototype.transform = function() {
   gl.transformView(this.anchor.toLocalTransform);
+  gl.uniform3fv(shaderProgram.eyeLocationUniform, this.anchor.position);
 };
 
 Camera.prototype.advance = function(dt) {

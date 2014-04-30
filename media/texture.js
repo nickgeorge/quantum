@@ -8,7 +8,7 @@ Textures.bindTexture = function(texture) {
 
 Textures.initTextures = function() {
   var textures = {
-    CRATE: Textures.initTexture(Textures.ROOT + 'crate_light.png'),
+    CRATE: Textures.initTexture(Textures.ROOT + 'crate.png'),
     THWOMP: Textures.initTexture(Textures.ROOT + 'adambw.png'),
     GRASS: Textures.initTexture(Textures.ROOT + 'grass.png'),
     SPARK: Textures.initTexture(Textures.ROOT + 'spark.png'),

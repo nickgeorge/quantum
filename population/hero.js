@@ -10,8 +10,8 @@ Hero = function(message) {
 };
 util.inherits(Hero, Thing);
 
-Hero.JUMP_VELOCITY = 4;
-Hero.HEIGHT = .06;
+Hero.JUMP_VELOCITY = 100;
+Hero.HEIGHT = 1.8;
 
 
 Hero.prototype.advance = function(dt) {
@@ -28,9 +28,9 @@ Hero.prototype.advance = function(dt) {
 
 
   if (this.landed) {
-    this.velocity[0] = .4 * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] = 12 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = .4 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = 12 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
     if (this.ground) {
@@ -42,14 +42,14 @@ Hero.prototype.advance = function(dt) {
 
     }
   } else {
-    this.velocity[0] += 2 * dt * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] += 60 * dt * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] += 2 * dt * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] += 60 * dt * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
-    this.velocity[0] = Math.min(1, Math.max(-1, this.velocity[0]));
-    this.velocity[2] = Math.min(1, Math.max(-1, this.velocity[2]));
-    this.velocity[1] -= .03;
+    this.velocity[0] = Math.min(30, Math.max(-30, this.velocity[0]));
+    this.velocity[2] = Math.min(30, Math.max(-30, this.velocity[2]));
+    this.velocity[1] -= world.G*dt;
   }
 
   for (var i = 0; i < 3; i++) {
@@ -85,7 +85,7 @@ Hero.prototype.getOuterRadius = function() {
 
 
 Hero.prototype.shoot = function() {
-  var v = 20;
+  var v = 600;
   var v_xz =  Math.cos(this.pitch)*v;
 
   var v_shot = [
@@ -96,7 +96,7 @@ Hero.prototype.shoot = function() {
   world.add(new Bullet({
     position: this.position,
     velocity: v_shot,
-    radius: .015,
+    radius: .45,
     yaw: this.yaw,
     pitch: this.pitch,
     roll: this.roll,

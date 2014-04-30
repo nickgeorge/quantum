@@ -4,7 +4,7 @@ World = function() {
   this.projectiles = [];
   this.effects = [];
   this.lights = [];
-  this.G = 30;
+  this.G = 50;
   this.clearColorRgba = [.0, .0, .0, 1];
   this.camera = null;
   this.shelf = null;
@@ -38,42 +38,43 @@ World.prototype.populate = function() {
 
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: 15
+    size: 450
   })
   this.add(this.shelf);
 
 
   for (var k = 0; k < 30; k++) {
-    var cairn = new DumbCrate({
+    var dumbCrate = new DumbCrate({
       position: [
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 450,
+        (Math.random() - .5) * 450,
+        (Math.random() - .5) * 450,
       ],
       size: [
-        .1 + Math.random() * 2,
-        .1 + Math.random() * 2,
-        .1 + Math.random() * 2,
+        10 + Math.random() * 60,
+        10 + Math.random() * 60,
+        10 + Math.random() * 60,
       ],
-      texture: Textures.THWOMP,
-      // yaw: Math.random() * PI,
-      // pitch: Math.random() * PI,
+      texture: Textures.CRATE,
+      yaw: Math.random() * PI,
+      pitch: Math.random() * PI,
+      rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
+      rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
-    this.add(cairn);
+    this.add(dumbCrate);
 
     var sphere = new Sphere({
       position: [
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
-        (Math.random() - .5) * 15,
+        (Math.random() - .5) * 450,
+        (Math.random() - .5) * 450,
+        (Math.random() - .5) * 450,
       ],
-      radius: .1 + Math.random(),
+      radius: 3 + Math.random()*30,
       texture: Textures.EARTH,
-      rYaw: Math.random() * PI,
+      rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
     this.add(sphere);
   }
-
 
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
@@ -88,7 +89,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, 0, 8]
+    position: [0, 0, 0]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
