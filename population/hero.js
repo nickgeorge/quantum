@@ -11,14 +11,14 @@ Hero = function(message) {
 util.inherits(Hero, Thing);
 
 Hero.JUMP_VELOCITY = 4;
-Hero.HEIGHT = .03;
+Hero.HEIGHT = .06;
 
 
 Hero.prototype.advance = function(dt) {
   // not sure it's ok to do basic advance first...
   // might add a frame of latency.
   // TODO: think about this more.
-  util.base(this, 'advance', dt);
+  util.base(this, 'advance', dt, true);
   var landedHeight = world.shelf.lowBound(i) + Hero.HEIGHT;
 
   if (this.position[1] < landedHeight && this.velocity[1] <= 0) {
@@ -26,10 +26,11 @@ Hero.prototype.advance = function(dt) {
     this.land();
   }
 
+
   if (this.landed) {
-    this.velocity[0] = .5 * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] = .4 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = .5 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = .4 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
     if (this.ground) {
@@ -95,7 +96,7 @@ Hero.prototype.shoot = function() {
   world.add(new Bullet({
     position: this.position,
     velocity: v_shot,
-    size: .02,
+    radius: .015,
     yaw: this.yaw,
     pitch: this.pitch,
     roll: this.roll,

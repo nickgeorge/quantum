@@ -8,7 +8,6 @@
 
     <script src='util/framerate.js'></script>
     <script src='util/util.js'></script>
-    <script src='util/vector.js'></script>
     <script src='util/key_code.js'></script>
     <script src='input/hero_listener.js'></script>
     <script src='population/light.js'></script>
@@ -30,6 +29,7 @@
     <script src='gl-matrix/vec2.js'></script>
     <script src='gl-matrix/vec3.js'></script>
     <script src='gl-matrix/vec4.js'></script>
+    <script src='gl-matrix/extensions.js'></script>
     <script src='media/texture.js'></script>
     <script src='media/sound_manager.js'></script>
     <script src='effects/double_explosion.js'></script>
@@ -182,8 +182,8 @@
       function tick() {
         requestAnimationFrame(tick);
         if (!heroListener.mouseIsLocked) return;
-        drawScene();
         advanceWorld();
+        drawScene();
       }
 
 

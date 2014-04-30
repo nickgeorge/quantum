@@ -14,12 +14,12 @@ Sun = function(message) {
 util.inherits(Sun, Thing);
 
 Sun.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
   this.position = [
     2.75 * Math.sin(this.age / .5/6),
-    2.75 * Math.sin(this.age / .6/6),
+    -3 + 2.75 * Math.sin(this.age / .6/6),
     2.75 * Math.sin(this.age / .4/6),
   ];
+  util.base(this, 'advance', dt);
 };
 
 Sun.prototype.render = function() {

@@ -70,7 +70,7 @@ Thing.prototype.getClosestThing = function() {
         (this.tribe && this.tribe == thing.tribe)) {
       continue;
     }
-    var d = Vector.distanceSquared(this.position, thing.position);
+    var d = vec3.squaredDistance(this.position, thing.position);
     if (d < minDistance) {
       minDistance = d;
       closestThing = thing;
@@ -100,7 +100,6 @@ Thing.prototype.advance = function(dt) {
   this.roll += this.rRoll * dt;
   vec3.scaleAndAdd(this.position, this.position,
       this.velocity, dt);
-  this.computeTransforms();
 
   this.eachPart(function(part){
     part.advance(dt);
@@ -114,17 +113,21 @@ Thing.prototype.computeTransforms = function() {
   mat4.rotate(this.toWorldTransform,
       this.toWorldTransform,
       this.yaw,
-      Vector.J);
+      vec3.J);
   mat4.rotate(this.toWorldTransform,
       this.toWorldTransform,
       this.pitch,
-      Vector.I);
+      vec3.I);
   mat4.rotate(this.toWorldTransform,
       this.toWorldTransform,
       this.roll,
-      Vector.K); 
+      vec3.K); 
 
   mat4.invert(this.toLocalTransform, this.toWorldTransform);
+
+  this.eachPart(function(part){
+    part.computeTransforms();
+  });
 };
 
 /**
@@ -196,7 +199,7 @@ Thing.prototype.glom = function(thing, intersection) {
 
   util.array.remove(world.things, thing);
   this.parts.push(thing);
-  vec3.copy(thing.velocity, Vector.ZERO);
+  vec3.copy(thing.velocity, vec3.ZERO);
 
   vec3.copy(thing.position, point);
   thing.computeTransforms();

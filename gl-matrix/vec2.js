@@ -51,14 +51,6 @@ vec2.clone = function(a) {
     return out;
 };
 
-vec2.nullableClone = function(a) {
-    if (a) {
-        return vec2.clone(a);
-    } else {
-        return vec2.create();
-    }
-};
-
 /**
  * Creates a new vec2 initialized with the given values
  *

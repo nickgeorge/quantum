@@ -4,8 +4,6 @@ World = function() {
   this.projectiles = [];
   this.effects = [];
   this.lights = [];
-  this.yaw = 0;
-  this.rotSpeed = 0;
   this.G = 30;
   this.clearColorRgba = [.0, .0, .0, 1];
   this.camera = null;
@@ -32,10 +30,10 @@ World = function() {
 
 
 World.prototype.populate = function() {
-  var light = new Light();
-  light.setPosition([0, 0, 0])
-  light.setAmbientColor([.29, .29, .29]);
-  light.setDirectionalColor([.7, .5, .3]);
+  var light = new Light({
+    ambientColor: [.29, .29, .29],
+    directionalColor: [.7, .5, .3]
+  });
   this.addLight(light);
 
   this.shelf = new Shelf({
@@ -58,10 +56,10 @@ World.prototype.populate = function() {
         .1 + Math.random() * 2,
       ],
       texture: Textures.THWOMP,
-      yaw: Math.random() * PI,
-      pitch: Math.random() * PI,
+      // yaw: Math.random() * PI,
+      // pitch: Math.random() * PI,
     });
-    world.add(cairn);
+    this.add(cairn);
 
     var sphere = new Sphere({
       position: [
@@ -73,7 +71,7 @@ World.prototype.populate = function() {
       texture: Textures.EARTH,
       rYaw: Math.random() * PI,
     });
-    world.add(sphere);
+    this.add(sphere);
   }
 
 
@@ -86,16 +84,15 @@ World.prototype.populate = function() {
     rYaw: 8*.9*PI,
   });
   light.anchor = sun;
-  world.add(sun);
+  this.add(sun);
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, 0, -8],
-    yaw: PI
+    position: [0, 0, 8]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
-  world.add(hero);
+  this.add(hero);
 
 };
 
@@ -206,7 +203,6 @@ World.prototype.draw = function() {
   world.applyLights();
   this.camera.transform();
 
-  mat4.rotate(gl.modelMatrix, gl.modelMatrix, this.yaw, Vector.J);
   shaderProgram.reset();
   util.array.apply(this.things, 'draw');
   util.array.apply(this.effects, 'draw');
@@ -223,6 +219,7 @@ World.prototype.advance = function(dt) {
 
   util.array.forEach(this.things, function(thing) {
     thing.advance(dt);
+    thing.computeTransforms();
   });
   util.array.forEach(this.projectiles, function(projectile) {
     projectile.advance(dt);
@@ -230,7 +227,6 @@ World.prototype.advance = function(dt) {
   util.array.forEach(this.effects, function(effects) {
     effects.advance(dt);
   });
-  this.yaw += this.rotSpeed * dt;
   this.checkCollisions();
 
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
