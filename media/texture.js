@@ -1,11 +1,6 @@
 Textures = {};
 Textures.ROOT = 'media/images/';
 
-Textures.bindTexture = function(texture) {
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-};
-
 Textures.initTextures = function() {
   var textures = {
     CRATE: Textures.initTexture(Textures.ROOT + 'crate.png'),

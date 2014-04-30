@@ -18,6 +18,15 @@ Thing = function(message) {
 
   this.age = 0;
 
+  // Leaf attributes 
+  this.texture = message.texture;
+  this.color = message.color || vec4.WHITE;
+  this.vertexBuffer = null;
+  this.textureBuffer = null;
+  this.indexBuffer = null;
+  this.normalBuffer = null;
+  // End Leaf Attributes
+
   this.toWorldTransform = mat4.create();
   this.toLocalTransform = mat4.create();
   this.computeTransforms();
@@ -207,28 +216,16 @@ Thing.prototype.glom = function(thing, intersection) {
 
 
 Thing.prototype.renderSelf = function() {
-  Textures.bindTexture(this.texture || Textures.CRATE);
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  if (this.texture) {
-    if (!this.texture.loaded) return;
-    shaderProgram.setUseTexture(true);
-  } else {
-    shaderProgram.setUseTexture(false);
-  }
-  if (this.color) {
-    shaderProgram.setUniformColor(this.color);
-  }
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.setMatrixUniforms();
 
+  shaderProgram.setUniformColor(this.color);
+  shaderProgram.setUseTexture(this.texture && this.texture.loaded);
+  shaderProgram.bindTexture(this.texture);
+  shaderProgram.bindVertexPositionBuffer(this.vertexBuffer);
+  shaderProgram.bindVertexNormalBuffer(this.normalBuffer);
+  shaderProgram.bindVertexTextureBuffer(this.textureBuffer);
+
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   shaderProgram.reset();

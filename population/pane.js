@@ -2,18 +2,13 @@ Pane = function(message) {
   message.leaf = true;
   this.super(message);
   this.size = message.size;
-  util.assert(this.size[2] == 0, 'z-size must be 0 for a pane.');
+  util.assert(!this.size[2], 'z-size must be 0 or undefined for a pane.');
 
   this.textureCounts = message.textureCounts ? 
       vec2.clone(message.textureCounts) :
       [1, 1];
 
   this.texture = message.texture;
-
-  this.vertexBuffer = null;
-  this.textureBuffer = null;
-  this.indexBuffer = null;
-  this.normalBuffer = null;
 
   this.createBuffers();
 

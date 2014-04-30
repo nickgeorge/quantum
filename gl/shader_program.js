@@ -32,7 +32,7 @@ ShaderProgram.getShader = function(gl, id) {
   return shader;
 };
 
-ShaderProgram.createShaderProgram = function() {
+ShaderProgram.createShaderProgram = function(gl) {
   var shaderProgram = gl.createProgram();
   var fragmentShader = ShaderProgram.getShader(gl, 'fragment-shader');
   var vertexShader = ShaderProgram.getShader(gl, 'vertex-shader');
@@ -96,5 +96,27 @@ ShaderProgram.prototype.setUseTexture = function(useTexture) {
 
 ShaderProgram.prototype.setUniformColor = function(uniformColor) {
   gl.uniform4fv(this.uniformColor, uniformColor);
+};
+
+ShaderProgram.prototype.bindVertexPositionBuffer = function(buffer) {
+  this.bindAttributeBuffer_(buffer, this.vertexPositionAttribute);
+};
+
+ShaderProgram.prototype.bindVertexNormalBuffer = function(buffer) {
+  this.bindAttributeBuffer_(buffer, this.vertexNormalAttribute);
+};
+
+ShaderProgram.prototype.bindVertexTextureBuffer = function(buffer) {
+  this.bindAttributeBuffer_(buffer, this.textureCoordAttribute);
+};
+
+ShaderProgram.prototype.bindAttributeBuffer_ = function(buffer, location) {
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.vertexAttribPointer(location, buffer.itemSize, gl.FLOAT, false, 0, 0); 
+};
+
+ShaderProgram.prototype.bindTexture = function(texture) {
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 };
 

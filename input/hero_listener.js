@@ -138,7 +138,7 @@ HeroListener.prototype.onKey = function(event) {
       this.enableMouseLock();
       break;
     default:
-      console.log(event.keyCode);
+      console.log('Unrecognized key: ' + event.keyCode);
       return;
   }
   event.preventDefault();

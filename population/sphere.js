@@ -4,14 +4,6 @@ Sphere = function(message) {
   this.radius = message.radius || 1;
   this.longitudeCount = message.longitudeCount || 25;
   this.latitudeCount = message.latitudeCount || 25;
-  this.color = message.color;
-
-  this.normalBuffer = null;
-  this.vertexBuffer = null;
-  this.indexBuffer = null;
-  this.textureBuffer = null;
-
-  this.texture = message.texture;
 
   this.createBuffers();
   this.klass = 'Sphere';

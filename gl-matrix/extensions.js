@@ -2,8 +2,8 @@ vec3.ZERO = [0, 0, 0];
 vec3.I = [1, 0, 0];
 vec3.J = [0, 1, 0];
 vec3.K = [0, 0, 1];
-vec3.WHITE = [1, 1, 1];
-vec3.BLACK = [0, 0, 0];
+vec4.WHITE = [1, 1, 1, 1];
+vec4.BLACK = [0, 0, 0, 1];
 
 vec3.yawTo = function(v1, v2) {
   return Math.atan2(v2[1] - v1[1], v2[0] - v1[0]);

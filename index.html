@@ -32,8 +32,6 @@
     <script src='gl-matrix/extensions.js'></script>
     <script src='media/texture.js'></script>
     <script src='media/sound_manager.js'></script>
-    <script src='effects/double_explosion.js'></script>
-    <script src='effects/image_cross.js'></script>
     <script src='ui/hud.js'></script>
     <script src='ui/camera.js'></script>
     <script src='world.js'></script>
@@ -69,25 +67,22 @@
           vec3 normal = normalize(vTransformedNormal);
           vec3 reflectionDirection = reflect(-lightDirection, normal);
 
-          float directionalLightWeighting = max(0.0, dot(
-              normal,
-              lightDirection));
+          float directionalLightWeighting = max(0.0, dot(normal, lightDirection));
 
           float specularLightWeighting = 0.0;
           if (directionalLightWeighting > 0.0) {
             specularLightWeighting = pow(
-              max(
-                  dot(reflectionDirection, vEyeDirection),
-                  0.0),
-              8.0) * 1.0;
+                max(0.0, dot(reflectionDirection, vEyeDirection)), 8.0);
           }
-
+          // TODO: Maybe need different dropoff factors for diffuse/specular
+          // Right now specular dropoff only factors light -> thing distance, not
+          // thing -> eye.  Think about this some more.
           float distance = length(relativeLightPosition);
-          float distanceDropoff = (1.0/(distance*distance/50625.0 + 1.0)) * 1.0 + 0.0;
+          float distanceDropoff = 1.0/(distance*distance/50625.0 + 1.0);
           
           lightWeighting = uAmbientColor + 
-              1.0 * uPointLightingColor * specularLightWeighting * distanceDropoff +
-              1.0 * uPointLightingColor * directionalLightWeighting * distanceDropoff;
+              uPointLightingColor * specularLightWeighting * distanceDropoff +
+              uPointLightingColor * directionalLightWeighting * distanceDropoff;
         }
 
         vec4 fragmentColor;
@@ -134,35 +129,49 @@
 
 
     <script type="text/javascript">
-
       var gl;
       var shaderProgram;
-      var framerate;
-
       var world;
-      var camera;
 
-      function drawScene() {
-        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+      var framerate;
+      var hud;
 
-        gl.clearColor(
-            world.clearColorRgba[0],
-          world.clearColorRgba[1],
-            world.clearColorRgba[2],
-            1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      function init() {
+        var hudCanvas = document.getElementById('hud-canvas')
+        var glCanvas = document.getElementById("gl-canvas");
+        gl = GL.createGL(glCanvas);        
+        window.addEventListener('resize',
+            util.partial(resize, hudCanvas, glCanvas, gl));
+        resize(hudCanvas, glCanvas, gl);
 
-
-        mat4.perspective(gl.perspectiveMatrix,
-            PI/4, gl.viewportWidth/gl.viewportHeight,
-            .1, 9450.0);
-
+        shaderProgram = ShaderProgram.createShaderProgram(gl);
         gl.useProgram(shaderProgram);
 
-        mat4.identity(gl.modelMatrix);
+        Textures.initTextures();
 
+        framerate = new Framerate('framerate');
+        hud = new HUD(hudCanvas, framerate);
+        var gameDiv = document.getElementById('game-div');
+        heroListener = new HeroListener(gameDiv);
+        heroListener.attachEvents();
+
+        world = new World();
+        world.populate();
+
+        drawScene();
+        tick();
+      }
+
+      function tick() {
+        requestAnimationFrame(tick);
+        if (!heroListener.mouseIsLocked) return;
+        advanceWorld();
+        drawScene();
+      }
+
+      function drawScene() {
+        gl.reset();
         world.draw();
-
         hud.render();
       }
 
@@ -177,42 +186,6 @@
           framerate.snapshot();
         }
         framerate.lastTime = timeNow;
-      }
-
-
-      function tick() {
-        requestAnimationFrame(tick);
-        if (!heroListener.mouseIsLocked) return;
-        advanceWorld();
-        drawScene();
-      }
-
-
-      function webGLStart() {
-        framerate = new Framerate('framerate');
-        var hudCanvas = document.getElementById('hud-canvas')
-        var glCanvas = document.getElementById("gl-canvas");
-        gl = GL.createGL(glCanvas);
-        shaderProgram = ShaderProgram.createShaderProgram();
-        Textures.initTextures();
-
-
-        window.addEventListener('resize',
-            util.partial(resize, hudCanvas, glCanvas, gl));
-        resize(hudCanvas, glCanvas, gl);
-
-        Textures.initTextures();
-
-        hud = new HUD(hudCanvas, framerate);
-        var gameDiv = document.getElementById('game-div');
-        heroListener = new HeroListener(gameDiv);
-        heroListener.attachEvents();
-
-        world = new World();
-        world.populate();
-
-        drawScene();
-        tick();
       }
 
       function resize(hudCanvas, glCanvas, gl) {
@@ -241,7 +214,7 @@
     </script>
   </head>
 
-  <body onload="webGLStart();">
+  <body onload="init();">
     <div id='game-div'>
       <canvas id='gl-canvas'>
       </canvas>

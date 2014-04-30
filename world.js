@@ -5,7 +5,6 @@ World = function() {
   this.effects = [];
   this.lights = [];
   this.G = 50;
-  this.clearColorRgba = [.0, .0, .0, 1];
   this.camera = null;
   this.shelf = null;
 

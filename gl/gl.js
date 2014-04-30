@@ -26,13 +26,25 @@ GL.createGL = function(canvas) {
   gl.enable(gl.BLEND)
   gl.enable(gl.CULL_FACE);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.cullFace(gl.BACK);
-
-  gl.extensions = {};
-  gl.extensions.anisotropicFilter
+  gl.cullFace(gl.BACK);        
 
   return gl;
-}
+};
+
+GL.prototype.reset = function() {  
+  util.assert(this.modelMatrixStack.nextIndex == 0, 
+      'Model matrix stack not fully unloaded');
+  util.assert(this.viewMatrixStack.nextIndex == 0, 
+      'View matrix stack not fully unloaded');      
+  gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  mat4.perspective(gl.perspectiveMatrix,
+      PI/4, gl.viewportWidth/gl.viewportHeight,
+      .1, 9450.0);
+
+  mat4.identity(gl.modelMatrix);
+};
 
 GL.prototype.pushModelMatrix = function() {
   this.modelMatrixStack.push(this.modelMatrix);
@@ -51,17 +63,18 @@ GL.prototype.popViewMatrix = function() {
 };
 
 GL.prototype.setMatrixUniforms = function() {
+  this.computeNormalMatrix();
   this.uniformMatrix4fv(shaderProgram.perspectiveMatrixUniform, false, this.perspectiveMatrix);
   this.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, this.modelMatrix);
   this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
+  this.uniformMatrix3fv(shaderProgram.normalMatrixUniform, false, this.normalMatrix);
+};
 
+GL.prototype.computeNormalMatrix = function() {
+  // TODO: figure out what's going on here
   mat3.fromMat4(this.normalMatrix,
       mat4.invert([], this.modelMatrix));
   mat3.transpose(this.normalMatrix, this.normalMatrix);
-  this.uniformMatrix3fv(
-      shaderProgram.normalMatrixUniform,
-      false,
-      this.normalMatrix);
 };
 
 GL.prototype.rotate = function (angle, axis) {

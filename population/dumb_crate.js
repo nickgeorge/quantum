@@ -7,7 +7,6 @@ DumbCrate = function(message) {
       [message.size, message.size, message.size];
   this.box = new Box({
     size: message.size,
-    color: message.color,
     texture: message.texture
   });
 
