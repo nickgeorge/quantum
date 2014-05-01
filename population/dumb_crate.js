@@ -15,6 +15,7 @@ DumbCrate = function(message) {
   this.klass = "DumbCrate";
 };
 util.inherits(DumbCrate, Thing);
+DumbCrate.type = Types.DUMB_CRATE;
 
 
 // DumbCrate.prototype.contains = function(v, opt_extra) {

@@ -1,15 +1,13 @@
-Framerate = function(id) {
+Framerate = function() {
   this.lastTime = 0;
   this.numFramerates = 10;
-  this.framerateUpdateInterval = 500;
-  this.id = id;
+  this.averageUpdateInterval = 500;
 
   this.renderTime = -1;
   this.framerates = [];
   this.rollingAverage = 0;
-  self = this;
-  var fr = function() { self.calcRollingAverage() }
-  setInterval(fr, this.framerateUpdateInterval);
+  setInterval(util.bind(this.calcRollingAverage, this),
+      this.averageUpdateInterval);
 };
 
 Framerate.prototype.calcRollingAverage = function() {

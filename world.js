@@ -131,21 +131,21 @@ World.prototype.checkCollisions = function() {
 
 
 World.prototype.registerCollisionTypes = function() {
-  this.registerCollisionType('DumbCrate', 'Bullet', function(dumbCrate, bullet) {
+  this.registerCollisionType(DumbCrate, Bullet, function(dumbCrate, bullet) {
     var intersection = dumbCrate.findThingIntersection(bullet);
     if (intersection) {
       dumbCrate.glom(bullet, intersection);
     }
   });
 
-  this.registerCollisionType('Sphere', 'Bullet', function(sphere, bullet) {
+  this.registerCollisionType(Sphere, Bullet, function(sphere, bullet) {
     var intersection = sphere.findThingIntersection(bullet);
     if (intersection) {
       sphere.glom(bullet, intersection);
     }
   });
 
-  this.registerCollisionType('Shelf', 'Bullet', function(shelf, bullet) {
+  this.registerCollisionType(Shelf, Bullet, function(shelf, bullet) {
     var intersection = shelf.findThingIntersection(bullet);
     if (intersection) {
       shelf.glom(bullet, intersection);
@@ -162,20 +162,22 @@ World.prototype.registerCollisionTypes = function() {
 };
 
 
-World.prototype.registerCollisionType = function(klassA, klassB, fn) {
-  this.collisionFunctions[klassA] = this.collisionFunctions[klassA] || {};
-  this.collisionFunctions[klassB] = this.collisionFunctions[klassB] || {};
+World.prototype.registerCollisionType = function(classA, classB, fn) {
+  var typeA = classA.type;
+  var typeB = classB.type;
+  this.collisionFunctions[typeA] = this.collisionFunctions[typeA] || {};
+  this.collisionFunctions[typeB] = this.collisionFunctions[typeB] || {};
 
-  this.collisionFunctions[klassA][klassB] = fn;
-  this.collisionFunctions[klassB][klassA] = function(thingB, thingA) {
+  this.collisionFunctions[typeA][typeB] = fn;
+  this.collisionFunctions[typeB][typeA] = function(thingB, thingA) {
     fn(thingA, thingB);
   }
 };
 
 
 World.prototype.collide = function(thingA, thingB) {
-  var collisionFunction = this.collisionFunctions[thingA.klass] ? 
-      this.collisionFunctions[thingA.klass][thingB.klass] :
+  var collisionFunction = this.collisionFunctions[thingA.getType()] ? 
+      this.collisionFunctions[thingA.getType()][thingB.getType()] :
       null;
   if (collisionFunction) collisionFunction(thingA, thingB);
 };

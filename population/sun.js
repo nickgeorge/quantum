@@ -12,6 +12,7 @@ Sun = function(message) {
   this.klass = 'Sun';
 };
 util.inherits(Sun, Thing);
+Sun.type = Types.SUN;
 
 Sun.prototype.advance = function(dt) {
   this.position = [

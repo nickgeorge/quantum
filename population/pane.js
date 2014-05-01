@@ -1,5 +1,4 @@
 Pane = function(message) {
-  message.leaf = true;
   this.super(message);
   this.size = message.size;
   util.assert(!this.size[2], 'z-size must be 0 or undefined for a pane.');
@@ -14,7 +13,8 @@ Pane = function(message) {
 
   this.klass = 'Pane';
 };
-util.inherits(Pane, Thing);
+util.inherits(Pane, LeafThing);
+Pane.type = Types.PANE;
 
 Pane.prototype.createBuffers = function() {
   this.createVertexBuffer();
@@ -67,11 +67,11 @@ Pane.prototype.createTextureBuffer = function(){
 };
 
 
-Pane.prototype.contains = function(v, opt_extra) {
+Pane.prototype.contains = function(p_local, opt_extra) {
   var extra = opt_extra || 0;
   for (var i = 0; i < 2; i++) {
     var size = this.size[i]/2 + extra;
-    if (v[i] < -size || v[i] > size) {
+    if (p_local[i] < -size || p_local[i] > size) {
       return false;
     }
   }
@@ -80,8 +80,8 @@ Pane.prototype.contains = function(v, opt_extra) {
 
 
 Pane.prototype.findIntersection = function(p_0, p_1) {
-  p_0 = this.toLocalCoords(vec3.create(), p_0);
-  p_1 = this.toLocalCoords(vec3.create(), p_1);
+  p_0 = this.toLocalCoords([], p_0);
+  p_1 = this.toLocalCoords([], p_1);
 
   var p_int = [];
   var delta = vec3.subtract([], p_1, p_0);
@@ -97,7 +97,7 @@ Pane.prototype.findIntersection = function(p_0, p_1) {
     return {
       part: this,
       point: p_int,
-      t: 0
+      t: t
     };
   }
   return null;

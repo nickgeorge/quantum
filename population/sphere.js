@@ -8,12 +8,13 @@ Sphere = function(message) {
   this.createBuffers();
   this.klass = 'Sphere';
 };
-util.inherits(Sphere, Thing);
+util.inherits(Sphere, LeafThing);
+Sphere.type = Types.SPHERE;
 
 
 Sphere.prototype.findIntersection = function(p_0, p_1) {
-  p_0 = this.toLocalCoords(vec3.create(), p_0);
-  p_1 = this.toLocalCoords(vec3.create(), p_1);
+  p_0 = this.toLocalCoords([], p_0);
+  p_1 = this.toLocalCoords([], p_1);
   var delta = vec3.subtract([], p_1, p_0);
   var a = 0, b = 0, c = 0;
 
@@ -36,12 +37,11 @@ Sphere.prototype.findIntersection = function(p_0, p_1) {
   var t = t_0 >= 0 ? t_0 : t_1;
   if (t < 0 || t > 1) return null;
 
-
-  var closestPoint = vec3.scaleAndAdd([], p_0, delta, t);
+  var p_int = vec3.scaleAndAdd(p_0, p_0, delta, t);
   return {
     part: this,
-    t: t,
-    point: closestPoint
+    point: p_int,
+    t: t
   }
 };
 

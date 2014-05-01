@@ -9,6 +9,7 @@ Hero = function(message) {
   this.klass = 'Hero';
 };
 util.inherits(Hero, Thing);
+Hero.type = Types.HERO;
 
 Hero.JUMP_VELOCITY = 100;
 Hero.HEIGHT = 1.8;
@@ -19,7 +20,7 @@ Hero.prototype.advance = function(dt) {
   // might add a frame of latency.
   // TODO: think about this more.
   util.base(this, 'advance', dt, true);
-  var landedHeight = world.shelf.lowBound(i) + Hero.HEIGHT;
+  var landedHeight = world.shelf.lowBound(1) + Hero.HEIGHT;
 
   if (this.position[1] < landedHeight && this.velocity[1] <= 0) {
     this.position[1] = landedHeight 
@@ -52,20 +53,16 @@ Hero.prototype.advance = function(dt) {
     this.velocity[1] -= world.G*dt;
   }
 
-  for (var i = 0; i < 3; i++) {
-    if (this.position[i] > world.shelf.highBound(i)) {
-      this.position[i] = world.shelf.highBound(i);
-      this.velocity[i] = -Math.abs(this.velocity[i]);
-    }
-    if (this.position[i] < world.shelf.lowBound(i) + Hero.HEIGHT) {
-      this.position[i] = world.shelf.lowBound(i) + Hero.HEIGHT;
-      if (i == 1 ) {
-        this.velocity[1] = Math.max(0, this.velocity[1]);
-      } else {
-        this.velocity[i] = Math.abs(this.velocity[i]);
-      }
-    }
-  }
+  // for (var i = 0; i < 3; i++) {
+  //   if (this.position[i] < world.shelf.lowBound(i) + Hero.HEIGHT) {
+  //     this.position[i] = world.shelf.lowBound(i) + Hero.HEIGHT;
+  //     if (i == 1 ) {
+  //       this.velocity[1] = Math.max(0, this.velocity[1]);
+  //     } else {
+  //       this.velocity[i] = Math.abs(this.velocity[i]);
+  //     }
+  //   }
+  // }
 };
 
 Hero.prototype.jump = function() {

@@ -48,3 +48,4 @@ Box = function(message) {
   ];
 };
 util.inherits(Box, Thing);
+Box.type = Types.BOX;

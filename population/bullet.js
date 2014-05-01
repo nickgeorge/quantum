@@ -13,6 +13,7 @@ Bullet = function(message) {
   this.klass = 'Bullet';
 };
 util.inherits(Bullet, Thing);
+Bullet.type = Types.BULLET;
 
 Bullet.prototype.getOuterRadius = function() {
   return this.sphere.getOuterRadius();
