@@ -1,8 +1,8 @@
 <html>
-
   <head>
     <title>Quantum</title>
     <meta http-equiv='content-type' content='text/html; charset=ISO-8859-1'>
+
     <link rel='shortcut icon' href='favicon.ico' type='image/x-icon' />
     <link rel='stylesheet' href='style.css' type='text/css' />
 
@@ -35,6 +35,7 @@
     <script src='ui/hud.js'></script>
     <script src='ui/camera.js'></script>
     <script src='world.js'></script>
+    <script src='animator.js'></script>
 
 
     <script id="fragment-shader" type="x-shader/x-fragment">
@@ -106,16 +107,12 @@
       uniform mat4 uViewMatrix;
       uniform mat4 uPerspectiveMatrix;
       uniform mat3 uNormalMatrix;
-      uniform vec4 uColor;
-      uniform vec3 uPointLightingLocation;
       uniform vec3 uEyeLocation;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
       varying vec4 vPosition;
-      varying vec4 vColor;
       varying vec3 vEyeDirection;
-
 
       void main(void) {
         vPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
@@ -132,9 +129,10 @@
       var gl;
       var shaderProgram;
       var world;
-
-      var framerate;
       var hud;
+      var animator;
+      var heroListener;
+
 
       function init() {
         var hudCanvas = document.getElementById('hud-canvas')
@@ -149,7 +147,7 @@
 
         Textures.initTextures();
 
-        framerate = new Framerate('framerate');
+        var framerate = new Framerate('framerate');
         hud = new HUD(hudCanvas, framerate);
         var gameDiv = document.getElementById('game-div');
         heroListener = new HeroListener(gameDiv);
@@ -158,34 +156,9 @@
         world = new World();
         world.populate();
 
-        drawScene();
-        tick();
-      }
-
-      function tick() {
-        requestAnimationFrame(tick);
-        if (!heroListener.mouseIsLocked) return;
-        advanceWorld();
-        drawScene();
-      }
-
-      function drawScene() {
-        gl.reset();
-        world.draw();
-        hud.render();
-      }
-
-      function advanceWorld() {
-        var timeNow = new Date().getTime();
-        if (framerate.lastTime != 0) {
-          var elapsed = timeNow - framerate.lastTime;
-          if (elapsed < 100) {
-            var dt = elapsed/1000;
-            world.advance(dt);
-          }
-          framerate.snapshot();
-        }
-        framerate.lastTime = timeNow;
+        animator = new Animator(world, hud, gl, framerate);
+        animator.setPaused(true);
+        animator.start();
       }
 
       function resize(hudCanvas, glCanvas, gl) {
@@ -196,28 +169,13 @@
         gl.viewportWidth = window.innerWidth;
         gl.viewportHeight = window.innerHeight;
       };
-
-      /**
-       * Provides requestAnimationFrame in a cross-browser way.
-       */
-      requestAnimationFrame = (function() {
-        return window.requestAnimationFrame ||
-           window.webkitRequestAnimationFrame ||
-           window.mozRequestAnimationFrame ||
-           window.oRequestAnimationFrame ||
-           window.msRequestAnimationFrame ||
-           function(callback, element) {
-             window.setTimeout(callback, 1000/60);
-           };
-      })();
-
     </script>
   </head>
 
+
   <body onload="init();">
     <div id='game-div'>
-      <canvas id='gl-canvas'>
-      </canvas>
+      <canvas id='gl-canvas'></canvas>
       <canvas id='hud-canvas'></canvas>
     </div>
   </body>

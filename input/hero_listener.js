@@ -1,5 +1,5 @@
-HeroListener = function(canvas) {
-  this.canvas = canvas;
+HeroListener = function(container) {
+  this.container = container;
   this.keyMap = {};
   this.mouseIsLocked = false;
   this.sensitivityX = .0035;
@@ -7,17 +7,13 @@ HeroListener = function(canvas) {
 
   this.hero = null;
 
-  this.canLockPointer = 'pointerLockElement' in document ||
-    'mozPointerLockElement' in document ||
-    'webkitPointerLockElement' in document;
+  this.container.requestFullScreen = container.requestFullScreen ||
+      container.mozRequestFullScreen ||
+      container.webkitRequestFullScreen;
 
-  this.canvas.requestFullScreen = canvas.requestFullScreen ||
-      canvas.mozRequestFullScreen ||
-      canvas.webkitRequestFullScreen;
-
-  this.canvas.requestPointerLock = this.canvas.requestPointerLock ||
-      this.canvas.mozRequestPointerLock ||
-      this.canvas.webkitRequestPointerLock;
+  this.container.requestPointerLock = this.container.requestPointerLock ||
+      this.container.mozRequestPointerLock ||
+      this.container.webkitRequestPointerLock;
 
   document.exitPointerLock = document.exitPointerLock ||
       document.mozExitPointerLock ||
@@ -45,7 +41,7 @@ HeroListener.prototype.attachEvents = function() {
 
 HeroListener.prototype.onMouseDown = function(e) {
   if (!document.webkitCurrentFullScreenElement) {
-    // this.canvas.requestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+    // this.container.requestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
   }
   if (!this.mouseIsLocked) {
     // this.enableMouseLock();
@@ -65,11 +61,7 @@ HeroListener.prototype.onMouseDown = function(e) {
 };
 
 HeroListener.prototype.enableMouseLock = function() {
-  if (this.canLockPointer) {
-    this.canvas.requestPointerLock();
-  } else {
-    console.log('Ye canna\' do that.');
-  }
+  this.container.requestPointerLock();
 };
 
 HeroListener.prototype.onMouseMove = function(event) {
@@ -93,13 +85,14 @@ HeroListener.prototype.onMouseMove = function(event) {
 };
 
 HeroListener.prototype.onPointerLockChange = function(event) {
-  if (document.pointerLockElement == this.canvas ||
-    document.mozPointerLockElement == this.canvas ||
-    document.webkitPointerLockElement == this.canvas) {
+  if (document.pointerLockElement == this.container ||
+    document.mozPointerLockElement == this.container ||
+    document.webkitPointerLockElement == this.container) {
     this.mouseIsLocked = true;
   } else {
     this.mouseIsLocked = false;
   }
+  animator.setPaused(!this.mouseIsLocked);
 };
 
 HeroListener.prototype.onKey = function(event) {
