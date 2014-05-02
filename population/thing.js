@@ -64,9 +64,14 @@ Thing.prototype.findThingIntersection = function(thing) {
 };
 
 
-Thing.prototype.findIntersection = function(p_0, p_1) {
-  p_0 = this.toLocalCoords([], p_0);
-  p_1 = this.toLocalCoords([], p_1);
+Thing.prototype.findThingClosestDistanceSquared = function(thing) {
+  return this.findClosestDistanceSquared(thing.lastPosition, thing.position);
+};
+
+
+Thing.prototype.findIntersection = function(p_0_pc, p_1_pc) {
+  p_0 = this.toLocalCoords([], p_0_pc);
+  p_1 = this.toLocalCoords([], p_1_pc);
   
   for (var i = 0; this.parts[i]; i++) {
     var intersection = this.parts[i].findIntersection(p_0, p_1);

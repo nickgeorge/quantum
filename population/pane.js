@@ -79,20 +79,19 @@ Pane.prototype.contains = function(p_local, opt_extra) {
 };
 
 
-Pane.prototype.findIntersection = function(p_0, p_1) {
-  p_0 = this.toLocalCoords([], p_0);
-  p_1 = this.toLocalCoords([], p_1);
+Pane.prototype.findIntersection = function(p_0_pc, p_1_pc) {
+  var p_0 = this.toLocalCoords([], p_0_pc);
+  var delta = this.toLocalCoords([], p_1_pc);
+  vec3.subtract(delta, delta, p_0);
 
-  var p_int = [];
-  var delta = vec3.subtract([], p_1, p_0);
-
-  p_int[2] = 0;
   var t = -p_0[2] / delta[2];
 
   if (t < 0 || t > 1) return null;
 
-  p_int[1] = t*(delta[1]) + p_0[1];
+  var p_int = [];
   p_int[0] = t*(delta[0]) + p_0[0];
+  p_int[1] = t*(delta[1]) + p_0[1];
+  p_int[2] = 0;
   if (this.contains(p_int)) {
     return {
       part: this,
@@ -102,4 +101,9 @@ Pane.prototype.findIntersection = function(p_0, p_1) {
   }
   return null;
 };
+
+
+// Pane.prototype.findClosestDistanceSquared = function() {
+//   if !(contains)
+// };
 

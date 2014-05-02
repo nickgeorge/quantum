@@ -12,29 +12,19 @@ util.inherits(Sphere, LeafThing);
 Sphere.type = Types.SPHERE;
 
 
-Sphere.prototype.findIntersection = function(p_0, p_1) {
-  p_0 = this.toLocalCoords([], p_0);
-  p_1 = this.toLocalCoords([], p_1);
-  var delta = vec3.subtract([], p_1, p_0);
-  var a = 0, b = 0, c = 0;
+/** Parent Coords! */
+Sphere.prototype.findIntersection = function(p_0_pc, p_1_pc) {
+  var p_0 = this.toLocalCoords([], p_0_pc);
+  var delta = this.toLocalCoords([], p_1_pc);
+  vec3.subtract(delta, delta, p_0);
+  var quadratic = this.getQuadraticData(p_0, delta)
+  if (quadratic.rootCount() == 0) return null;
 
-  for (var i = 0; i < 3; i++) {
-    a += util.math.sqr(delta[i]);
-    b += 2 * delta[i] * (p_0[i]);
-    c += util.math.sqr(p_0[i]);
-  }
-  c -= util.math.sqr(this.radius);
-
-  var discriminant = b*b - 4*a*c;
-  if (discriminant < 0) return null;
-
-  // TODO: If both points are on one side, we can return.
-
-  var rootDiscriminant = Math.sqrt(discriminant);
-  // n.b. t_0 < t_1 because a > 0 (local min)
-  var t_0 = (-b - rootDiscriminant)/(2*a);
-  var t_1 = (-b + rootDiscriminant)/(2*a);
-  var t = t_0 >= 0 ? t_0 : t_1;
+  // n.b. t_0 <= t_1 because a > 0 (local min), so we only care about the 
+  // root that uses the negative discriminant. 
+  // If t_1 ∈ [0, 1], but t_0 is not, that means the object originated
+  // from within the sphere.  Maybe someday I'll care about that, for now I don't.
+  var t = quadratic.firstRoot();
   if (t < 0 || t > 1) return null;
 
   var p_int = vec3.scaleAndAdd(p_0, p_0, delta, t);
@@ -44,6 +34,46 @@ Sphere.prototype.findIntersection = function(p_0, p_1) {
     t: t
   }
 };
+
+
+/** Parent Coords! */
+Sphere.prototype.findClosestDistanceSquared = function(p_0_pc, p_1_pc) {
+  var p_0 = this.toLocalCoords([], p_0_pc);
+  var delta = this.toLocalCoords([], p_1_pc);
+  vec3.subtract(delta, delta, p_0);
+
+  var quadratic = this.getQuadraticData(p_0, delta);
+  if (quadratic.rootCount() > 0) {
+    var t = quadratic.firstRoot();
+    if (t >= 0 && t <= 1) {
+      // We've got a relevant root.  Closest distance is zero
+      return 0;
+    }
+  }
+
+  // No roots in range t ∈ [0, 1].  Test if there is a local min.
+  var minT = quadratic.minT();
+  if (minT >= 0 && minT <= 1) return quadratic.valueAt(minT);
+
+  // No local min.  Return min of the extremes.
+  return Math.min(quadratic.valueAt(0), quadratic.valueAt(1));
+};
+
+
+/** Local coordinates! */
+Sphere.prototype.getQuadraticData = function(p_0, delta) {
+  var a = 0, b = 0, c = 0;
+
+  for (var i = 0; i < 3; i++) {
+    a += util.math.sqr(delta[i]);
+    b += 2 * delta[i] * (p_0[i]);
+    c += util.math.sqr(p_0[i]);
+  }
+  c -= util.math.sqr(this.radius);
+
+  return new Quadratic(a, b, c);
+};
+
 
 Sphere.prototype.createBuffers = function() {
   var vertexData = [];

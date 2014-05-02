@@ -37,7 +37,7 @@ World.prototype.populate = function() {
 
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: 450
+    size: 500
   })
   this.add(this.shelf);
 
@@ -45,9 +45,9 @@ World.prototype.populate = function() {
   for (var k = 0; k < 30; k++) {
     var dumbCrate = new DumbCrate({
       position: [
-        (Math.random() - .5) * 450,
-        (Math.random() - .5) * 450,
-        (Math.random() - .5) * 450,
+        (Math.random() - .5) * this.shelf.size,
+        (Math.random() - .5) * this.shelf.size,
+        (Math.random() - .5) * this.shelf.size,
       ],
       size: [
         10 + Math.random() * 60,
@@ -57,16 +57,16 @@ World.prototype.populate = function() {
       texture: Textures.CRATE,
       yaw: Math.random() * PI,
       pitch: Math.random() * PI,
-      rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
-      rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
+      // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
+      // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
     this.add(dumbCrate);
 
     var sphere = new Sphere({
       position: [
-        (Math.random() - .5) * 450,
-        (Math.random() - .5) * 450,
-        (Math.random() - .5) * 450,
+        (Math.random() - .5) * this.shelf.size,
+        (Math.random() - .5) * this.shelf.size * 0 - 250,
+        (Math.random() - .5) * this.shelf.size,
       ],
       radius: 3 + Math.random()*30,
       texture: Textures.EARTH,
