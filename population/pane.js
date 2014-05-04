@@ -104,10 +104,10 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
   // outside of the pane.
   var encounters = [];
   if (this.contains(p_0_lc)) {
-    encounters.push(this.makeEncounter(0, util.math.sqr(p_0_lc[2]), p_0_lc));
+    encounters.push(this.makeEncounter(0, p_0_lc[2], p_0_lc));
   }
   if (this.contains(p_1_lc)) {
-    encounters.push(this.makeEncounter(1, util.math.sqr(p_1_lc[2]), p_1_lc));
+    encounters.push(this.makeEncounter(1, p_1_lc[2], p_1_lc));
   }
 
   for (var i = 0; i < 2; i++) {
@@ -120,7 +120,7 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
         var t = (bound - p_0_lc[i]) / delta[i];
         var p = vec3.scaleAndAdd([], p_0_lc, delta, t);
         if (this.contains(p)) {
-          encounters.push(this.makeEncounter(t, util.math.sqr(p[2]), p));
+          encounters.push(this.makeEncounter(t, p[2], p));
         }
       }      
     }, this);
@@ -137,7 +137,7 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
   var closestEncounter = null;
   for (var i = 0; i < encounters.length; i++) {
     if (!closestEncounter || 
-        encounters[i].distanceSquared < closestEncounter.distanceSquared) {
+        Math.abs(encounters[i].distance) < Math.abs(closestEncounter.distance)) {
       closestEncounter = encounters[i];
     }
   }
@@ -145,4 +145,12 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
 };
 
 
+Pane.prototype.makeEncounter = function(t, distance, point) {
+  return {
+    part: this,
+    t: t,
+    distance: distance,
+    point: point
+  }
+};
 

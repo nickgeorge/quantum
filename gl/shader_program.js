@@ -83,7 +83,13 @@ ShaderProgram.createShaderProgram = function(gl) {
 ShaderProgram.prototype.reset = function() {
   this.setUseLighting(ShaderProgram.USE_LIGHTING_DEFAULT);
   this.setUseTexture(ShaderProgram.USE_TEXTURE_DEFAULT)
-  this.setUniformColor(ShaderProgram.UNIFORM_COLOR_DEFAULT)
+  this.setUniformColor(ShaderProgram.UNIFORM_COLOR_DEFAULT);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND)
+  gl.enable(gl.CULL_FACE);  
+  gl.cullFace(gl.BACK);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
 ShaderProgram.prototype.setUseLighting = function(useLighting) {

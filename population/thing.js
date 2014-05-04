@@ -184,11 +184,4 @@ Thing.prototype.dispose = function() {
 };
 
 
-Thing.prototype.makeEncounter = function(t, distanceSquared, point) {
-  return {
-    part: this,
-    t: t,
-    distanceSquared: distanceSquared,
-    point: point
-  }
-};
+Thing.prototype.makeEncounter = util.unimplemented;

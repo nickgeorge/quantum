@@ -20,13 +20,7 @@ GL.createGL = function(canvas) {
 
   for (var key in GL.prototype) {
     gl[key] = GL.prototype[key];
-  }
-
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.BLEND)
-  gl.enable(gl.CULL_FACE);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.cullFace(gl.BACK);        
+  }       
 
   return gl;
 };
@@ -42,6 +36,11 @@ GL.prototype.reset = function() {
   mat4.perspective(gl.perspectiveMatrix,
       PI/4, gl.viewportWidth/gl.viewportHeight,
       .1, 9450.0);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND)
+  gl.enable(gl.CULL_FACE);  
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   mat4.identity(gl.modelMatrix);
 };

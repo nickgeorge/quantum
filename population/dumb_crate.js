@@ -8,8 +8,6 @@ DumbCrate = function(message) {
   });
 
   this.parts = [this.box];
-
-  this.klass = "DumbCrate";
 };
 util.inherits(DumbCrate, Thing);
 DumbCrate.type = Types.DUMB_CRATE;

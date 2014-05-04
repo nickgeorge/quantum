@@ -13,6 +13,7 @@ Hero.type = Types.HERO;
 
 Hero.JUMP_VELOCITY = 100;
 Hero.HEIGHT = 1.8;
+Hero.WIDTH = .5;
 
 
 Hero.prototype.advance = function(dt) {

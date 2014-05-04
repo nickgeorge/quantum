@@ -1,62 +1,47 @@
 Shelf = function(message) {
   this.super(message);
   this.size = message.size;
+  this.box = new Box({
+    size: message.size,
+    texture: message.texture,
+    texturesByFace: message.texturesByFace,
+    textureCounts: message.textureCounts,
+    textureCountsByFace: message.textureCountsByFace,
+    invert: true
+  });
 
-  this.parts = [
-    new Pane({
-      texture: Textures.BYZANTINE,
-        textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [0, 0, -this.size/2],
-    }),
-    new Pane({
-      texture: Textures.BYZANTINE,
-      textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [-this.size/2, 0, 0],
-      yaw: PI/2
-    }),
-    new Pane({
-      texture: Textures.BYZANTINE,
-      textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [this.size/2, 0, 0],
-      yaw: 3*PI/2
-    }),
-    new Pane({
-      texture: Textures.BYZANTINE,
-      textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [0, this.size/2, 0],
-      pitch: PI/2
-    }),
-    new Pane({
-      // texture: Textures.FLOOR,
-      // textureCounts: [150, 150],
-
-      texture: Textures.BYZANTINE,
-      textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [0, -this.size/2, 0],
-      pitch: 3*PI/2
-    }),
-    new Pane({
-      texture: Textures.BYZANTINE,
-      textureCounts: [150, 150],
-      size: [this.size, this.size, 0],
-      position: [0, 0, this.size/2],
-      yaw: PI
-    })
-  ];
-  this.klass = 'Shelf';
+  this.parts = [this.box];
 };
 util.inherits(Shelf, Thing);
 Shelf.type = Types.SHELF;
 
+// Shelf.prototype.pushOut = function(v, opt_tolerance, opt_extraPush) {
+//   var tolerance = opt_tolerance || 0;
+//   var extraPush = opt_extraPush || 0;
+//   this.toLocalCoords(v, v); 
+//   var closestAxis = undefined;
+//   var closestDistance = undefined;
+//   var direction = undefined;
+//   for (var i = 0; i < 3; i++) {
+//     var delta = Math.abs(v[i]) - Math.abs(this.size[i] / 2);
+//     if (!closestDistance || Math.abs(delta) < closestDistance ) {
+//       closestDistance = Math.abs(delta);
+//       closestAxis = i;
+//       direction = v[i] > 0 ? 1 : -1;
+//     }
+//   }
+//   if (closestDistance > tolerance) {
+//     v[closestAxis] = (this.size[closestAxis]/2 + extraPush) * direction;
+//   }
+//   this.toWorldCoords(v, v);
+// };
+
+
+
 Shelf.prototype.lowBound = function(axis) {
-  return -this.size / 2;
+  return -this.size[axis] / 2;
 };
 
 Shelf.prototype.highBound = function(axis) {
-  return this.size / 2;
+  return this.size[axis] / 2;
 };

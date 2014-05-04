@@ -30,9 +30,13 @@ World.prototype.populate = function() {
   });
   this.addLight(light);
 
+  var texturesByFace = {};
+  texturesByFace 
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: 500
+    size: [500, 500, 500],
+    texture: Textures.BYZANTINE,
+    textureCounts: [100, 100]
   })
   this.add(this.shelf);
 
@@ -40,16 +44,16 @@ World.prototype.populate = function() {
   for (var k = 0; k < 30; k++) {
     var dumbCrate = new DumbCrate({
       position: [
-        (Math.random() - .5) * this.shelf.size,
-        (Math.random() - .5) * this.shelf.size,
-        (Math.random() - .5) * this.shelf.size,
+        (Math.random() - .5) * this.shelf.size[0],
+        (Math.random() - .5) * this.shelf.size[1],
+        (Math.random() - .5) * this.shelf.size[2],
       ],
       size: [
         10 + Math.random() * 60,
         10 + Math.random() * 60,
         10 + Math.random() * 60,
       ],
-      texture: Textures.CRATE,
+      texture: Textures.THWOMP,
       yaw: Math.random() * PI,
       pitch: Math.random() * PI,
       // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
@@ -59,9 +63,9 @@ World.prototype.populate = function() {
 
     var sphere = new Sphere({
       position: [
-        (Math.random() - .5) * this.shelf.size,
-        (Math.random() - .5) * this.shelf.size * 0 - 250,
-        (Math.random() - .5) * this.shelf.size,
+        (Math.random() - .5) * this.shelf.size[0],
+        (Math.random() - .5) * this.shelf.size[1],
+        (Math.random() - .5) * this.shelf.size[2],
       ],
       radius: 3 + Math.random()*30,
       texture: Textures.EARTH,
@@ -71,8 +75,8 @@ World.prototype.populate = function() {
   }
 
   var pane = new Pane({
-    size: [10, 15],
-    position: [0, -225, -25]
+    size: [10, 40],
+    position: [0, -230, -25],
   });
   world.add(pane);
 
@@ -124,14 +128,22 @@ World.prototype.registerCollisionTypes = function() {
     }
   });
 
-  this.registerCollisionType(Pane, Bullet, function(pane, bullet) {
-    // console.log(pane.findThingClosestEncounter(bullet));
-  });
+  // this.registerCollisionType(Pane, Bullet, function(pane, bullet) {
+  //   // console.log(pane.findThingClosestEncounter(bullet));
+  // });
 
   this.registerCollisionType(Shelf, Bullet, function(shelf, bullet) {
     var encounter = shelf.findThingEncounter(bullet, true);
     if (encounter) {
       shelf.glom(bullet, encounter);
+    }
+  });
+
+  this.registerCollisionType(Shelf, Hero, function(shelf, hero) {
+    var encounter = shelf.findThingEncounter(hero);
+    // util.assertNotNull(encounter);
+    if (encounter.distanceSquared < Hero.WIDTH*Hero.WIDTH) {
+      shelf.pushIn(hero, encounter);
     }
   });
 

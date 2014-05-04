@@ -101,3 +101,14 @@ Sphere.prototype.createBuffers = function() {
   indexData.reverse();
   this.indexBuffer = util.generateIndexBuffer(indexData);
 };
+
+
+Sphere.prototype.makeEncounter = function(t, distanceSquared, point) {
+  return {
+    part: this,
+    t: t,
+    distanceSquared: distanceSquared,
+    point: point
+  }
+};
+
