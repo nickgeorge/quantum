@@ -34,4 +34,15 @@ LeafThing.prototype.renderSelf = function() {
 };
 
 
+LeafThing.prototype.dispose = function() {
+  util.base(this, 'dispose');
+  this.vertexBuffer = null;
+  this.textureBuffer = null;
+  this.indexBuffer = null;
+  this.normalBuffer = null;
+  this.texture = null;
+  this.color = null;
+};
+
+
 LeafThing.prototype.createBuffers = util.unimplemented;

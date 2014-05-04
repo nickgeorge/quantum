@@ -1,10 +1,7 @@
 DumbCrate = function(message) {
   this.super(message);
 
-
-  this.size = message.size.length ?
-      message.size : 
-      [message.size, message.size, message.size];
+  this.size = message.size;
   this.box = new Box({
     size: message.size,
     texture: message.texture
@@ -16,20 +13,6 @@ DumbCrate = function(message) {
 };
 util.inherits(DumbCrate, Thing);
 DumbCrate.type = Types.DUMB_CRATE;
-
-
-// DumbCrate.prototype.contains = function(v, opt_extra) {
-//   var extra = opt_extra || 0;
-//   var axesToCheck = [true, true, true];
-//   for (var i = 0; i < 3; i++) {
-//     if (!axesToCheck[i]) continue;
-//     var size = this.size[i]/2 + extra;
-//     if (v[i] < -size || v[i] > size) {
-//       return false;
-//     }
-//   }
-//   return true;
-// };
 
 // DumbCrate.prototype.pushOut = function(v, opt_tolerance, opt_extraPush) {
 //   var tolerance = opt_tolerance || 0;

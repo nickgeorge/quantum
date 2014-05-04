@@ -13,65 +13,40 @@ Sphere.type = Types.SPHERE;
 
 
 /** Parent Coords! */
-Sphere.prototype.findIntersection = function(p_0_pc, p_1_pc) {
-  var p_0 = this.toLocalCoords([], p_0_pc);
-  var delta = this.toLocalCoords([], p_1_pc);
-  vec3.subtract(delta, delta, p_0);
-  var quadratic = this.getQuadraticData(p_0, delta)
-  if (quadratic.rootCount() == 0) return null;
-
-  // n.b. t_0 <= t_1 because a > 0 (local min), so we only care about the 
-  // root that uses the negative discriminant. 
-  // If t_1 ∈ [0, 1], but t_0 is not, that means the object originated
-  // from within the sphere.  Maybe someday I'll care about that, for now I don't.
-  var t = quadratic.firstRoot();
-  if (t < 0 || t > 1) return null;
-
-  var p_int = vec3.scaleAndAdd(p_0, p_0, delta, t);
-  return {
-    part: this,
-    point: p_int,
-    t: t
-  }
-};
-
-
-/** Parent Coords! */
-Sphere.prototype.findClosestDistanceSquared = function(p_0_pc, p_1_pc) {
+Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
+    opt_intersectionOnly) {
   var p_0 = this.toLocalCoords([], p_0_pc);
   var delta = this.toLocalCoords([], p_1_pc);
   vec3.subtract(delta, delta, p_0);
 
-  var quadratic = this.getQuadraticData(p_0, delta);
+  var quadratic = Quadratic.newLineToPointQuadratic(p_0, delta, this.radius);
   if (quadratic.rootCount() > 0) {
+    // n.b. t_0 <= t_1 because a > 0 (local min), so we only care about the 
+    // root that uses the negative discriminant. 
+    // If t_1 ∈ [0, 1], but t_0 is not, that means the object originated
+    // from within the sphere.  Maybe someday I'll care about that, for now I don't.
     var t = quadratic.firstRoot();
-    if (t >= 0 && t <= 1) {
+    if (Quadratic.inFrame(t)) {
       // We've got a relevant root.  Closest distance is zero
-      return 0;
+      return this.makeEncounter(t, 0, vec3.scaleAndAdd([], p_0, delta, t));
     }
   }
+  if (opt_intersectionOnly) return null;
 
   // No roots in range t ∈ [0, 1].  Test if there is a local min.
-  var minT = quadratic.minT();
-  if (minT >= 0 && minT <= 1) return quadratic.valueAt(minT);
+  var localMinT = quadratic.minT();
+  if (Quadratic.inFrame(localMinT)) {
+    return this.makeEncounter(localMinT, quadratic.valueAt(localMinT));
+  }
 
   // No local min.  Return min of the extremes.
-  return Math.min(quadratic.valueAt(0), quadratic.valueAt(1));
-};
-
-
-/** Local coordinates! */
-Sphere.prototype.getQuadraticData = function(p_0, delta) {
-  var a = 0, b = 0, c = 0;
-
-  for (var i = 0; i < 3; i++) {
-    a += util.math.sqr(delta[i]);
-    b += 2 * delta[i] * (p_0[i]);
-    c += util.math.sqr(p_0[i]);
+  var valueAtZero = quadratic.valueAt(0);
+  var valueAtOne = quadratic.valueAt(1);
+  if (valueAtZero < valueAtOne) {
+    return this.makeEncounter(0, valueAtZero);
+  }  else {
+    return this.makeEncounter(1, valueAtOne);
   }
-  c -= util.math.sqr(this.radius);
-
-  return new Quadratic(a, b, c);
 };
 
 

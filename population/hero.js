@@ -36,11 +36,7 @@ Hero.prototype.advance = function(dt) {
 
     if (this.ground) {
       var relPosition = this.ground.toLocalCoords(vec3.create(), this.position);
-      // if (!this.ground.contains(relPosition, [true, false, true])){
-      //   this.landed = false;
-      //   this.ground = null;
-      // }
-
+      // TODO: check for landing.
     }
   } else {
     this.velocity[0] += 60 * dt * (Math.cos(this.yaw)*this.keyMove[0] +

@@ -1,12 +1,11 @@
 World = function() {
-  this.things = [];
-  this.thingsById = {};
-  this.projectiles = [];
-  this.effects = [];
   this.lights = [];
-  this.G = 50;
   this.camera = null;
   this.shelf = null;
+  
+  this.things = [];
+  this.projectiles = [];
+  this.effects = [];
 
   this.thingsToAdd = [];
   this.effectsToAdd = [];
@@ -16,15 +15,11 @@ World = function() {
   this.effectsToRemove = [];
   this.projectilesToRemove = [];
 
-  this.paused = false;
-
   this.collisionFunctions = {};
   this.registerCollisionTypes();
 
-  this.scoresMap = [];
-
-  this.heroId = -1;
-  hero = null;
+  this.paused = false;
+  this.G = 50;
 };
 
 
@@ -75,6 +70,12 @@ World.prototype.populate = function() {
     this.add(sphere);
   }
 
+  var pane = new Pane({
+    size: [10, 15],
+    position: [0, -225, -25]
+  });
+  world.add(pane);
+
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
     pitch: 0 * Math.random() * 2 * PI,
@@ -88,7 +89,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, 0, 0]
+    position: [0, -225, 225]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
@@ -98,30 +99,8 @@ World.prototype.populate = function() {
 
 
 World.prototype.checkCollisions = function() {
-  // for (var i = 0; this.projectiles[i]; i++) {
-  //   for (var j = 0; this.things[j]; j++) {
-  //     var projectile = this.projectiles[i];
-  //     var thing = this.things[j];
-  //     if (projectile.parent == thing) {
-  //       continue;
-  //     }
-  //     if (Collision.check(projectile, thing)) {
-  //       if (projectile.parent.tribe == thing.tribe) {
-  //         this.projectilesToRemove.push(this);
-  //       } else {
-  //         if (thing.alive) {
-  //           if (thing instanceof DumbCrate &&
-  //               projectile.parent instanceof Hero) {
-  //             projectile.parent.ammo.arrows += 3;
-  //             logger.log("Picked up 3 arrows.");
-  //           }
-  //           thing.die();
-  //           projectile.detonate();
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  // TODO: Check everything, collide with the collision with min
+  // value of t
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
       this.collide(thingA, thingB);
@@ -132,23 +111,27 @@ World.prototype.checkCollisions = function() {
 
 World.prototype.registerCollisionTypes = function() {
   this.registerCollisionType(DumbCrate, Bullet, function(dumbCrate, bullet) {
-    var intersection = dumbCrate.findThingIntersection(bullet);
-    if (intersection) {
-      dumbCrate.glom(bullet, intersection);
+    var encounter = dumbCrate.findThingEncounter(bullet, true);
+    if (encounter) {
+      dumbCrate.glom(bullet, encounter);
     }
   });
 
   this.registerCollisionType(Sphere, Bullet, function(sphere, bullet) {
-    var intersection = sphere.findThingIntersection(bullet);
-    if (intersection) {
-      sphere.glom(bullet, intersection);
+    var encounter = sphere.findThingEncounter(bullet, true);
+    if (encounter) {
+      sphere.glom(bullet, encounter);
     }
   });
 
+  this.registerCollisionType(Pane, Bullet, function(pane, bullet) {
+    // console.log(pane.findThingClosestEncounter(bullet));
+  });
+
   this.registerCollisionType(Shelf, Bullet, function(shelf, bullet) {
-    var intersection = shelf.findThingIntersection(bullet);
-    if (intersection) {
-      shelf.glom(bullet, intersection);
+    var encounter = shelf.findThingEncounter(bullet, true);
+    if (encounter) {
+      shelf.glom(bullet, encounter);
     }
   });
 
@@ -176,8 +159,10 @@ World.prototype.registerCollisionType = function(classA, classB, fn) {
 
 
 World.prototype.collide = function(thingA, thingB) {
-  var collisionFunction = this.collisionFunctions[thingA.getType()] ? 
-      this.collisionFunctions[thingA.getType()][thingB.getType()] :
+  var typeA = thingA.getType();
+  var typeB = thingB.getType();
+  var collisionFunction = this.collisionFunctions[typeA] ? 
+      this.collisionFunctions[typeA][typeB] :
       null;
   if (collisionFunction) collisionFunction(thingA, thingB);
 };
@@ -195,7 +180,6 @@ World.prototype.add = function(thing) {
 
 World.prototype.addDirectly_ = function(thing) {
   this.things.push(thing);
-  this.thingsById[thing.id] = thing;
 };
 
 
@@ -253,14 +237,8 @@ World.prototype.reset = function() {
   world.things = [];
   world.effects = [];
   world.projectiles = [];
-  Tribe.clear();
 
   world.populate();
-};
-
-
-World.prototype.inBounds = function(xyz) {
-  return this.shelf.inBounds(xyz);
 };
 
 
@@ -285,9 +263,3 @@ World.prototype.updateLists = function() {
   while (this.projectiles.length > 200) this.projectiles.shift().dispose();
   while (this.effects.length > 200) this.effects.shift().dispose();
 };
-
-
-World.prototype.getThing = function(id) {
-  return this.thingsById[id];
-};
-

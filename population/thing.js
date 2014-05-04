@@ -59,25 +59,42 @@ Thing.prototype.render = function() {
 };
 
 
-Thing.prototype.findThingIntersection = function(thing) {
-  return this.findIntersection(thing.lastPosition, thing.position);
+Thing.prototype.findThingEncounter = function(thing, opt_hitOnly,
+    opt_hitThreshold) {
+  return this.findEncounter(
+    thing.lastPosition, thing.position,
+    opt_hitOnly, opt_hitThreshold);
 };
 
 
-Thing.prototype.findThingClosestDistanceSquared = function(thing) {
-  return this.findClosestDistanceSquared(thing.lastPosition, thing.position);
-};
-
-
-Thing.prototype.findIntersection = function(p_0_pc, p_1_pc) {
+Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, opt_hitOnly,
+    opt_hitThreshold) {
   p_0 = this.toLocalCoords([], p_0_pc);
   p_1 = this.toLocalCoords([], p_1_pc);
   
+  var closestEncounter = null;
   for (var i = 0; this.parts[i]; i++) {
-    var intersection = this.parts[i].findIntersection(p_0, p_1);
-    if (intersection) return intersection;
+    var encounter = this.parts[i].findEncounter(p_0, p_1,
+        opt_hitOnly, opt_hitThreshold);
+    if (!encounter) continue;
+    if (!closestEncounter) {
+      closestEncounter = encounter;
+      continue;
+    }
+
+    if (opt_hitOnly) {
+      if (encounter.t < closestEncounter.t) {
+        closestEncounter = encounter;
+        continue
+      }
+    }
+
+    if (encounter.distanceSquared < closestEncounter.distanceSquared) {
+      closestEncounter = encounter;
+      continue
+    }
   };
-  return null;
+  return closestEncounter;
 };
 
 
@@ -166,3 +183,12 @@ Thing.prototype.dispose = function() {
   });
 };
 
+
+Thing.prototype.makeEncounter = function(t, distanceSquared, point) {
+  return {
+    part: this,
+    t: t,
+    distanceSquared: distanceSquared,
+    point: point
+  }
+};

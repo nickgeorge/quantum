@@ -16,6 +16,8 @@ Pane = function(message) {
 util.inherits(Pane, LeafThing);
 Pane.type = Types.PANE;
 
+Pane.MIN_AND_MAX = [-1, 1];
+
 Pane.prototype.createBuffers = function() {
   this.createVertexBuffer();
   this.createTextureBuffer();
@@ -67,11 +69,11 @@ Pane.prototype.createTextureBuffer = function(){
 };
 
 
-Pane.prototype.contains = function(p_local, opt_extra) {
+Pane.prototype.contains = function(p_lc, opt_extra) {
   var extra = opt_extra || 0;
   for (var i = 0; i < 2; i++) {
     var size = this.size[i]/2 + extra;
-    if (p_local[i] < -size || p_local[i] > size) {
+    if (p_lc[i] < -size || p_lc[i] > size) {
       return false;
     }
   }
@@ -79,31 +81,68 @@ Pane.prototype.contains = function(p_local, opt_extra) {
 };
 
 
-Pane.prototype.findIntersection = function(p_0_pc, p_1_pc) {
-  var p_0 = this.toLocalCoords([], p_0_pc);
-  var delta = this.toLocalCoords([], p_1_pc);
-  vec3.subtract(delta, delta, p_0);
+Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
+    opt_intersectionOnly) {
+  var p_0_lc = this.toLocalCoords([], p_0_pc);
+  var p_1_lc = this.toLocalCoords([], p_1_pc);
+  
+  var delta = vec3.subtract([], p_1_lc, p_0_lc);
+  var t_cross = -p_0_lc[2] / delta[2];
 
-  var t = -p_0[2] / delta[2];
-
-  if (t < 0 || t > 1) return null;
-
-  var p_int = [];
-  p_int[0] = t*(delta[0]) + p_0[0];
-  p_int[1] = t*(delta[1]) + p_0[1];
-  p_int[2] = 0;
-  if (this.contains(p_int)) {
-    return {
-      part: this,
-      point: p_int,
-      t: t
-    };
+  if (Quadratic.inFrame(t_cross)) {
+    var p_int_lc = vec3.scaleAndAdd([], p_0_lc, delta, t_cross);
+    if (this.contains(p_int_lc)) {
+      // We've intersected the pane in this past frame
+      return this.makeEncounter(t_cross, 0, p_int_lc);
+    }
   }
-  return null;
+  if (opt_intersectionOnly) return null;
+
+  // At this point, there are other points that need to be considered.
+  // Make an array of all points that could possibly be the closest.
+  // This does not yet consider point-to-point distances for points
+  // outside of the pane.
+  var encounters = [];
+  if (this.contains(p_0_lc)) {
+    encounters.push(this.makeEncounter(0, util.math.sqr(p_0_lc[2]), p_0_lc));
+  }
+  if (this.contains(p_1_lc)) {
+    encounters.push(this.makeEncounter(1, util.math.sqr(p_1_lc[2]), p_1_lc));
+  }
+
+  for (var i = 0; i < 2; i++) {
+    var halfSize = this.size[i]/2;
+    var maxInI = Math.max(p_0_lc[i], p_1_lc[i]);
+    var minInI = Math.min(p_0_lc[i], p_1_lc[i]);
+    util.array.forEach(Pane.MIN_AND_MAX, function(direction) {
+      var bound = direction*halfSize;
+      if (maxInI > bound && minInI < bound) {
+        var t = (bound - p_0_lc[i]) / delta[i];
+        var p = vec3.scaleAndAdd([], p_0_lc, delta, t);
+        if (this.contains(p)) {
+          encounters.push(this.makeEncounter(t, util.math.sqr(p[2]), p));
+        }
+      }      
+    }, this);
+  }
+
+  if (encounters.length == 0) {
+    return null;
+  }
+
+  util.assertEquals(2, encounters.length,
+      'Awkward number of points of interest found: ' +
+      encounters.length + '.');
+
+  var closestEncounter = null;
+  for (var i = 0; i < encounters.length; i++) {
+    if (!closestEncounter || 
+        encounters[i].distanceSquared < closestEncounter.distanceSquared) {
+      closestEncounter = encounters[i];
+    }
+  }
+  return closestEncounter;
 };
 
 
-// Pane.prototype.findClosestDistanceSquared = function() {
-//   if !(contains)
-// };
 
