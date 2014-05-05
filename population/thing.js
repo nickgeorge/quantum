@@ -14,14 +14,15 @@ Thing = function(message) {
   this.alive = message.alive;
 
   this.parts = [];
+  this.parent = null;
 
   this.age = 0;
 
-  this.toWorldTransform = mat4.create();
-  this.toLocalTransform = mat4.create();
+  this.localToParentTransform = mat4.create();
+  this.parentToLocalTransform = mat4.create();
   this.computeTransforms();
 };
-Thing.klass = Types.THING;
+Thing.type = Types.THING;
 
 
 Thing.prototype.eachPart = function(fn) {
@@ -59,41 +60,56 @@ Thing.prototype.render = function() {
 };
 
 
-Thing.prototype.findThingEncounter = function(thing, opt_hitOnly,
-    opt_hitThreshold) {
-  return this.findEncounter(
-    thing.lastPosition, thing.position,
-    opt_hitOnly, opt_hitThreshold);
+Thing.prototype.setParent = function(parent) {
+  this.parent = parent;
 };
 
 
-Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, opt_hitOnly,
-    opt_hitThreshold) {
-  p_0 = this.toLocalCoords([], p_0_pc);
-  p_1 = this.toLocalCoords([], p_1_pc);
+Thing.prototype.addPart = function(part) {
+  this.parts.push(part);
+  part.setParent(this);
+};
+
+
+Thing.prototype.addParts = function(parts) {
+  util.array.forEach(parts, function(part) {
+    this.addPart(part);
+  }, this);
+};
+
+
+Thing.prototype.findThingEncounter = function(thing, opt_threshold) {
+  return this.findEncounter(
+    thing.lastPosition, thing.position, opt_threshold || 0);
+};
+
+
+Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
+  p_0 = this.parentToLocalCoords([], p_0_pc);
+  p_1 = this.parentToLocalCoords([], p_1_pc);
   
   var closestEncounter = null;
+  var encounters = [];
   for (var i = 0; this.parts[i]; i++) {
-    var encounter = this.parts[i].findEncounter(p_0, p_1,
-        opt_hitOnly, opt_hitThreshold);
+    var encounter = this.parts[i].findEncounter(p_0, p_1, threshold);
     if (!encounter) continue;
     if (!closestEncounter) {
       closestEncounter = encounter;
+      encounters.push(i +" : " +  encounter.t);
       continue;
     }
 
-    if (opt_hitOnly) {
-      if (encounter.t < closestEncounter.t) {
-        closestEncounter = encounter;
-        continue
-      }
-    }
-
-    if (encounter.distanceSquared < closestEncounter.distanceSquared) {
+    if (encounter.t < closestEncounter.t) {
       closestEncounter = encounter;
+      encounters.push(i +" : " +  encounter.t);
       continue
     }
   };
+  if (this.getType() == Types.BOX && encounters.length > 0) {
+    // console.log(encounters);
+    // console.log(closestEncounter);
+    // console.log(p_0 + " __ " + p_1)
+  }
   return closestEncounter;
 };
 
@@ -102,7 +118,7 @@ Thing.prototype.glom = function(thing, intersection) {
   var point = intersection.point;
 
   if (intersection.part != this) {
-    intersection.part.toWorldCoords(point, point);
+    intersection.part.localToParentCoords(point, point);
   }
 
   util.array.remove(world.things, thing);
@@ -115,7 +131,34 @@ Thing.prototype.glom = function(thing, intersection) {
 
 
 Thing.prototype.transform = function() {
-  gl.transform(this.toWorldTransform);
+  gl.transform(this.localToParentTransform);
+};
+
+
+/**
+ * Transforms a vector in "thing-space" for this thing
+ * into parent coordinates.
+ * @param out The receiving Vector3
+ * @param v Vector3 in "thing-space"
+ */
+Thing.prototype.localToParentCoords = function(out, v, opt_w) {
+  var w = opt_w === undefined ? 1 : opt_w;
+  vec3.copy(out, v);
+  vec3.transformMat4(out, out, this.localToParentTransform, w);
+  return out;
+};
+
+
+/**
+ * Transforms a vector in parent coordinates to local coordinates
+ * @param out The receiving Vector3
+ * @param v Vector3 in world coordinates
+ */
+Thing.prototype.parentToLocalCoords = function(out, v, opt_w) {
+  var w = opt_w === undefined ? 1 : opt_w;
+  vec3.copy(out, v);
+  vec3.transformMat4(out, out, this.parentToLocalTransform, w);
+  return out;
 };
 
 
@@ -125,41 +168,53 @@ Thing.prototype.transform = function() {
  * @param out The receiving Vector3
  * @param v Vector3 in "thing-space"
  */
-Thing.prototype.toWorldCoords = function(out, v) {
-  vec3.transformMat4(out, v, this.toWorldTransform);
+Thing.prototype.localToWorldCoords = function(out, v, opt_w) {
+  var w = opt_w === undefined ? 1 : opt_w;
+  vec3.copy(out, v);
+  vec3.transformMat4(out, out, this.localToParentTransform, w);
+  if (this.parent) {
+    this.parent.localToWorldCoords(out, out, w);
+  }
   return out;
 };
 
 
 /**
- * Transforms a vector in world coordinates to local coordinates
+ * Transforms a vector in world-space
+ * into world coordinates for this thing.
  * @param out The receiving Vector3
- * @param v Vector3 in world coordinates
+ * @param v Vector3 in "thing-space"
  */
-Thing.prototype.toLocalCoords = function(out, v) {
-  vec3.transformMat4(out, v, this.toLocalTransform);
+Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
+  var w = opt_w === undefined ? 1 : opt_w;
+  vec3.copy(out, v);
+  if (this.parent) {
+    this.parent.worldToLocalCoords(out, out, w);
+  }
+  vec3.transformMat4(out, out, this.parentToLocalTransform, w);
   return out;
 };
 
 
 Thing.prototype.computeTransforms = function() {
-  mat4.identity(this.toWorldTransform);
-  mat4.translate(this.toWorldTransform,
-      this.toWorldTransform, this.position);
-  mat4.rotate(this.toWorldTransform,
-      this.toWorldTransform,
+  mat4.identity(this.localToParentTransform);
+  mat4.translate(this.localToParentTransform,
+      this.localToParentTransform, this.position);
+  mat4.rotate(this.localToParentTransform,
+      this.localToParentTransform,
       this.yaw,
       vec3.J);
-  mat4.rotate(this.toWorldTransform,
-      this.toWorldTransform,
+  mat4.rotate(this.localToParentTransform,
+      this.localToParentTransform,
       this.pitch,
       vec3.I);
-  mat4.rotate(this.toWorldTransform,
-      this.toWorldTransform,
+  mat4.rotate(this.localToParentTransform,
+      this.localToParentTransform,
       this.roll,
       vec3.K); 
 
-  mat4.invert(this.toLocalTransform, this.toWorldTransform);
+  mat4.invert(this.parentToLocalTransform, this.localToParentTransform);
+
 
   this.eachPart(function(part){
     part.computeTransforms();
@@ -173,8 +228,8 @@ Thing.prototype.getType = function() {
 
 
 Thing.prototype.dispose = function() {
-  this.toWorldTransform = null;
-  this.toLocalTransform = null;
+  this.localToParentTransform = null;
+  this.parentToLocalTransform = null;
   this.velocity = null;
   this.position = null;
 

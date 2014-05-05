@@ -3,13 +3,10 @@ Sun = function(message) {
   this.radius = message.radius || 3;
   this.sphere = new Sphere({
     radius: this.radius,
-    // color: [1, .75, 0, 1],
     texture: Textures.SUN
   });
 
-  this.parts = [this.sphere];
-
-  this.klass = 'Sun';
+  this.addPart(this.sphere);
 };
 util.inherits(Sun, Thing);
 Sun.type = Types.SUN;
@@ -27,8 +24,4 @@ Sun.prototype.render = function() {
   shaderProgram.setUseLighting(false);
   this.sphere.render();
   shaderProgram.setUseLighting(true);
-};
-
-Sun.prototype.getOuterRadius = function() {
-  return 0;
 };

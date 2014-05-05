@@ -82,27 +82,29 @@ Pane.prototype.contains = function(p_lc, opt_extra) {
 
 
 Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
-    opt_intersectionOnly) {
-  var p_0_lc = this.toLocalCoords([], p_0_pc);
-  var p_1_lc = this.toLocalCoords([], p_1_pc);
+    threshold) {
+  var p_0_lc = this.parentToLocalCoords([], p_0_pc);
+  var p_1_lc = this.parentToLocalCoords([], p_1_pc);
   
   var delta = vec3.subtract([], p_1_lc, p_0_lc);
   var t_cross = -p_0_lc[2] / delta[2];
 
+  var encounters = [];
+  var intersectionEncounter = null;
   if (Quadratic.inFrame(t_cross)) {
     var p_int_lc = vec3.scaleAndAdd([], p_0_lc, delta, t_cross);
     if (this.contains(p_int_lc)) {
       // We've intersected the pane in this past frame
-      return this.makeEncounter(t_cross, 0, p_int_lc);
+      intersectionEncounter = this.makeEncounter(t_cross, 0, p_int_lc);
+      encounters.push(intersectionEncounter);
     }
   }
-  if (opt_intersectionOnly) return null;
+  if (threshold == 0) return intersectionEncounter;
 
   // At this point, there are other points that need to be considered.
   // Make an array of all points that could possibly be the closest.
   // This does not yet consider point-to-point distances for points
   // outside of the pane.
-  var encounters = [];
   if (this.contains(p_0_lc)) {
     encounters.push(this.makeEncounter(0, p_0_lc[2], p_0_lc));
   }
@@ -130,17 +132,18 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
     return null;
   }
 
-  util.assertEquals(2, encounters.length,
-      'Awkward number of points of interest found: ' +
-      encounters.length + '.');
+  // util.assertEquals(2, encounters.length,
+  //     'Awkward number of points of interest found: ' +
+  //     encounters.length + '.');
 
   var closestEncounter = null;
   for (var i = 0; i < encounters.length; i++) {
-    if (!closestEncounter || 
-        Math.abs(encounters[i].distance) < Math.abs(closestEncounter.distance)) {
+    if (Math.abs(encounters[i].distance) < threshold && (!closestEncounter ||
+        encounters[i].t < closestEncounter.t)) {
       closestEncounter = encounters[i];
     }
   }
+  // closestEncounter && console.log(encounters);
   return closestEncounter;
 };
 
@@ -150,6 +153,7 @@ Pane.prototype.makeEncounter = function(t, distance, point) {
     part: this,
     t: t,
     distance: distance,
+    distanceSquared: util.math.sqr(distance),
     point: point
   }
 };

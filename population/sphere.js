@@ -14,9 +14,10 @@ Sphere.type = Types.SPHERE;
 
 /** Parent Coords! */
 Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
-    opt_intersectionOnly) {
-  var p_0 = this.toLocalCoords([], p_0_pc);
-  var delta = this.toLocalCoords([], p_1_pc);
+    threshold) {
+  var thresholdSquared = util.math.sqr(threshold);
+  var p_0 = this.parentToLocalCoords([], p_0_pc);
+  var delta = this.parentToLocalCoords([], p_1_pc);
   vec3.subtract(delta, delta, p_0);
 
   var quadratic = Quadratic.newLineToPointQuadratic(p_0, delta, this.radius);
@@ -31,22 +32,29 @@ Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
       return this.makeEncounter(t, 0, vec3.scaleAndAdd([], p_0, delta, t));
     }
   }
-  if (opt_intersectionOnly) return null;
+  if (threshold == 0) return null;
 
   // No roots in range t ∈ [0, 1].  Test if there is a local min.
   var localMinT = quadratic.minT();
   if (Quadratic.inFrame(localMinT)) {
-    return this.makeEncounter(localMinT, quadratic.valueAt(localMinT));
+    var localMin = quadratic.valueAt(localMinT);
+    if (localMin < thresholdSquared) {
+      return this.makeEncounter(localMinT, localMin,
+          vec3.scaleAndAdd([], p_0, delta, localMinT));
+    }
   }
 
   // No local min.  Return min of the extremes.
   var valueAtZero = quadratic.valueAt(0);
   var valueAtOne = quadratic.valueAt(1);
-  if (valueAtZero < valueAtOne) {
-    return this.makeEncounter(0, valueAtZero);
-  }  else {
-    return this.makeEncounter(1, valueAtOne);
+  if (valueAtZero < valueAtOne && valueAtZero < thresholdSquared) {
+    return this.makeEncounter(0, valueAtZero, p_0);
+    
+  } 
+  if (valueAtOne < valueAtZero && valueAtOne < thresholdSquared) {
+    return this.makeEncounter(1, valueAtOne, vec3.add([], p_0, delta));
   }
+  return null;
 };
 
 

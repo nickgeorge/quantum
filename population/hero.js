@@ -11,9 +11,9 @@ Hero = function(message) {
 util.inherits(Hero, Thing);
 Hero.type = Types.HERO;
 
-Hero.JUMP_VELOCITY = 100;
+Hero.JUMP_VELOCITY = 125;
 Hero.HEIGHT = 1.8;
-Hero.WIDTH = .5;
+Hero.WIDTH = 1;
 
 
 Hero.prototype.advance = function(dt) {
@@ -30,13 +30,13 @@ Hero.prototype.advance = function(dt) {
 
 
   if (this.landed) {
-    this.velocity[0] = 12 * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] = 50 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = 12 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = 50 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
     if (this.ground) {
-      var relPosition = this.ground.toLocalCoords(vec3.create(), this.position);
+      var relPosition = this.ground.parentToLocalCoords(vec3.create(), this.position);
       // TODO: check for landing.
     }
   } else {

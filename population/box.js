@@ -61,14 +61,14 @@ Box = function(message) {
     pitch: PI/2,
   });
 
-  this.parts = [
+  this.addParts([
     frontFace,
     backFace,
     rightFace,
     leftFace,
     topFace,
     bottomFace
-  ];
+  ]);
 };
 util.inherits(Box, Thing);
 Box.type = Types.BOX;

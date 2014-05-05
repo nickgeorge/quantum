@@ -19,7 +19,7 @@ World = function() {
   this.registerCollisionTypes();
 
   this.paused = false;
-  this.G = 50;
+  this.G = 62.5;
 };
 
 
@@ -33,29 +33,31 @@ World.prototype.populate = function() {
   var texturesByFace = {};
   texturesByFace 
   this.shelf = new Shelf({
-    position: [0, 0, 0],
+    position: [0, 0, 10],
     size: [500, 500, 500],
     texture: Textures.BYZANTINE,
-    textureCounts: [100, 100]
+    textureCounts: [100, 100],
+    yaw: PI/4
   })
   this.add(this.shelf);
 
 
-  for (var k = 0; k < 30; k++) {
+  for (var k = 0; k < 50; k++) {
     var dumbCrate = new DumbCrate({
       position: [
         (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1],
+        (Math.random() - .5) * this.shelf.size[1] * .5 - 225,
         (Math.random() - .5) * this.shelf.size[2],
       ],
       size: [
-        10 + Math.random() * 60,
-        10 + Math.random() * 60,
-        10 + Math.random() * 60,
+        50,//10 + Math.random() * 60,
+        50,//10 + Math.random() * 60,
+        50//10 + Math.random() * 60,
       ],
       texture: Textures.THWOMP,
       yaw: Math.random() * PI,
       pitch: Math.random() * PI,
+      yaw: Math.random() * PI,
       // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
       // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
@@ -64,7 +66,7 @@ World.prototype.populate = function() {
     var sphere = new Sphere({
       position: [
         (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1],
+        (Math.random() - .5) * this.shelf.size[1] * .7 - 100,
         (Math.random() - .5) * this.shelf.size[2],
       ],
       radius: 3 + Math.random()*30,
@@ -75,10 +77,11 @@ World.prototype.populate = function() {
   }
 
   var pane = new Pane({
-    size: [10, 40],
-    position: [0, -230, -25],
+    size: [40, 40],
+    position: [0, -230, 75],
+    // pitch: PI/4
   });
-  world.add(pane);
+  // world.add(pane);
 
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
@@ -98,7 +101,6 @@ World.prototype.populate = function() {
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
   this.add(hero);
-
 };
 
 
@@ -115,46 +117,68 @@ World.prototype.checkCollisions = function() {
 
 World.prototype.registerCollisionTypes = function() {
   this.registerCollisionType(DumbCrate, Bullet, function(dumbCrate, bullet) {
-    var encounter = dumbCrate.findThingEncounter(bullet, true);
+    var encounter = dumbCrate.findThingEncounter(bullet);
     if (encounter) {
       dumbCrate.glom(bullet, encounter);
     }
   });
 
   this.registerCollisionType(Sphere, Bullet, function(sphere, bullet) {
-    var encounter = sphere.findThingEncounter(bullet, true);
+    var encounter = sphere.findThingEncounter(bullet);
     if (encounter) {
       sphere.glom(bullet, encounter);
     }
   });
 
-  // this.registerCollisionType(Pane, Bullet, function(pane, bullet) {
-  //   // console.log(pane.findThingClosestEncounter(bullet));
-  // });
-
   this.registerCollisionType(Shelf, Bullet, function(shelf, bullet) {
-    var encounter = shelf.findThingEncounter(bullet, true);
+    var encounter = shelf.findThingEncounter(bullet);
     if (encounter) {
       shelf.glom(bullet, encounter);
     }
   });
 
   this.registerCollisionType(Shelf, Hero, function(shelf, hero) {
-    var encounter = shelf.findThingEncounter(hero);
-    // util.assertNotNull(encounter);
-    if (encounter.distanceSquared < Hero.WIDTH*Hero.WIDTH) {
-      shelf.pushIn(hero, encounter);
+    var encounter = shelf.findThingEncounter(hero, Hero.WIDTH);
+    if (!encounter) return;
+    if (encounter.distance < Hero.WIDTH) {
+      heroPosition_lc = encounter.part.worldToLocalCoords([], hero.position);
+      heroPosition_lc[2] = Hero.WIDTH;
+      encounter.part.localToWorldCoords(hero.position, heroPosition_lc);
+      hero.computeTransforms();
+      // shelf.pushIn(hero, encounter);
     }
   });
+  this.registerCollisionType(Pane, Hero, function(shelf, hero) {
+    var encounter = shelf.findThingEncounter(hero, Hero.WIDTH + 1000);
+    if (!encounter) return;
+    
+      heroVelocity_lc = encounter.part.worldToLocalCoords([], hero.velocity);
+    
+      heroVelocity_lc[2] = Math.max(0, heroVelocity_lc[2]);
+    
+      encounter.part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc);
+    
+    
+  });
 
-  // this.registerCollisionType('DumbCrate', 'Hero', function(dumbCrate, hero) {
-  //   var relPosition = dumbCrate.toLocalCoords(vec3.create(), hero.position);
-  //   if (dumbCrate.contains(relPosition, Hero.HEIGHT)) {
-  //     dumbCrate.pushOut(hero.position, 0, Hero.HEIGHT);
-  //     hero.land(dumbCrate);
-  //   }
-  // });
-};
+
+  this.registerCollisionType(DumbCrate, Hero, function(dumbCrate, hero) {
+    var encounter = dumbCrate.findThingEncounter(hero, Hero.WIDTH);
+    if (!encounter) return;
+  
+
+    heroPosition_lc = encounter.part.worldToLocalCoords([], hero.position);
+    heroPosition_lc[2] = Math.max(Hero.WIDTH, heroPosition_lc[2]);
+    encounter.part.localToWorldCoords(hero.position, heroPosition_lc);
+
+    heroVelocity_lc = encounter.part.worldToLocalCoords([], hero.velocity, 0);
+    heroVelocity_lc[2] = Math.max(0, heroVelocity_lc[2]);
+    encounter.part.localToWorldCoords(hero.velocity, heroVelocity_lc, 0);
+
+    hero.computeTransforms();
+    // shelf.pushIn(hero, encounter);
+  });
+}
 
 
 World.prototype.registerCollisionType = function(classA, classB, fn) {

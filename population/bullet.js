@@ -1,6 +1,6 @@
 Bullet = function(message) {
   this.super(message);
-  this.radius = message.radius || .025;
+  this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
     // color: [.3, 1, .3, 1],
