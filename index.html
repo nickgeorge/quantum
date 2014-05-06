@@ -1,45 +1,45 @@
 <html>
   <head>
     <title>Quantum</title>
-    <meta http-equiv='content-type' content='text/html; charset=ISO-8859-1'>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
-    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon' />
-    <link rel='stylesheet' href='style.css' type='text/css' />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
 
-    <script src='util/framerate.js'></script>
-    <script src='util/util.js'></script>
-    <script src='util/quadratic.js'></script>
-    <script src='util/key_code.js'></script>
-    <script src='util/types.js'></script>
-    <script src='input/hero_listener.js'></script>
-    <script src='population/light.js'></script>
-    <script src='population/thing.js'></script>
-    <script src='population/leaf_thing.js'></script>
-    <script src='population/box.js'></script>
-    <script src='population/dumb_crate.js'></script>
-    <script src='population/sun.js'></script>
-    <script src='population/bullet.js'></script>
-    <script src='population/shelf.js'></script>
-    <script src='population/sphere.js'></script>
-    <script src='population/hero.js'></script>
-    <script src='population/pane.js'></script>
-    <script src='gl/gl.js'></script>
-    <script src='gl/matrix_stack.js'></script>
-    <script src='gl/shader_program.js'></script>
-    <script src='gl-matrix/common.js'></script>
-    <script src='gl-matrix/mat3.js'></script>
-    <script src='gl-matrix/mat4.js'></script>
-    <script src='gl-matrix/vec2.js'></script>
-    <script src='gl-matrix/vec3.js'></script>
-    <script src='gl-matrix/vec4.js'></script>
-    <script src='gl-matrix/extensions.js'></script>
-    <script src='media/texture.js'></script>
-    <script src='media/sound_manager.js'></script>
-    <script src='ui/hud.js'></script>
-    <script src='ui/camera.js'></script>
-    <script src='world.js'></script>
-    <script src='collision_manager.js'></script>
-    <script src='animator.js'></script>
+    <script src="util/framerate.js"></script>
+    <script src="util/util.js"></script>
+    <script src="util/quadratic.js"></script>
+    <script src="util/key_code.js"></script>
+    <script src="util/types.js"></script>
+    <script src="input/hero_listener.js"></script>
+    <script src="population/light.js"></script>
+    <script src="population/thing.js"></script>
+    <script src="population/leaf_thing.js"></script>
+    <script src="population/box.js"></script>
+    <script src="population/dumb_crate.js"></script>
+    <script src="population/sun.js"></script>
+    <script src="population/bullet.js"></script>
+    <script src="population/shelf.js"></script>
+    <script src="population/sphere.js"></script>
+    <script src="population/hero.js"></script>
+    <script src="population/pane.js"></script>
+    <script src="gl/gl.js"></script>
+    <script src="gl/matrix_stack.js"></script>
+    <script src="gl/shader_program.js"></script>
+    <script src="gl-matrix/common.js"></script>
+    <script src="gl-matrix/mat3.js"></script>
+    <script src="gl-matrix/mat4.js"></script>
+    <script src="gl-matrix/vec2.js"></script>
+    <script src="gl-matrix/vec3.js"></script>
+    <script src="gl-matrix/vec4.js"></script>
+    <script src="gl-matrix/extensions.js"></script>
+    <script src="media/texture.js"></script>
+    <script src="media/sound_manager.js"></script>
+    <script src="ui/hud.js"></script>
+    <script src="ui/camera.js"></script>
+    <script src="world.js"></script>
+    <script src="collision_manager.js"></script>
+    <script src="animator.js"></script>
 
 
     <script id="fragment-shader" type="x-shader/x-fragment">
@@ -140,11 +140,10 @@
 
       function init() {
         var hudCanvas = document.getElementById('hud-canvas')
-        var glCanvas = document.getElementById("gl-canvas");
+        var glCanvas = document.getElementById('gl-canvas');
         gl = GL.createGL(glCanvas);        
         window.addEventListener('resize',
             util.partial(resize, hudCanvas, glCanvas, gl));
-        resize(hudCanvas, glCanvas, gl);
 
         shaderProgram = ShaderProgram.createShaderProgram(gl);
         gl.useProgram(shaderProgram);
@@ -160,6 +159,7 @@
         world = new World();
         world.populate();
 
+        resize(hudCanvas, glCanvas, gl);
         animator = new Animator(world, hud, gl, framerate);
         animator.setPaused(true);
         animator.start();
@@ -168,6 +168,8 @@
       function resize(hudCanvas, glCanvas, gl) {
         hudCanvas.width = window.innerWidth;
         hudCanvas.height = window.innerHeight;
+        hud.resize();
+        hud.render();
         glCanvas.width = window.innerWidth;
         glCanvas.height = window.innerHeight;
         gl.viewportWidth = window.innerWidth;
@@ -178,9 +180,9 @@
 
 
   <body onload="init();">
-    <div id='game-div'>
-      <canvas id='gl-canvas'></canvas>
-      <canvas id='hud-canvas'></canvas>
+    <div id="game-div">
+      <canvas id="gl-canvas"></canvas>
+      <canvas id="hud-canvas"></canvas>
     </div>
   </body>
 </html>

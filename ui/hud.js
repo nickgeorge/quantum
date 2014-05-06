@@ -10,7 +10,7 @@ HUD = function(canvas, framerate) {
 
   this.widgets.push(this.logger);
   this.widgets.push(new Crosshair(this.context));
-  this.widgets.push(new Fraps(this.context, -200, 25, framerate));
+  this.widgets.push(new Fraps(this.context, -100, 25, framerate));
 };
 
 HUD.prototype.render = function() {
@@ -20,6 +20,12 @@ HUD.prototype.render = function() {
       widget.render();
     });
   }
+};
+
+HUD.prototype.resize = function() {
+  util.array.forEach(this.widgets, function(widget) {
+    widget.resize();
+  });
 };
 
 HUD.prototype.clear = function() {
@@ -37,6 +43,10 @@ Widget = function(context, x, y, font, fillStyle) {
   this.font = font;
   this.fillStyle = fillStyle;
 
+  this.resize();
+};
+
+Widget.prototype.resize = function() {
   this.position = [
     this.x > 0 ? this.x : this.context.canvas.width + this.x,
     this.y > 0 ? this.y : this.context.canvas.height + this.y
@@ -67,6 +77,13 @@ Crosshair = function(context) {
       context.canvas.height / 2);
 };
 util.inherits(Crosshair, Widget);
+
+Crosshair.prototype.resize = function() {
+  this.position = [
+    this.context.canvas.width / 2,
+    this.context.canvas.height / 2
+  ];
+};
 
 Crosshair.prototype.render = function() {
   this.context.strokeStyle = '#ff0000';

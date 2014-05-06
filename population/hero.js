@@ -18,14 +18,7 @@ Hero.WIDTH = .5;
 
 Hero.prototype.advance = function(dt) {
   util.base(this, 'advance', dt, true);
-  var landedHeight = world.shelf.lowBound(1) + Hero.HEIGHT;
-
-  if (this.position[1] < landedHeight && this.velocity[1] <= 0) {
-    this.position[1] = landedHeight 
-    this.land();
-  }
-
-
+  
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
     var factor = sum == 2 ? 1/ROOT_2 : 1;

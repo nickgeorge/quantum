@@ -49,16 +49,16 @@ World.prototype.populate = function() {
         (Math.random() - .5) * this.shelf.size[2],
       ],
       size: [
-        50,//10 + Math.random() * 60,
-        50,//10 + Math.random() * 60,
-        50//10 + Math.random() * 60,
+        20 + Math.random() * 60,
+        20 + Math.random() * 60,
+        20 + Math.random() * 60,
       ],
       texture: Textures.THWOMP,
       yaw: Math.random() * PI,
       pitch: Math.random() * PI,
       roll: Math.random() * PI,
-      // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
-      // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
+      // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
+      // rPitch: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
     });
     this.add(dumbCrate);
 
@@ -77,22 +77,21 @@ World.prototype.populate = function() {
     this.add(sphere);
   }
 
-   reallyDumbCrate = new DumbCrate({
+    var dumbCrate = new DumbCrate({
       position: [
-        0,
-        -this.shelf.size[1]/2 + 45,
-        0,
+        0, -225, 0
       ],
       size: [
-        50,//10 + Math.random() * 60,
-        50,//10 + Math.random() * 60,
-        50//10 + Math.random() * 60,
+        25, 25, 25
       ],
-      texturesByFace: {
-        bottom: Textures.THWOMP},
-      pitch: PI/6,
+      texture: Textures.THWOMP,
+      yaw: Math.random() * PI,
+      pitch: Math.random() * PI,
+      roll: Math.random() * PI,
+      // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
+      // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
-    // this.add(reallyDumbCrate);
+    // this.add(dumbCrate);
 
   var pane = new Pane({
     size: [40, 40],
