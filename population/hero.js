@@ -27,16 +27,22 @@ Hero.prototype.advance = function(dt) {
     this.position[1] = landedHeight 
     this.land();
   }
+  if (this.velocity[1] > 0) {
+    this.unland();
+  }
 
 
   if (this.landed) {
-    this.velocity[0] = 50 * (Math.cos(this.yaw)*this.keyMove[0] +
+    var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
+    var factor = sum == 2 ? 1/ROOT_2 : 1;
+    this.velocity[0] = factor * 50 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = 50 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = factor * 50 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
 
     if (this.ground) {
-      var relPosition = this.ground.parentToLocalCoords(vec3.create(), this.position);
+      var relPosition = this.ground.parentToLocalCoords(
+        vec3.create(), this.position);
       // TODO: check for landing.
     }
   } else {
@@ -49,28 +55,22 @@ Hero.prototype.advance = function(dt) {
     this.velocity[2] = Math.min(30, Math.max(-30, this.velocity[2]));
     this.velocity[1] -= world.G*dt;
   }
-
-  // for (var i = 0; i < 3; i++) {
-  //   if (this.position[i] < world.shelf.lowBound(i) + Hero.HEIGHT) {
-  //     this.position[i] = world.shelf.lowBound(i) + Hero.HEIGHT;
-  //     if (i == 1 ) {
-  //       this.velocity[1] = Math.max(0, this.velocity[1]);
-  //     } else {
-  //       this.velocity[i] = Math.abs(this.velocity[i]);
-  //     }
-  //   }
-  // }
 };
 
 Hero.prototype.jump = function() {
   this.velocity[1] = Hero.JUMP_VELOCITY;
-  this.landed = false;
+  this.unland();
 };
 
 Hero.prototype.land = function(ground) {
   this.velocity[1] = 0;
   this.landed = true;
   this.ground = ground;
+};
+
+Hero.prototype.unland = function() {
+  this.landed = false;
+  this.ground = null;
 };
 
 Hero.prototype.getOuterRadius = function() {

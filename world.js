@@ -46,7 +46,7 @@ World.prototype.populate = function() {
     var dumbCrate = new DumbCrate({
       position: [
         (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1] * .5 - 225,
+        Math.random() * this.shelf.size[1] * .5 - 280,
         (Math.random() - .5) * this.shelf.size[2],
       ],
       size: [
