@@ -6,7 +6,7 @@ GL.createGL = function(canvas) {
     gl = canvas.getContext('experimental-webgl');
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
-  } catch (e) {console.log('Didn\'t init GL')}
+  } catch (e) {util.log('Didn\'t init GL')}
 
   gl.modelMatrix = mat4.create();
   gl.viewMatrix = mat4.create();
@@ -35,7 +35,7 @@ GL.prototype.reset = function() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   mat4.perspective(gl.perspectiveMatrix,
       PI/4, gl.viewportWidth/gl.viewportHeight,
-      .1, 9450.0);
+      .01, 9450.0);
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND)

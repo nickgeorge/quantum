@@ -19,41 +19,41 @@ Box = function(message) {
     }, this);
   }
 
-  var frontFace = new Pane({
+  this.frontFace = new Pane({
     size: [this.size[0], this.size[1], 0],
     position: [0, 0, this.size[2]/2 * this.invertValue],
     texture: this.texturesByFace.front,
     textureCounts: this.textureCountsByFace.front,
   });
-  var backFace = new Pane({
+  this.backFace = new Pane({
     size: [this.size[0], this.size[1], 0],
     position: [0, 0, -this.size[2]/2 * this.invertValue],
     texture: this.texturesByFace.back,
     textureCounts: this.textureCountsByFace.back,
     yaw: PI,
   });
-  var rightFace = new Pane({
+  this.rightFace = new Pane({
     size: [this.size[2], this.size[1], 0],
     position: [this.size[0]/2 * this.invertValue, 0, 0],
     texture: this.texturesByFace.right,
     textureCounts: this.textureCountsByFace.right,
     yaw: PI/2,
   });
-  var leftFace = new Pane({
+  this.leftFace = new Pane({
     size: [this.size[2], this.size[1], 0],
     position: [-this.size[0]/2 * this.invertValue, 0, 0],
     texture: this.texturesByFace.left,
     textureCounts: this.textureCountsByFace.left,
     yaw: 3*PI/2,
   });
-  var topFace = new Pane({
+  this.topFace = new Pane({
     size: [this.size[0], this.size[2], 0],
     position: [0, this.size[1]/2 * this.invertValue, 0],
     texture: this.texturesByFace.top,
     textureCounts: this.textureCountsByFace.top,
     pitch: 3*PI/2,
   });
-  var bottomFace = new Pane({
+  this.bottomFace = new Pane({
     size: [this.size[0], this.size[2], 0],
     position: [0, -this.size[1]/2 * this.invertValue, 0],
     texture: this.texturesByFace.bottom,
@@ -62,12 +62,12 @@ Box = function(message) {
   });
 
   this.addParts([
-    frontFace,
-    backFace,
-    rightFace,
-    leftFace,
-    topFace,
-    bottomFace
+    this.frontFace,
+    this.backFace,
+    this.rightFace,
+    this.leftFace,
+    this.topFace,
+    this.bottomFace
   ]);
 };
 util.inherits(Box, Thing);

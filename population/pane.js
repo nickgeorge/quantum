@@ -132,9 +132,6 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
     return null;
   }
 
-  // util.assertEquals(2, encounters.length,
-  //     'Awkward number of points of interest found: ' +
-  //     encounters.length + '.');
 
   var closestEncounter = null;
   for (var i = 0; i < encounters.length; i++) {
@@ -143,7 +140,6 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
       closestEncounter = encounters[i];
     }
   }
-  // closestEncounter && console.log(encounters);
   return closestEncounter;
 };
 

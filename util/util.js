@@ -147,6 +147,10 @@ util.square = function(x) {
   return x*x;
 };
 
+util.log = function(star) {
+  console.log(star);
+}
+
 /*********************/
 /*    util.style     */
 /*********************/

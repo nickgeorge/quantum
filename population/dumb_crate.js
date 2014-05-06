@@ -4,7 +4,8 @@ DumbCrate = function(message) {
   this.size = message.size;
   this.box = new Box({
     size: message.size,
-    texture: message.texture
+    texture: message.texture,
+    texturesByFace: message.texturesByFace,
   });
 
   this.addPart(this.box);

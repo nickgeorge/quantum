@@ -46,17 +46,16 @@ HeroListener.prototype.onMouseDown = function(e) {
   if (!this.mouseIsLocked) {
     // this.enableMouseLock();
     // e.preventDefault();
-    // console.log("locked");
+    // util.log("locked");
     // return;
   }
 
   if (e.button == 0) {
     this.hero && this.hero.shoot();
   } else if (e.button == 2) {
-    console.log("Bang!");
     e.preventDefault();
   } else {
-    console.log(e.button);
+    util.log(e.button);
   }
 };
 
@@ -125,13 +124,13 @@ HeroListener.prototype.onKey = function(event) {
           (this.keyMap[KeyCode.W] ? -1 : 0);
       break;
     case KeyCode.SPACE:
-      target.jump();
+      isKeydown && target.jump();
       break;
     case KeyCode.G:
       this.enableMouseLock();
       break;
     default:
-      console.log('Unrecognized key: ' + event.keyCode);
+      util.log('Unrecognized key: ' + event.keyCode);
       return;
   }
   event.preventDefault();

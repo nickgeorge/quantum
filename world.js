@@ -15,8 +15,7 @@ World = function() {
   this.effectsToRemove = [];
   this.projectilesToRemove = [];
 
-  this.collisionFunctions = {};
-  this.registerCollisionTypes();
+  this.collisionManager = new CollisionManager(this);
 
   this.paused = false;
   this.G = 62.5;
@@ -42,11 +41,11 @@ World.prototype.populate = function() {
   this.add(this.shelf);
 
 
-  for (var k = 0; k < 50; k++) {
+  for (var k = 0; k < 60; k++) {
     var dumbCrate = new DumbCrate({
       position: [
         (Math.random() - .5) * this.shelf.size[0],
-        Math.random() * this.shelf.size[1] * .5 - 280,
+        (Math.random() - .5) * this.shelf.size[1],
         (Math.random() - .5) * this.shelf.size[2],
       ],
       size: [
@@ -57,16 +56,18 @@ World.prototype.populate = function() {
       texture: Textures.THWOMP,
       yaw: Math.random() * PI,
       pitch: Math.random() * PI,
-      yaw: Math.random() * PI,
+      roll: Math.random() * PI,
       // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
       // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
     });
     this.add(dumbCrate);
 
+  }
+  for (var k = 0; k < 15; k++) {
     var sphere = new Sphere({
       position: [
         (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1] * .7 - 100,
+        (Math.random() - .5) * this.shelf.size[1],
         (Math.random() - .5) * this.shelf.size[2],
       ],
       radius: 3 + Math.random()*30,
@@ -75,6 +76,23 @@ World.prototype.populate = function() {
     });
     this.add(sphere);
   }
+
+   reallyDumbCrate = new DumbCrate({
+      position: [
+        0,
+        -this.shelf.size[1]/2 + 45,
+        0,
+      ],
+      size: [
+        50,//10 + Math.random() * 60,
+        50,//10 + Math.random() * 60,
+        50//10 + Math.random() * 60,
+      ],
+      texturesByFace: {
+        bottom: Textures.THWOMP},
+      pitch: PI/6,
+    });
+    // this.add(reallyDumbCrate);
 
   var pane = new Pane({
     size: [40, 40],
@@ -96,7 +114,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, -225, 225]
+    position: [0, -245, 0]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;
@@ -109,99 +127,13 @@ World.prototype.checkCollisions = function() {
   // value of t
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
-      this.collide(thingA, thingB);
+      this.collisionManager.test(thingA, thingB);
     }
   }
 };
 
 
-World.prototype.registerCollisionTypes = function() {
-  this.registerCollisionType(DumbCrate, Bullet, function(dumbCrate, bullet) {
-    var encounter = dumbCrate.findThingEncounter(bullet);
-    if (encounter) {
-      dumbCrate.glom(bullet, encounter);
-    }
-  });
 
-  this.registerCollisionType(Sphere, Bullet, function(sphere, bullet) {
-    var encounter = sphere.findThingEncounter(bullet);
-    if (encounter) {
-      sphere.glom(bullet, encounter);
-    }
-  });
-
-  this.registerCollisionType(Shelf, Bullet, function(shelf, bullet) {
-    var encounter = shelf.findThingEncounter(bullet);
-    if (encounter) {
-      shelf.glom(bullet, encounter);
-    }
-  });
-
-  this.registerCollisionType(Shelf, Hero, function(shelf, hero) {
-    var encounter = shelf.findThingEncounter(hero, Hero.WIDTH);
-    if (!encounter) return;
-    if (encounter.distance < Hero.WIDTH) {
-      heroPosition_lc = encounter.part.worldToLocalCoords([], hero.position);
-      heroPosition_lc[2] = Hero.WIDTH;
-      encounter.part.localToWorldCoords(hero.position, heroPosition_lc);
-      hero.computeTransforms();
-      // shelf.pushIn(hero, encounter);
-    }
-  });
-  this.registerCollisionType(Pane, Hero, function(shelf, hero) {
-    var encounter = shelf.findThingEncounter(hero, Hero.WIDTH + 1000);
-    if (!encounter) return;
-    
-      heroVelocity_lc = encounter.part.worldToLocalCoords([], hero.velocity);
-    
-      heroVelocity_lc[2] = Math.max(0, heroVelocity_lc[2]);
-    
-      encounter.part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc);
-    
-    
-  });
-
-
-  this.registerCollisionType(DumbCrate, Hero, function(dumbCrate, hero) {
-    var encounter = dumbCrate.findThingEncounter(hero, Hero.WIDTH);
-    if (!encounter) return;
-  
-
-    heroPosition_lc = encounter.part.worldToLocalCoords([], hero.position);
-    heroPosition_lc[2] = Math.max(Hero.WIDTH, heroPosition_lc[2]);
-    encounter.part.localToWorldCoords(hero.position, heroPosition_lc);
-
-    heroVelocity_lc = encounter.part.worldToLocalCoords([], hero.velocity, 0);
-    heroVelocity_lc[2] = Math.max(0, heroVelocity_lc[2]);
-    encounter.part.localToWorldCoords(hero.velocity, heroVelocity_lc, 0);
-
-    hero.computeTransforms();
-    // shelf.pushIn(hero, encounter);
-  });
-}
-
-
-World.prototype.registerCollisionType = function(classA, classB, fn) {
-  var typeA = classA.type;
-  var typeB = classB.type;
-  this.collisionFunctions[typeA] = this.collisionFunctions[typeA] || {};
-  this.collisionFunctions[typeB] = this.collisionFunctions[typeB] || {};
-
-  this.collisionFunctions[typeA][typeB] = fn;
-  this.collisionFunctions[typeB][typeA] = function(thingB, thingA) {
-    fn(thingA, thingB);
-  }
-};
-
-
-World.prototype.collide = function(thingA, thingB) {
-  var typeA = thingA.getType();
-  var typeB = thingB.getType();
-  var collisionFunction = this.collisionFunctions[typeA] ? 
-      this.collisionFunctions[typeA][typeB] :
-      null;
-  if (collisionFunction) collisionFunction(thingA, thingB);
-};
 
 
 World.prototype.remove = function(thing) {

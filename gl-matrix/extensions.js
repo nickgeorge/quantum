@@ -5,17 +5,19 @@ vec3.K = [0, 0, 1];
 vec4.WHITE = [1, 1, 1, 1];
 vec4.BLACK = [0, 0, 0, 1];
 
-vec3.yawTo = function(v1, v2) {
-  return Math.atan2(v2[1] - v1[1], v2[0] - v1[0]);
-};
+/**
+ * A vector that can be used as a temporary container.
+ * This avoids having to create a lot of extra vectors.
+ * @type {vec3}
+ */
+vec3.temp = vec3.create();
 
-vec3.pitchTo = function(v1, v2) {
-  var diff = vec3.subtract([], v1, v2);
-  var d_ground = Math.sqrt(util.sqr(diff[0]) + util.sqr(diff[1]));
-
-  return Math.atan2(d_ground, diff[2]);
-};
-
+/**
+ * Clones the passed vec3 if it exists.
+ * Otherwise creates and returns a new one.
+ * @param {vec3} a the vector to clone, if it exists
+ * @returns {vec3} the nullably-cloned vector
+ */
 vec3.nullableClone = function(a) {
   if (a) {
     return vec3.clone(a);
@@ -24,17 +26,9 @@ vec3.nullableClone = function(a) {
   }
 };
 
-vec4.nullableClone = function(a) {
-  if (a) {
-    return vec4.clone(a);
-  } else {
-    return vec4.create();
-  }
-};
-
 /**
- * Transforms the vec3 with a mat4.
- * 4th vector component is implicitly '1'
+ * Overrides transformMat4 to take an optional w value,
+ * rather than assuming 1.
  *
  * @param {vec3} out the receiving vector
  * @param {vec3} a the vector to transform

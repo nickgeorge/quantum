@@ -78,9 +78,9 @@ Thing.prototype.addParts = function(parts) {
 };
 
 
-Thing.prototype.findThingEncounter = function(thing, opt_threshold) {
+Thing.prototype.findThingEncounter = function(thing, threshold) {
   return this.findEncounter(
-    thing.lastPosition, thing.position, opt_threshold || 0);
+    thing.lastPosition, thing.position, threshold);
 };
 
 
@@ -105,11 +105,6 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
       continue
     }
   };
-  if (this.getType() == Types.BOX && encounters.length > 0) {
-    // console.log(encounters);
-    // console.log(closestEncounter);
-    // console.log(p_0 + " __ " + p_1)
-  }
   return closestEncounter;
 };
 
@@ -213,7 +208,8 @@ Thing.prototype.computeTransforms = function() {
       this.roll,
       vec3.K); 
 
-  mat4.invert(this.parentToLocalTransform, this.localToParentTransform);
+  mat4.invert(this.parentToLocalTransform, 
+      this.localToParentTransform);
 
 
   this.eachPart(function(part){
