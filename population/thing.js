@@ -17,6 +17,8 @@ Thing = function(message) {
   this.parent = null;
 
   this.age = 0;
+  this.root = false;
+  this.name = message.name;
 
   this.localToParentTransform = mat4.create();
   this.parentToLocalTransform = mat4.create();
@@ -39,13 +41,15 @@ Thing.prototype.draw = function() {
 
 
 Thing.prototype.advance = function(dt) {
-  vec3.copy(this.lastPosition, this.position);
+  this.saveLastPosition();
   this.age += dt;
   this.yaw += this.rYaw * dt;
   this.pitch += this.rPitch * dt;
   this.roll += this.rRoll * dt;
   vec3.scaleAndAdd(this.position, this.position,
       this.velocity, dt);
+
+  this.setPosition(vec3.scale(vec3.temp, this.velocity, dt));
 
   this.eachPart(function(part){
     part.advance(dt);
@@ -71,6 +75,12 @@ Thing.prototype.addPart = function(part) {
 };
 
 
+Thing.prototype.removePart = function(part) {
+  util.array.remove(this.parts, part);
+  part.setParent(null);
+};
+
+
 Thing.prototype.addParts = function(parts) {
   util.array.forEach(parts, function(part) {
     this.addPart(part);
@@ -85,23 +95,22 @@ Thing.prototype.findThingEncounter = function(thing, threshold) {
 
 
 Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
-  p_0 = this.parentToLocalCoords([], p_0_pc);
-  p_1 = this.parentToLocalCoords([], p_1_pc);
+  var p_0 = this.parentToLocalCoords([], p_0_pc);
+  var p_1 = this.parentToLocalCoords([], p_1_pc);
   
   var closestEncounter = null;
   var encounters = [];
   for (var i = 0; this.parts[i]; i++) {
     var encounter = this.parts[i].findEncounter(p_0, p_1, threshold);
     if (!encounter) continue;
+    encounters.push(i +" : " +  encounter.t);
     if (!closestEncounter) {
       closestEncounter = encounter;
-      encounters.push(i +" : " +  encounter.t);
       continue;
     }
 
     if (encounter.t < closestEncounter.t) {
       closestEncounter = encounter;
-      encounters.push(i +" : " +  encounter.t);
       continue
     }
   };
@@ -112,12 +121,9 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
 Thing.prototype.glom = function(thing, intersection) {
   var point = intersection.point;
 
-  if (intersection.part != this) {
-    intersection.part.localToParentCoords(point, point);
-  }
-
-  util.array.remove(world.things, thing);
-  this.parts.push(thing);
+  world.projectilesToRemove.push(thing);
+  world.disposables.push(thing);
+  this.addPart(thing);
   vec3.copy(thing.velocity, vec3.ZERO);
 
   vec3.copy(thing.position, point);
@@ -138,8 +144,7 @@ Thing.prototype.transform = function() {
  */
 Thing.prototype.localToParentCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.copy(out, v);
-  vec3.transformMat4(out, out, this.localToParentTransform, w);
+  vec3.transformMat4(out, v, this.localToParentTransform, w);
   return out;
 };
 
@@ -151,8 +156,7 @@ Thing.prototype.localToParentCoords = function(out, v, opt_w) {
  */
 Thing.prototype.parentToLocalCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.copy(out, v);
-  vec3.transformMat4(out, out, this.parentToLocalTransform, w);
+  vec3.transformMat4(out, v, this.parentToLocalTransform, w);
   return out;
 };
 
@@ -165,8 +169,7 @@ Thing.prototype.parentToLocalCoords = function(out, v, opt_w) {
  */
 Thing.prototype.localToWorldCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.copy(out, v);
-  vec3.transformMat4(out, out, this.localToParentTransform, w);
+  vec3.transformMat4(out, v, this.localToParentTransform, w);
   if (this.parent) {
     this.parent.localToWorldCoords(out, out, w);
   }
@@ -182,11 +185,12 @@ Thing.prototype.localToWorldCoords = function(out, v, opt_w) {
  */
 Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.copy(out, v);
   if (this.parent) {
-    this.parent.worldToLocalCoords(out, out, w);
+    this.parent.worldToLocalCoords(out, v, w);
+    vec3.transformMat4(out, out, this.parentToLocalTransform, w);
+  } else {
+    vec3.transformMat4(out, v, this.parentToLocalTransform, w);
   }
-  vec3.transformMat4(out, out, this.parentToLocalTransform, w);
   return out;
 };
 
@@ -194,23 +198,32 @@ Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
 Thing.prototype.computeTransforms = function() {
   mat4.identity(this.localToParentTransform);
   mat4.translate(this.localToParentTransform,
-      this.localToParentTransform, this.position);
-  mat4.rotate(this.localToParentTransform,
       this.localToParentTransform,
-      this.yaw,
-      vec3.J);
-  mat4.rotate(this.localToParentTransform,
+      this.position);
+  mat4.rotateY(this.localToParentTransform,
       this.localToParentTransform,
-      this.pitch,
-      vec3.I);
-  mat4.rotate(this.localToParentTransform,
+      this.yaw);
+  mat4.rotateX(this.localToParentTransform,
       this.localToParentTransform,
-      this.roll,
-      vec3.K); 
+      this.pitch);
+  mat4.rotateZ(this.localToParentTransform,
+      this.localToParentTransform,
+      this.roll); 
 
-  mat4.invert(this.parentToLocalTransform, 
-      this.localToParentTransform);
 
+  mat4.identity(this.parentToLocalTransform);
+  mat4.rotateZ(this.parentToLocalTransform,
+      this.parentToLocalTransform,
+      -this.roll); 
+  mat4.rotateX(this.parentToLocalTransform,
+      this.parentToLocalTransform,
+      -this.pitch);
+  mat4.rotateY(this.parentToLocalTransform,
+      this.parentToLocalTransform,
+      -this.yaw);
+  mat4.translate(this.parentToLocalTransform,
+      this.parentToLocalTransform,
+      vec3.negate(vec3.temp, this.position));
 
   this.eachPart(function(part){
     part.computeTransforms();
@@ -228,6 +241,9 @@ Thing.prototype.dispose = function() {
   this.parentToLocalTransform = null;
   this.velocity = null;
   this.position = null;
+  if (this.parent) {
+    this.parent.removePart(this);
+  }
 
   util.array.forEach(this.parts, function(part){
     part.dispose();
@@ -235,4 +251,52 @@ Thing.prototype.dispose = function() {
 };
 
 
-Thing.prototype.makeEncounter = util.unimplemented;
+Thing.prototype.randomizeAngle = function() {
+  this.yaw = Math.random() * 2*PI;
+  this.pitch = Math.random() * 2*PI;
+  this.roll = Math.random() * 2*PI;
+};
+
+
+Thing.prototype.saveLastPosition = function() {
+  this.lastPosition[0] = this.localToParentTransform[12];
+  this.lastPosition[1] = this.localToParentTransform[13];
+  this.lastPosition[2] = this.localToParentTransform[14];
+};
+
+
+Thing.prototype.getPosition = function(out) {
+  vec3.set(out,
+      this.localToParentTransform[12],
+      this.localToParentTransform[13],
+      this.localToParentTransform[14])
+  return out;
+};
+
+Thing.prototype.setPosition = function(position) {
+  this.localToParentTransform[12] = position[0];
+  this.localToParentTransform[13] = position[1];
+  this.localToParentTransform[14] = position[2];
+};
+
+
+Thing.prototype.distanceSquaredTo = function(other) {
+  return vec3.squaredDistance(this.position, other.position);
+};
+
+
+Thing.prototype.getDeltaP = function(out) {
+  vec3.subtract(out, this.position, this.lastPosition);
+};
+
+
+
+
+
+
+
+
+
+
+
+

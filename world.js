@@ -6,6 +6,7 @@ World = function() {
   this.things = [];
   this.projectiles = [];
   this.effects = [];
+  this.disposables = [];
 
   this.thingsToAdd = [];
   this.effectsToAdd = [];
@@ -32,73 +33,75 @@ World.prototype.populate = function() {
   var texturesByFace = {};
   texturesByFace 
   this.shelf = new Shelf({
-    position: [0, 0, 10],
+    position: [0, 0, 0],
     size: [500, 500, 500],
     texture: Textures.BYZANTINE,
-    textureCounts: [100, 100],
-    yaw: PI/4
+    textureCounts: [100, 100]
   })
   this.add(this.shelf);
 
+  var addThings = true;
 
-  for (var k = 0; k < 60; k++) {
-    var dumbCrate = new DumbCrate({
-      position: [
-        (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1],
-        (Math.random() - .5) * this.shelf.size[2],
-      ],
-      size: [
-        20 + Math.random() * 60,
-        20 + Math.random() * 60,
-        20 + Math.random() * 60,
-      ],
-      texture: Textures.THWOMP,
-      yaw: Math.random() * PI,
-      pitch: Math.random() * PI,
-      roll: Math.random() * PI,
-      // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
-      // rPitch: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
-    });
-    this.add(dumbCrate);
+  if (addThings) {
+    for (var k = 0; k < 60; k++) {
+      var dumbCrate = new DumbCrate({
+        position: [
+          (Math.random() - .5) * this.shelf.size[0],
+          (Math.random() - .5) * this.shelf.size[1],
+          (Math.random() - .5) * this.shelf.size[2],
+        ],
+        size: [
+          20 + Math.random() * 60,
+          20 + Math.random() * 60,
+          20 + Math.random() * 60,
+        ],
+        texture: Textures.THWOMP
+        // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
+        // rPitch: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
+      });
+      dumbCrate.randomizeAngle();
+      this.add(dumbCrate);
 
+    }
+    for (var k = 0; k < 20; k++) {
+      var sphere = new Sphere({
+        position: [
+          (Math.random() - .5) * this.shelf.size[0],
+          (Math.random() - .5) * this.shelf.size[1],
+          (Math.random() - .5) * this.shelf.size[2],
+        ],
+        radius: 3 + Math.random()*30,
+        texture: Textures.EARTH,
+        rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
+        latitudeCount: 25,
+        longitudeCount: 25
+      });
+      this.add(sphere);
+    }
   }
-  for (var k = 0; k < 15; k++) {
-    var sphere = new Sphere({
-      position: [
-        (Math.random() - .5) * this.shelf.size[0],
-        (Math.random() - .5) * this.shelf.size[1],
-        (Math.random() - .5) * this.shelf.size[2],
-      ],
-      radius: 3 + Math.random()*30,
-      texture: Textures.EARTH,
-      rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
-    });
-    this.add(sphere);
-  }
 
-    var dumbCrate = new DumbCrate({
-      position: [
-        0, -225, 0
-      ],
-      size: [
-        25, 25, 25
-      ],
-      texture: Textures.THWOMP,
-      yaw: Math.random() * PI,
-      pitch: Math.random() * PI,
-      roll: Math.random() * PI,
-      // rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
-      // rPitch: (2*Math.random() - 1) * 2*Math.random() * PI,
-    });
-    // this.add(dumbCrate);
-
-  var pane = new Pane({
-    size: [40, 40],
-    position: [0, -230, 75],
-    // pitch: PI/4
+  var dumbCrate = new DumbCrate({
+    position: [0, -225, 0],
+    size: [25, 25, 25],
+    texture: Textures.THWOMP
   });
-  // world.add(pane);
+  dumbCrate.randomizeAngle();
+  // this.add(dumbCrate);
+
+  for (var i = 0; i < 30; i++) {
+    var fella = new Fella({
+      position: [0, -250, -5],
+      velocity: vec3.normalize(vec3.temp, 
+        [2*Math.random() - 1, 0, 2*Math.random() - 1]),
+      color: [
+        Math.floor(Math.random() + .5),
+        Math.floor(Math.random() + .5),
+        Math.floor(Math.random() + .5),
+        1
+      ]
+    });
+    this.add(fella);
+  }
 
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * PI,
@@ -126,7 +129,20 @@ World.prototype.checkCollisions = function() {
   // value of t
   for (var i = 0, thingA; thingA = this.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
+      // if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
+      //     thingA.distanceSquaredTo(thingB)) {
+      //   continue;
+      // }
       this.collisionManager.test(thingA, thingB);
+    }
+  }
+  for (var i = 0, thing; thing = this.things[i]; i++) {
+    for (var j = 0, projectile; projectile = this.projectiles[j]; j++) {
+      // if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
+      //     thing.distanceSquaredTo(projectile)) {
+      //   continue;
+      // }
+      this.collisionManager.test(thing, projectile);
     }
   }
 };
@@ -176,14 +192,13 @@ World.prototype.advance = function(dt) {
   });
   util.array.forEach(this.projectiles, function(projectile) {
     projectile.advance(dt);
+    projectile.computeTransforms();
   });
-  util.array.forEach(this.effects, function(effects) {
-    effects.advance(dt);
+  util.array.forEach(this.effects, function(effect) {
+    effect.advance(dt);
+    effect.computeTransforms();
   });
-  this.checkCollisions();
-
-  while (this.projectiles.length > 200) this.projectiles.shift().dispose();
-  while (this.effects.length > 200) this.effects.shift().dispose();
+  this.collisionManager.checkCollisions();
 };
 
 
@@ -195,7 +210,6 @@ World.prototype.addLight = function(light) {
 World.prototype.applyLights = function() {
   for (var i = 0, light; light = this.lights[i]; i++) {
     light.apply();
-     
   }
 };
 
@@ -210,8 +224,7 @@ World.prototype.reset = function() {
 
 
 World.prototype.updateLists = function() {
-  util.array.forEach(this.thingsToAdd, this.addDirectly_, this);
-
+  util.array.pushAll(this.things, this.thingsToAdd);
   util.array.pushAll(this.effects, this.effectsToAdd);
   util.array.pushAll(this.projectiles, this.projectilesToAdd);
 
@@ -219,14 +232,15 @@ World.prototype.updateLists = function() {
   util.array.removeAll(this.effects, this.effectsToRemove);
   util.array.removeAll(this.projectiles, this.projectilesToRemove);
 
-  this.thingsToAdd = [];
-  this.effectsToAdd = [];
-  this.projectilesToAdd = [];
+  this.thingsToAdd.length = 0;
+  this.effectsToAdd.length = 0;
+  this.projectilesToAdd.length = 0;
 
-  this.thingsToRemove = [];
-  this.effectsToRemove = [];
-  this.projectilesToRemove = [];
+  this.thingsToRemove.length = 0;
+  this.effectsToRemove.length = 0;
+  this.projectilesToRemove.length = 0;
 
-  while (this.projectiles.length > 200) this.projectiles.shift().dispose();
-  while (this.effects.length > 200) this.effects.shift().dispose();
+  while (this.disposables.length > 50) {
+    this.disposables.shift().dispose();
+  }
 };

@@ -32,13 +32,25 @@ Quadratic.prototype.minValue = function() {
   return this.valueAt(this.minT());
 };
 
-/** point located at origin */
-Quadratic.newLineToPointQuadratic = function(p_0, delta, opt_offset) {
+Quadratic.newLineToOriginQuadratic = function(p_0, delta, opt_offset) {
   var a = 0, b = 0, c = 0;
 
   for (var i = 0; i < 3; i++) {
     a += util.math.sqr(delta[i]);
     b += 2 * delta[i] * (p_0[i]);
+    c += util.math.sqr(p_0[i]);
+  }
+  c -= util.math.sqr(opt_offset || 0);
+
+  return new Quadratic(a, b, c); 
+};
+
+Quadratic.newLineToPointQuadratic = function(p_0, delta, p, opt_offset) {
+  var a = 0, b = 0, c = 0;
+
+  for (var i = 0; i < 3; i++) {
+    a += util.math.sqr(delta[i] - p[i]);
+    b += 2 * (delta[i] - p[i]) * (p_0[i]);
     c += util.math.sqr(p_0[i]);
   }
   c -= util.math.sqr(opt_offset || 0);

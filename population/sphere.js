@@ -2,8 +2,8 @@ Sphere = function(message) {
   message.leaf = true;
   this.super(message);
   this.radius = message.radius || 1;
-  this.longitudeCount = message.longitudeCount || 25;
-  this.latitudeCount = message.latitudeCount || 25;
+  this.longitudeCount = message.longitudeCount || 15;
+  this.latitudeCount = message.latitudeCount || 15;
 
   this.createBuffers();
   this.klass = 'Sphere';
@@ -20,7 +20,7 @@ Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
   var delta = this.parentToLocalCoords([], p_1_pc);
   vec3.subtract(delta, delta, p_0);
 
-  var quadratic = Quadratic.newLineToPointQuadratic(p_0, delta, this.radius);
+  var quadratic = Quadratic.newLineToOriginQuadratic(p_0, delta, this.radius);
   if (quadratic.rootCount() > 0) {
     // n.b. t_0 <= t_1 because a > 0 (local min), so we only care about the 
     // root that uses the negative discriminant. 
@@ -78,6 +78,7 @@ Sphere.prototype.createBuffers = function() {
       var u = 1 - (longitude / this.longitudeCount);
       var v = 1 - (latitude / this.latitudeCount);
 
+      // normalize these
       normalData.push(x);
       normalData.push(y);
       normalData.push(z);
@@ -120,3 +121,7 @@ Sphere.prototype.makeEncounter = function(t, distanceSquared, point) {
   }
 };
 
+
+Sphere.prototype.getOuterRadius = function() {
+  return this.radius;
+};

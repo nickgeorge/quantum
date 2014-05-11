@@ -25,3 +25,7 @@ Sun.prototype.render = function() {
   this.sphere.render();
   shaderProgram.setUseLighting(true);
 };
+
+Sun.prototype.getOuterRadius = function() {
+  return this.sphere.getOuterRadius();
+};

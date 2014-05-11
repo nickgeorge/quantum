@@ -29,6 +29,9 @@ ShaderProgram.getShader = function(gl, id) {
     return null;
   }
 
+  shader.loadedTexture = -1;
+  shader.loadedNormalBuffer = null;
+  shader.loadedIndexBuffer = null;
   return shader;
 };
 
@@ -84,12 +87,6 @@ ShaderProgram.prototype.reset = function() {
   this.setUseLighting(ShaderProgram.USE_LIGHTING_DEFAULT);
   this.setUseTexture(ShaderProgram.USE_TEXTURE_DEFAULT)
   this.setUniformColor(ShaderProgram.UNIFORM_COLOR_DEFAULT);
-
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.BLEND)
-  gl.enable(gl.CULL_FACE);  
-  gl.cullFace(gl.BACK);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
 ShaderProgram.prototype.setUseLighting = function(useLighting) {
@@ -109,11 +106,21 @@ ShaderProgram.prototype.bindVertexPositionBuffer = function(buffer) {
 };
 
 ShaderProgram.prototype.bindVertexNormalBuffer = function(buffer) {
+  if (this.loadedNormalBuffer == buffer) {
+    return;
+  }
+  this.loadedNormalBuffer = buffer;
   this.bindAttributeBuffer_(buffer, this.vertexNormalAttribute);
 };
 
 ShaderProgram.prototype.bindVertexTextureBuffer = function(buffer) {
   this.bindAttributeBuffer_(buffer, this.textureCoordAttribute);
+};
+
+ShaderProgram.prototype.bindVertexIndexBuffer = function(buffer) {
+  if (this.loadedIndexBuffer == buffer) return;
+  this.loadedIndexBuffer = buffer;
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
 };
 
 ShaderProgram.prototype.bindAttributeBuffer_ = function(buffer, location) {
@@ -122,6 +129,8 @@ ShaderProgram.prototype.bindAttributeBuffer_ = function(buffer, location) {
 };
 
 ShaderProgram.prototype.bindTexture = function(texture) {
+  if (this.loadedTexture == texture) return;
+  this.loadedTexture = texture;
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, texture);
 };

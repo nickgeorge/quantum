@@ -12,7 +12,9 @@ util.inherits(LeafThing, Thing);
 
 
 LeafThing.prototype.render = function() {
-  util.base(this, 'render');
+  if (this.parts.length) { 
+    util.base(this, 'render');
+  }
   this.renderSelf();
 };
 
@@ -22,12 +24,14 @@ LeafThing.prototype.renderSelf = function() {
 
   shaderProgram.setUniformColor(this.color);
   shaderProgram.setUseTexture(this.texture && this.texture.loaded);
-  shaderProgram.bindTexture(this.texture);
+  if (this.texture) {
+    shaderProgram.bindTexture(this.texture);
+  }
   shaderProgram.bindVertexPositionBuffer(this.vertexBuffer);
   shaderProgram.bindVertexNormalBuffer(this.normalBuffer);
   shaderProgram.bindVertexTextureBuffer(this.textureBuffer);
+  shaderProgram.bindVertexIndexBuffer(this.indexBuffer);
 
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
   shaderProgram.reset();

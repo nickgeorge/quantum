@@ -6,5 +6,6 @@ Types = {
   BULLET: 5,
   SHELF: 6,
   SUN: 7,
-  HERO: 8
+  HERO: 8,
+  FELLA: 9
 };

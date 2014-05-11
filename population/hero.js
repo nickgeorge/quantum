@@ -12,24 +12,25 @@ util.inherits(Hero, Thing);
 Hero.type = Types.HERO;
 
 Hero.JUMP_VELOCITY = 125;
-Hero.HEIGHT = 1.8;
+Hero.HEIGHT = 2.2;
 Hero.WIDTH = .5;
 
 
 Hero.prototype.advance = function(dt) {
   util.base(this, 'advance', dt, true);
-  
+  // debugger;
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
     var factor = sum == 2 ? 1/ROOT_2 : 1;
-    this.velocity[0] = factor * 50 * (Math.cos(this.yaw)*this.keyMove[0] +
+    this.velocity[0] = factor * 10 * (Math.cos(this.yaw)*this.keyMove[0] +
         Math.sin(this.yaw)*this.keyMove[2]);
-    this.velocity[2] = factor * 50 * (-Math.sin(this.yaw)*this.keyMove[0] +
+    this.velocity[2] = factor * 10 * (-Math.sin(this.yaw)*this.keyMove[0] +
         Math.cos(this.yaw)*this.keyMove[2]);
     this.velocity[1] = 0;
 
     if (this.ground) {
-      if (!this.ground.contains(this.ground.worldToLocalCoords(vec3.temp, this.position))) {
+      if (!this.ground.contains_lc(
+          this.ground.worldToLocalCoords(vec3.temp, this.position))) {
         this.unland();
       } else {
         
@@ -83,7 +84,7 @@ Hero.prototype.getOuterRadius = function() {
 
 
 Hero.prototype.shoot = function() {
-  var v = 600;
+  var v = 100;
   var v_xz =  Math.cos(this.pitch)*v;
 
   var v_shot = [
@@ -91,10 +92,11 @@ Hero.prototype.shoot = function() {
     v*Math.sin(this.pitch),
     -v_xz*Math.cos(this.yaw)
   ];
-  world.add(new Bullet({
+  // vec3.add(v_shot, v_shot, this.velocity);
+  world.projectilesToAdd.push(new Bullet({
     position: this.position,
     velocity: v_shot,
-    radius: .45,
+    radius: .075,
     yaw: this.yaw,
     pitch: this.pitch,
     roll: this.roll,

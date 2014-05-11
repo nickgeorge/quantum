@@ -14,7 +14,9 @@ Textures.initTextures = function() {
     SUN: Textures.initTexture(Textures.ROOT + 'sun.gif'),
     FLOOR: Textures.initTexture(Textures.ROOT + 'floor.png'),
     BYZANTINE: Textures.initTexture(Textures.ROOT + 'byzantine.jpg'),
-    GREEN_PLASMA: Textures.initTexture(Textures.ROOT + 'green_plasma.jpg')
+    GREEN_PLASMA: Textures.initTexture(Textures.ROOT + 'green_plasma.jpg'),
+    FACE: Textures.initTexture(Textures.ROOT + 'face.jpg'),
+    KARL: Textures.initTexture(Textures.ROOT + 'karl.jpg'),
   };
 
   for (key in textures) {

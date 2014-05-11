@@ -1,5 +1,6 @@
 Shelf = function(message) {
   this.super(message);
+  
   this.size = message.size;
   this.box = new Box({
     size: message.size,
@@ -15,11 +16,6 @@ Shelf = function(message) {
 util.inherits(Shelf, Thing);
 Shelf.type = Types.SHELF;
 
-
-Shelf.prototype.lowBound = function(axis) {
-  return -this.size[axis] / 2;
-};
-
-Shelf.prototype.highBound = function(axis) {
-  return this.size[axis] / 2;
+Shelf.prototype.getOuterRadius = function() {
+  return this.box.getOuterRadius();  
 };

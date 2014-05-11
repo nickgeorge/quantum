@@ -27,6 +27,20 @@ vec3.nullableClone = function(a) {
 };
 
 /**
+ * Clones the passed vec4 if it exists.
+ * Otherwise creates and returns a new one.
+ * @param {vec4} a the vector to clone, if it exists
+ * @returns {vec4} the nullably-cloned vector
+ */
+vec4.nullableClone = function(a) {
+  if (a) {
+    return vec4.clone(a);
+  } else {
+    return vec4.create();
+  }
+};
+
+/**
  * Overrides transformMat4 to take an optional w value,
  * rather than assuming 1.
  *
