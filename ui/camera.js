@@ -6,7 +6,8 @@ Camera = function() {
 util.inherits(Camera, Thing);
 
 Camera.prototype.transform = function() {
-  gl.transformView(this.anchor.parentToLocalTransform);
+  gl.rotateView(quat.invert(quat.temp, this.anchor.viewOrientation));
+  gl.translateView(vec3.negate(vec3.temp, this.anchor.position));
   gl.uniform3fv(shaderProgram.eyeLocationUniform, this.anchor.position);
 };
 

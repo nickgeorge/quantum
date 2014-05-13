@@ -1,8 +1,17 @@
 Thing = function(message) {
   message = message || {};
-  this.pitch = message.pitch || 0;
-  this.yaw = message.yaw || 0;
-  this.roll = message.roll || 0;
+
+  this.upOrientation = quat.nullableClone(message.upOrientation);
+  quat.rotateY(this.upOrientation, this.upOrientation, message.yaw || 0);
+  quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
+  quat.rotateZ(this.upOrientation, this.upOrientation, message.roll || 0);
+
+  if (message.groundOrientation) {
+    this.groundOrientation = quat.clone(message.groundOrientation);
+  } else {
+    this.groundOrientation = quat.clone(this.upOrientation);
+  }
+
   this.rPitch = message.rPitch || 0;
   this.rYaw = message.rYaw || 0;
   this.rRoll = message.rRoll || 0;
@@ -43,13 +52,18 @@ Thing.prototype.draw = function() {
 Thing.prototype.advance = function(dt) {
   this.saveLastPosition();
   this.age += dt;
-  this.yaw += this.rYaw * dt;
-  this.pitch += this.rPitch * dt;
-  this.roll += this.rRoll * dt;
-  vec3.scaleAndAdd(this.position, this.position,
-      this.velocity, dt);
+  // this.yaw += this.rYaw * dt;
+  // this.pitch += this.rPitch * dt;
+  // this.roll += this.rRoll * dt;
 
-  this.setPosition(vec3.scale(vec3.temp, this.velocity, dt));
+
+  // quat.identity(this.upOrientation);
+  quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
+  quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
+  quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
+
+  vec3.scaleAndAdd(this.position, this.position,
+      vec3.transformQuat(vec3.temp, this.velocity, this.groundOrientation), dt);
 
   this.eachPart(function(part){
     part.advance(dt);
@@ -196,34 +210,13 @@ Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
 
 
 Thing.prototype.computeTransforms = function() {
-  mat4.identity(this.localToParentTransform);
-  mat4.translate(this.localToParentTransform,
-      this.localToParentTransform,
-      this.position);
-  mat4.rotateY(this.localToParentTransform,
-      this.localToParentTransform,
-      this.yaw);
-  mat4.rotateX(this.localToParentTransform,
-      this.localToParentTransform,
-      this.pitch);
-  mat4.rotateZ(this.localToParentTransform,
-      this.localToParentTransform,
-      this.roll); 
+  if (this.upOrientation) {
+    mat4.fromRotationTranslation(this.localToParentTransform,
+        this.upOrientation, this.position);
 
-
-  mat4.identity(this.parentToLocalTransform);
-  mat4.rotateZ(this.parentToLocalTransform,
-      this.parentToLocalTransform,
-      -this.roll); 
-  mat4.rotateX(this.parentToLocalTransform,
-      this.parentToLocalTransform,
-      -this.pitch);
-  mat4.rotateY(this.parentToLocalTransform,
-      this.parentToLocalTransform,
-      -this.yaw);
-  mat4.translate(this.parentToLocalTransform,
-      this.parentToLocalTransform,
-      vec3.negate(vec3.temp, this.position));
+    mat4.invert(this.parentToLocalTransform,
+        this.localToParentTransform)
+  }
 
   this.eachPart(function(part){
     part.computeTransforms();
@@ -265,19 +258,19 @@ Thing.prototype.saveLastPosition = function() {
 };
 
 
-Thing.prototype.getPosition = function(out) {
-  vec3.set(out,
-      this.localToParentTransform[12],
-      this.localToParentTransform[13],
-      this.localToParentTransform[14])
-  return out;
-};
+// Thing.prototype.getPosition = function(out) {
+//   vec3.set(out,
+//       this.localToParentTransform[12],
+//       this.localToParentTransform[13],
+//       this.localToParentTransform[14])
+//   return out;
+// };
 
-Thing.prototype.setPosition = function(position) {
-  this.localToParentTransform[12] = position[0];
-  this.localToParentTransform[13] = position[1];
-  this.localToParentTransform[14] = position[2];
-};
+// Thing.prototype.setPosition = function(position) {
+//   this.localToParentTransform[12] = position[0];
+//   this.localToParentTransform[13] = position[1];
+//   this.localToParentTransform[14] = position[2];
+// };
 
 
 Thing.prototype.distanceSquaredTo = function(other) {
@@ -290,10 +283,23 @@ Thing.prototype.getDeltaP = function(out) {
 };
 
 
+Thing.prototype.redoQuat = function() {
+  quat.identity(this.upOrientation);
+  quat.rotateY(this.upOrientation, this.upOrientation, this.yaw);
+  quat.rotateX(this.upOrientation, this.upOrientation, this.pitch);
+  quat.rotateZ(this.upOrientation, this.upOrientation, this.roll);
+
+};
 
 
+Thing.prototype.setPitchOnly = function(pitch) {
+  quat.setAxisAngle(this.upOrientation, vec3.J, pitch);
+};
 
 
+Thing.prototype.getNormal = function(out) {
+  return this.localToWorldCoords(out, vec3.J, 0);
+};
 
 
 

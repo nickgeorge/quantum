@@ -88,6 +88,12 @@ GL.prototype.transform = function(transformation) {
   mat4.multiply(this.modelMatrix, this.modelMatrix, transformation);
 };
 
-GL.prototype.transformView = function(transformation) {
-  mat4.multiply(this.viewMatrix, this.viewMatrix, transformation);
+GL.prototype.rotateView = function(rotation) {
+  mat4.multiply(this.viewMatrix, this.viewMatrix,
+      mat4.fromQuat(mat4.temp, rotation));
+};
+
+GL.prototype.translateView = function(translation) {
+  mat4.translate(this.viewMatrix, this.viewMatrix,
+      translation);
 };

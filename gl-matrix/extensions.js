@@ -11,6 +11,8 @@ vec4.BLACK = [0, 0, 0, 1];
  * @type {vec3}
  */
 vec3.temp = vec3.create();
+mat4.temp = mat4.create();
+quat.temp = quat.create();
 
 /**
  * Clones the passed vec3 if it exists.
@@ -37,6 +39,20 @@ vec4.nullableClone = function(a) {
     return vec4.clone(a);
   } else {
     return vec4.create();
+  }
+};
+
+/**
+ * Clones the passed quat if it exists.
+ * Otherwise creates and returns a new one.
+ * @param {quat} a the vector to clone, if it exists
+ * @returns {quat} the nullably-cloned vector
+ */
+quat.nullableClone = function(a) {
+  if (a) {
+    return quat.clone(a);
+  } else {
+    return quat.create();
   }
 };
 

@@ -75,8 +75,20 @@ HeroListener.prototype.onMouseMove = function(event) {
         event.webkitMovementY ||
         0;
 
-    this.hero.yaw -= movementX * this.sensitivityX;
-    this.hero.pitch -= movementY * this.sensitivityY;
+    var rotY = quat.create();
+    quat.setAxisAngle(rotY,
+        vec3.transformQuat(vec3.temp, vec3.J, this.hero.upOrientation),
+        -movementX * this.sensitivityX);
+    quat.multiply(this.hero.viewOrientation,
+        rotY,
+        this.hero.viewOrientation);
+    quat.multiply(this.hero.groundOrientation,
+        rotY,
+        this.hero.groundOrientation);
+
+    quat.rotateX(this.hero.viewOrientation,
+        this.hero.viewOrientation,
+        -movementY * this.sensitivityY)
 
     this.hero.pitch = Math.max(-PI/2,
         Math.min(PI/2, this.hero.pitch));

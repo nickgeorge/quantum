@@ -24,6 +24,7 @@ CollisionFunctions = {
     var isOnGround = hero.isLandedOn(part);
     if (!isOnGround) {
       var plumb = vec3.set(vec3.temp, 0, -Hero.HEIGHT, 0);
+      vec3.transformQuat(plumb, plumb, hero.upOrientation);
       part.worldToLocalCoords(plumb, plumb, 0);
       if (plumb[2] < 0) {
         var cosAngle = vec3.dot(plumb, [0, 0, -1])/Hero.HEIGHT;

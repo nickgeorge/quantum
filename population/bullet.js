@@ -7,7 +7,6 @@ Bullet = function(message) {
     position: [0, 0, 0],
     texture: Textures.GREEN_PLASMA,
   });
-
   this.parts = [this.sphere];
 
   this.alive = true;

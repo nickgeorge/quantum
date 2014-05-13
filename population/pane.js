@@ -173,3 +173,11 @@ Pane.prototype.makeEncounter = function(t, distance, point) {
   }
 };
 
+
+Pane.prototype.getNormal = function(out) {
+  return this.localToWorldCoords(out, vec3.K, 0);
+};
+
+Pane.prototype.getLeft = function(out) {
+  return this.localToWorldCoords(out, vec3.I, 0);
+};

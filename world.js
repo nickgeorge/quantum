@@ -36,7 +36,11 @@ World.prototype.populate = function() {
     position: [0, 0, 0],
     size: [500, 500, 500],
     texture: Textures.BYZANTINE,
-    textureCounts: [100, 100]
+    texturesByFace: {
+      top: Textures.GRASS
+    },
+    textureCounts: [100, 100],
+    // roll: PI/8,
   })
   this.add(this.shelf);
 
@@ -55,11 +59,12 @@ World.prototype.populate = function() {
           20 + Math.random() * 60,
           20 + Math.random() * 60,
         ],
-        texture: Textures.THWOMP
+        texture: Textures.THWOMP,
         // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
-        // rPitch: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
+        pitch: 2*Math.random() * PI,
+        yaw: 2*Math.random() * PI,
       });
-      dumbCrate.randomizeAngle();
+      // dumbCrate.randomizeAngle();
       this.add(dumbCrate);
 
     }
@@ -72,27 +77,30 @@ World.prototype.populate = function() {
         ],
         radius: 3 + Math.random()*30,
         texture: Textures.EARTH,
+        pitch: Math.random()*2*PI,
+        roll: Math.random()*2*PI,
         rYaw: (2*Math.random() - 1) * 2*Math.random() * PI,
         latitudeCount: 25,
         longitudeCount: 25
       });
-      this.add(sphere);
+      // this.add(sphere);
     }
   }
 
   var dumbCrate = new DumbCrate({
     position: [0, -225, 0],
     size: [25, 25, 25],
+    pitch: PI / 4,
     texture: Textures.THWOMP
   });
-  dumbCrate.randomizeAngle();
+  // dumbCrate.randomizeAngle();
   // this.add(dumbCrate);
 
   for (var i = 0; i < 30; i++) {
     var fella = new Fella({
       position: [0, -250, -5],
-      velocity: vec3.normalize(vec3.temp, 
-        [2*Math.random() - 1, 0, 2*Math.random() - 1]),
+      yaw: Math.random()*2*PI,
+      velocity: [0, 0, 1],
       color: [
         Math.floor(Math.random() + .5),
         Math.floor(Math.random() + .5),
@@ -100,7 +108,7 @@ World.prototype.populate = function() {
         1
       ]
     });
-    this.add(fella);
+    // this.add(fella);
   }
 
   var sun = new Sun({
@@ -116,7 +124,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   hero = new Hero({
-    position: [0, -245, 0]
+    position: [50, -200, 0]
   });
   this.camera.setAnchor(hero);
   heroListener.hero = hero;

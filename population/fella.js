@@ -79,7 +79,6 @@ Fella.MAX_LEG_ANGLE = PI/6;
 Fella.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
   this.legAngle += this.speed * this.stepDirection * dt;
-  this.yaw = Math.atan2(this.velocity[0], this.velocity[2]);
 
   if (this.legAngle >= Fella.MAX_LEG_ANGLE) {
     this.stepDirection = -1;
@@ -88,10 +87,14 @@ Fella.prototype.advance = function(dt) {
     this.stepDirection = 1;
   }
   
-  this.leftLeg.pitch = this.legAngle;
-  this.rightLeg.pitch = -this.legAngle;  
-  this.rightArm.pitch = this.legAngle;
-  this.leftArm.pitch = -this.legAngle;
+  this.leftLeg.setPitchOnly(this.legAngle);
+  this.rightLeg.setPitchOnly(-this.legAngle); 
+  this.rightArm.setPitchOnly(this.legAngle);
+  this.leftArm.setPitchOnly(-this.legAngle);
+  
+  // this.redoQuat();
+  // quat.setAxisAngle(this.orientation, vec3.J,
+  //     Math.atan2(this.velocity[0], this.velocity[2]));
 };
 
 
