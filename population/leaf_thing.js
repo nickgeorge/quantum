@@ -20,7 +20,7 @@ LeafThing.prototype.render = function() {
 
 
 LeafThing.prototype.renderSelf = function() {
-  gl.setMatrixUniforms();
+  gl.setModelMatrixUniforms();
 
   shaderProgram.setUniformColor(this.color);
   shaderProgram.setUseTexture(this.texture && this.texture.loaded);
@@ -33,8 +33,6 @@ LeafThing.prototype.renderSelf = function() {
   shaderProgram.bindVertexIndexBuffer(this.indexBuffer);
 
   gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-  shaderProgram.reset();
 };
 
 

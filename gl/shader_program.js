@@ -28,10 +28,6 @@ ShaderProgram.getShader = function(gl, id) {
     alert(gl.getShaderInfoLog(shader));
     return null;
   }
-
-  shader.loadedTexture = -1;
-  shader.loadedNormalBuffer = null;
-  shader.loadedIndexBuffer = null;
   return shader;
 };
 
@@ -79,6 +75,11 @@ ShaderProgram.createShaderProgram = function(gl) {
     shaderProgram[key] = ShaderProgram.prototype[key];
   }
 
+
+  shaderProgram.loadedTexture = -1;
+  shaderProgram.loadedColor = [];
+  shaderProgram.loadedNormalBuffer = null;
+  shaderProgram.loadedIndexBuffer = null;
   shaderProgram.reset();
   return shaderProgram;
 };
@@ -98,6 +99,8 @@ ShaderProgram.prototype.setUseTexture = function(useTexture) {
 };
 
 ShaderProgram.prototype.setUniformColor = function(uniformColor) {
+  if (vec3.equals(uniformColor, this.loadedColor)) return;
+  this.loadedColor = uniformColor;
   gl.uniform4fv(this.uniformColor, uniformColor);
 };
 
@@ -114,6 +117,10 @@ ShaderProgram.prototype.bindVertexNormalBuffer = function(buffer) {
 };
 
 ShaderProgram.prototype.bindVertexTextureBuffer = function(buffer) {
+  if (this.loadedTextureBuffer == buffer) {
+    return;
+  }
+  this.loadedTextureBuffer = buffer;
   this.bindAttributeBuffer_(buffer, this.textureCoordAttribute);
 };
 

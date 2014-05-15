@@ -19,6 +19,7 @@ Pane.type = Types.PANE;
 Pane.inited = false;
 Pane.normalBuffer = null;
 Pane.indexBuffer = null;
+Pane.textureBufferCache = {};
 
 Pane.MIN_AND_MAX = [-1, 1];
 
@@ -71,16 +72,22 @@ Pane.prototype.createIndexBuffer = function() {
 };
 
 Pane.prototype.createTextureBuffer = function(){
+  var tc = this.textureCounts;
 
-  var textureCoords = [
-    0, 0,
-    this.textureCounts[0], 0,
-    this.textureCounts[0], this.textureCounts[1],
-    0, this.textureCounts[1]
-  ];
+  if (!Pane.textureBufferCache[tc[0]]) {
+    Pane.textureBufferCache[tc[0]] = {};
+  }
+  if (!Pane.textureBufferCache[tc[0]][tc[1]]) {
+    var textureCoords = [
+      0, 0,
+      tc[0], 0,
+      tc[0], tc[1],
+      0, tc[1]
+    ];
 
-  this.textureBuffer = util.generateBuffer(textureCoords, 2);
-  return this;
+    Pane.textureBufferCache[tc[0]][tc[1]] = util.generateBuffer(textureCoords, 2);
+  }
+  this.textureBuffer = Pane.textureBufferCache[tc[0]][tc[1]];
 };
 
 
@@ -180,4 +187,10 @@ Pane.prototype.getNormal = function(out) {
 
 Pane.prototype.getLeft = function(out) {
   return this.localToWorldCoords(out, vec3.I, 0);
+};
+
+
+
+Pane.prototype.render = function() {
+  util.base(this, 'render');
 };

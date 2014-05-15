@@ -2,6 +2,7 @@ World = function() {
   this.lights = [];
   this.camera = null;
   this.shelf = null;
+  this.hero = null;
   
   this.things = [];
   this.projectiles = [];
@@ -40,6 +41,9 @@ World.prototype.populate = function() {
       top: Textures.GRASS
     },
     textureCounts: [100, 100],
+    textureCountsByFace: {
+      top: [400, 400]
+    }
     // roll: PI/8,
   })
   this.add(this.shelf);
@@ -96,19 +100,14 @@ World.prototype.populate = function() {
   // dumbCrate.randomizeAngle();
   // this.add(dumbCrate);
 
-  for (var i = 0; i < 30; i++) {
+  for (var i = 0; i < 40; i++) {
     var fella = new Fella({
-      position: [0, -250, -5],
+      position: [util.math.random(-20, 20), -250, util.math.random(-20, 20)],
       yaw: Math.random()*2*PI,
       velocity: [0, 0, 1],
-      color: [
-        Math.floor(Math.random() + .5),
-        Math.floor(Math.random() + .5),
-        Math.floor(Math.random() + .5),
-        1
-      ]
+      color: vec4.randomColor([])
     });
-    // this.add(fella);
+    this.add(fella);
   }
 
   var sun = new Sun({
@@ -123,12 +122,12 @@ World.prototype.populate = function() {
   this.add(sun);
 
   this.camera = new Camera();
-  hero = new Hero({
-    position: [50, -200, 0]
+  this.hero = new Hero({
+    position: [0, -200, 0]
   });
-  this.camera.setAnchor(hero);
-  heroListener.hero = hero;
-  this.add(hero);
+  this.camera.setAnchor(this.hero);
+  heroListener.hero = this.hero;
+  this.add(this.hero);
 };
 
 
@@ -179,6 +178,7 @@ World.prototype.draw = function() {
 
   world.applyLights();
   this.camera.transform();
+  gl.setViewMatrixUniforms();
 
   shaderProgram.reset();
   util.array.apply(this.things, 'draw');

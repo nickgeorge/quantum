@@ -61,12 +61,15 @@ GL.prototype.popViewMatrix = function() {
   mat4.copy(this.viewMatrix, this.viewMatrixStack.pop());
 };
 
-GL.prototype.setMatrixUniforms = function() {
+GL.prototype.setModelMatrixUniforms = function() {
   this.computeNormalMatrix();
-  this.uniformMatrix4fv(shaderProgram.perspectiveMatrixUniform, false, this.perspectiveMatrix);
   this.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, this.modelMatrix);
-  this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
   this.uniformMatrix3fv(shaderProgram.normalMatrixUniform, false, this.normalMatrix);
+};
+
+GL.prototype.setViewMatrixUniforms = function() {
+  this.uniformMatrix4fv(shaderProgram.perspectiveMatrixUniform, false, this.perspectiveMatrix);
+  this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
 };
 
 GL.prototype.computeNormalMatrix = function() {

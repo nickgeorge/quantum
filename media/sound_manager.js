@@ -1,8 +1,16 @@
 var root_ = 'media/sounds/';
-1
+
 SoundManager = {
-  play: function(sound) {
-    new Audio(root_ + sound).play();
+
+  play: function(sound, opt_callback) {
+    var audio = new Audio(root_ + sound);
+    audio.addEventListener('ended', function() {
+      if (opt_callback) opt_callback();  
+    }, false);
+    audio.addEventListener('canplaythrough', function() {
+      // audio.play();
+    }, false);
+    return audio;
   }
 }
 
@@ -11,5 +19,8 @@ Sounds = {
   METAL_EXPLOSION: 'metal_explosion.wav',
   GLASS: 'glass_short.wav',
   POP: 'pop_short.wav',
-  OW: 'ow.mp3'
+  OW: 'ow.mp3',
+  JUMP: 'jump.mp3',
+  SHU: 'shu.mp3',
+  WALK: 'walk.mp3',
 }

@@ -463,3 +463,9 @@ util.math = {};
 util.math.sqr = function(x) {
   return x*x;
 };
+
+util.math.random = function(min, max) {
+  return Math.random() * (max - min) + min;
+};
+
+

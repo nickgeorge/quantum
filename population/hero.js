@@ -11,6 +11,26 @@ Hero = function(message) {
   this.v_ground = 30;
   this.v_air = 60;
 
+  this.targetViewOrientation = quat.create();
+  this.originalViewOrientation = quat.create();
+  this.rotationTransitionT = false;
+  this.rotating = false;
+
+  this.playingWalking = false;
+  this.walkingAudio = null;
+  this.bobAge = 0;
+
+  this.plumb = new Box({
+    size: [.05, .05, .05],
+    position: [0, 0, -1],
+    texture: Textures.CRATE,
+    textureCounts: [1, 1],
+    color: [1, 1, 1, 1]
+  });
+  // this.addPart(this.plumb);
+
+  this.root = true;
+
   this.klass = 'Hero';
 };
 util.inherits(Hero, Thing);
@@ -23,6 +43,19 @@ Hero.WIDTH = .5;
 
 Hero.prototype.advance = function(dt) {
   util.base(this, 'advance', dt, true);
+
+  if (this.rotating) {
+    this.rotationTransitionT += dt * 12;
+    if (this.rotationTransitionT > 1) {
+      this.rotationTransitionT = 1;
+      this.rotating = false;
+    }
+    quat.slerp(this.viewOrientation,
+        this.originalViewOrientation,
+        this.targetViewOrientation,
+        this.rotationTransitionT);
+  }
+
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
     var factor = sum == 2 ? 1/ROOT_2 : 1;
@@ -30,7 +63,15 @@ Hero.prototype.advance = function(dt) {
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
 
-    // this.velocity = vec3.transformQuat([], [0, 0, -10], this.groundOrientation);
+    if (sum > 0) {
+      this.bobAge += dt;
+      if (!this.playingWalking) {
+        this.playWalking();
+      }
+    } else if (this.playingWalking) {
+      this.walkingAudio.pause();
+      this.playingWalking = false;
+    }
 
     if (this.ground) {
       if (!this.ground.contains_lc(
@@ -52,27 +93,52 @@ Hero.prototype.advance = function(dt) {
     this.velocity[2] = Math.min(60, Math.max(-60, this.velocity[2]));
     this.velocity[1] -= world.G*dt;
   }
+
+  vec3.transformQuat(this.plumb.position, [0, 0, -1],
+      this.viewOrientation);
+  vec3.transformQuat(this.plumb.position, this.plumb.position, 
+      quat.invert([], this.upOrientation));
 };
 
+Hero.prototype.playWalking = function() {        
+  this.playingWalking = true;
+  this.walkingAudio = SoundManager.play(Sounds.WALK, util.bind(function() {
+    this.playingWalking = false;
+  }, this));
+};
+
+
 Hero.prototype.jump = function() {
-  if (!hero.isLanded()) return;
+  if (!this.isLanded()) return;
+  if (this.walkingAudio) {
+    this.walkingAudio.pause();
+    this.playingWalking = false;
+  }
+  SoundManager.play(Sounds.SHU);
   this.velocity[1] = Hero.JUMP_VELOCITY;
   this.unland();
 };
 
 Hero.prototype.land = function(ground) {
   vec3.set(this.velocity, 0, 0, 0);
+  SoundManager.play(Sounds.JUMP);
   this.landed = true;
   this.ground = ground;
 
 
-  var rotation = quat.rotationTo(quat.temp,
+  var rotation = quat.rotationTo([],
       this.getNormal([]),
       this.ground.getNormal([]));
-  
+
   quat.multiply(this.groundOrientation, rotation, this.groundOrientation);
   quat.multiply(this.upOrientation, rotation, this.upOrientation);
-  quat.multiply(this.viewOrientation, rotation, this.viewOrientation);
+
+  quat.multiply(this.targetViewOrientation, rotation, this.viewOrientation);
+  quat.copy(this.originalViewOrientation, this.viewOrientation);
+  
+  this.rotationTransitionT = 0;
+  this.rotating = true;
+
 };
 
 Hero.prototype.unland = function() {
@@ -95,20 +161,20 @@ Hero.prototype.getOuterRadius = function() {
 
 
 Hero.prototype.shoot = function() {
-  var v = 100;
-  var v_shot = [0, 0, -v];
-  vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
+  // var v = 100;
+  // var v_shot = [0, 0, -v];
+  // // vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
-  // vec3.add(v_shot, v_shot, this.velocity);
-  world.projectilesToAdd.push(new Bullet({
-    position: this.position,
-    velocity: v_shot,
-    radius: .075,
-    upOrientation: this.upOrientation,
-    groundOrientation: quat.rotationTo([], vec3.J, this.ground.getNormal([]))
-    // rYaw: 50,
-    // rPitch: 55
-  }))
+  // // vec3.add(v_shot, v_shot, this.velocity);
+  // world.projectilesToAdd.push(new Bullet({
+  //   position: this.position,
+  //   velocity: v_shot,
+  //   radius: .075,
+  //   upOrientation: this.upOrientation,
+  //   groundOrientation: quat.rotationTo([], vec3.J, this.ground.getNormal([]))
+  //   // rYaw: 50,
+  //   // rPitch: 55
+  // }))
 };
 
 Hero.prototype.draw = function() {

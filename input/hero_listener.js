@@ -64,7 +64,7 @@ HeroListener.prototype.enableMouseLock = function() {
 };
 
 HeroListener.prototype.onMouseMove = function(event) {
-  if (!this.hero) return;
+  if (!this.hero || this.hero.rotating) return;
   if (this.mouseIsLocked) {
     var movementX = event.movementX ||
         event.mozMovementX ||

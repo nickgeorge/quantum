@@ -28,6 +28,13 @@ vec3.nullableClone = function(a) {
   }
 };
 
+
+vec3.equals = function(a, b) {
+  return a[0] == b[0] &&
+      a[1] == b[1] &&
+      a[2] == b[2];
+}
+
 /**
  * Clones the passed vec4 if it exists.
  * Otherwise creates and returns a new one.
@@ -40,6 +47,19 @@ vec4.nullableClone = function(a) {
   } else {
     return vec4.create();
   }
+};
+
+
+vec4.randomColor = function(out) {
+  var r = GLMAT_RANDOM() * Math.PI;
+  var z = (GLMAT_RANDOM());
+  var zScale = Math.sqrt(1.0-z*z);
+
+  out[0] = Math.cos(r) * zScale;
+  out[1] = Math.sin(r) * zScale;
+  out[2] = z;
+  out[3] = 1;
+  return out;
 };
 
 /**

@@ -1,7 +1,7 @@
 Fella = function(message) {
   this.super(message);
 
-  this.legAngle = 0;
+  this.legAngle = (Math.random()*2 - 1) * Fella.MAX_LEG_ANGLE;
   this.stepDirection = 1;
   this.speed = 1;
 
@@ -25,18 +25,18 @@ Fella = function(message) {
 
   this.leftArm = new OffsetBox({
     size: [.125, .9, .125],
-    position: [.3, 1.95, 0],
+    position: [.355, 1.95, 0],
     color: this.color,
     offset: [0, -.45, 0],
-    roll: PI/24,
+    roll: PI/32,
     name: "left leg",
   });
   this.rightArm = new OffsetBox({
     size: [.125, .9, .125],
-    position: [-.3, 1.95, 0],
+    position: [-.355, 1.95, 0],
     color: this.color,
     offset: [0, -.45, 0],
-    roll: -PI/24,
+    roll: -PI/32,
     name: "right leg",
   });
 
@@ -67,7 +67,7 @@ Fella = function(message) {
 
   this.boundingSphere = new BoundingSphere({
     thing: this,
-    radius: 10
+  radius: 10
   })
 };
 util.inherits(Fella, Thing);
@@ -91,10 +91,6 @@ Fella.prototype.advance = function(dt) {
   this.rightLeg.setPitchOnly(-this.legAngle); 
   this.rightArm.setPitchOnly(this.legAngle);
   this.leftArm.setPitchOnly(-this.legAngle);
-  
-  // this.redoQuat();
-  // quat.setAxisAngle(this.orientation, vec3.J,
-  //     Math.atan2(this.velocity[0], this.velocity[2]));
 };
 
 

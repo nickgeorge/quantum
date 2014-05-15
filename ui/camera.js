@@ -7,8 +7,10 @@ util.inherits(Camera, Thing);
 
 Camera.prototype.transform = function() {
   gl.rotateView(quat.invert(quat.temp, this.anchor.viewOrientation));
-  gl.translateView(vec3.negate(vec3.temp, this.anchor.position));
-  gl.uniform3fv(shaderProgram.eyeLocationUniform, this.anchor.position);
+  var position = vec3.copy(vec3.temp, this.anchor.position);
+  // position[1] += Math.cos(this.anchor.bobAge*10)/4;
+  gl.translateView(vec3.negate(vec3.temp, position));
+  gl.uniform3fv(shaderProgram.eyeLocationUniform, position);
 };
 
 Camera.prototype.advance = function(dt) {

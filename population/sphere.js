@@ -6,10 +6,16 @@ Sphere = function(message) {
   this.latitudeCount = message.latitudeCount || 15;
 
   this.createBuffers();
+
   this.klass = 'Sphere';
 };
 util.inherits(Sphere, LeafThing);
 Sphere.type = Types.SPHERE;
+
+Sphere.inited = false;
+Sphere.normalBuffer = null;
+Sphere.indexBuffer = null;
+Sphere.textureBuffer = null;
 
 
 /** Parent Coords! */
@@ -59,9 +65,11 @@ Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
 
 
 Sphere.prototype.createBuffers = function() {
+
   var vertexData = [];
   var normalData = [];
   var indexData = [];
+
   var textureCoordData = [];
   for (var latitude = 0; latitude <= this.latitudeCount; latitude++) {
     var theta = latitude * Math.PI / this.latitudeCount;
@@ -104,11 +112,16 @@ Sphere.prototype.createBuffers = function() {
     } 
   }
 
-  this.normalBuffer = util.generateBuffer(normalData, 3);
+  if (!Sphere.inited) {
+    Sphere.normalBuffer = util.generateBuffer(normalData, 3);
+    Sphere.textureBuffer = util.generateBuffer(textureCoordData, 2);
+    indexData.reverse();
+    Sphere.indexBuffer = util.generateIndexBuffer(indexData);
+  }
   this.vertexBuffer = util.generateBuffer(vertexData, 3);
-  this.textureBuffer = util.generateBuffer(textureCoordData, 2);
-  indexData.reverse();
-  this.indexBuffer = util.generateIndexBuffer(indexData);
+  this.normalBuffer = Sphere.normalBuffer;
+  this.textureBuffer = Sphere.textureBuffer;
+  this.indexBuffer = Sphere.indexBuffer;
 };
 
 
@@ -124,4 +137,8 @@ Sphere.prototype.makeEncounter = function(t, distanceSquared, point) {
 
 Sphere.prototype.getOuterRadius = function() {
   return this.radius;
+};
+
+Sphere.prototype.render = function() {
+  util.base(this, 'render');
 };

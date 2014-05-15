@@ -50,13 +50,17 @@ CollisionFunctions = {
     part.localToWorldCoords(hero.position, heroPosition_lc);
     hero.computeTransforms();
 
-    var heroVelocity_lc = part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
+    var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
+    part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
     var normal = vec3.normalize([], heroPosition_lc);
     vec3.scaleAndAdd
     heroVelocity_lc[2] = wasLanded ?
         Math.max(0, heroVelocity_lc[2]) :
         Math.abs(heroVelocity_lc[2]);
-    part.localToWorldCoords(hero.velocity, heroVelocity_lc, 0);
+
+    part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc, 0);
+    vec3.transformQuat(hero.velocity, heroVelocity_lc,
+        quat.conjugate(quat.temp, hero.groundOrientation));
   },
 
   SPHERELIKE_AND_HERO: function(spherelike, hero) {

@@ -52,18 +52,15 @@ Thing.prototype.draw = function() {
 Thing.prototype.advance = function(dt) {
   this.saveLastPosition();
   this.age += dt;
-  // this.yaw += this.rYaw * dt;
-  // this.pitch += this.rPitch * dt;
-  // this.roll += this.rRoll * dt;
 
+  this.rYaw && quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
+  this.rPitch && quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
+  this.rRoll && quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
 
-  // quat.identity(this.upOrientation);
-  quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
-  quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
-  quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
-
-  vec3.scaleAndAdd(this.position, this.position,
-      vec3.transformQuat(vec3.temp, this.velocity, this.groundOrientation), dt);
+  if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
+    vec3.scaleAndAdd(this.position, this.position,
+        vec3.transformQuat(vec3.temp, this.velocity, this.groundOrientation), dt);
+  }
 
   this.eachPart(function(part){
     part.advance(dt);
@@ -214,8 +211,18 @@ Thing.prototype.computeTransforms = function() {
     mat4.fromRotationTranslation(this.localToParentTransform,
         this.upOrientation, this.position);
 
-    mat4.invert(this.parentToLocalTransform,
-        this.localToParentTransform)
+    var conjugateUp = quat.conjugate(quat.temp, this.upOrientation);
+    mat4.fromRotationTranslation(this.parentToLocalTransform,
+        conjugateUp,
+        vec3.transformQuat(vec3.temp,
+            vec3.negate(vec3.temp, this.position),
+            conjugateUp));
+
+
+    if (this == world.hero) {
+       // debugger;
+       this.doGreatStuff;
+    }
   }
 
   this.eachPart(function(part){
@@ -244,11 +251,11 @@ Thing.prototype.dispose = function() {
 };
 
 
-Thing.prototype.randomizeAngle = function() {
-  this.yaw = Math.random() * 2*PI;
-  this.pitch = Math.random() * 2*PI;
-  this.roll = Math.random() * 2*PI;
-};
+// Thing.prototype.randomizeAngle = function() {
+//   this.yaw = Math.random() * 2*PI;
+//   this.pitch = Math.random() * 2*PI;
+//   this.roll = Math.random() * 2*PI;
+// };
 
 
 Thing.prototype.saveLastPosition = function() {
@@ -283,17 +290,8 @@ Thing.prototype.getDeltaP = function(out) {
 };
 
 
-Thing.prototype.redoQuat = function() {
-  quat.identity(this.upOrientation);
-  quat.rotateY(this.upOrientation, this.upOrientation, this.yaw);
-  quat.rotateX(this.upOrientation, this.upOrientation, this.pitch);
-  quat.rotateZ(this.upOrientation, this.upOrientation, this.roll);
-
-};
-
-
 Thing.prototype.setPitchOnly = function(pitch) {
-  quat.setAxisAngle(this.upOrientation, vec3.J, pitch);
+  quat.setAxisAngle(this.upOrientation, vec3.I, pitch);
 };
 
 
