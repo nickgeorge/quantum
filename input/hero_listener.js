@@ -82,16 +82,13 @@ HeroListener.prototype.onMouseMove = function(event) {
     quat.multiply(this.hero.viewOrientation,
         rotY,
         this.hero.viewOrientation);
-    quat.multiply(this.hero.groundOrientation,
-        rotY,
-        this.hero.groundOrientation);
 
     quat.rotateX(this.hero.viewOrientation,
         this.hero.viewOrientation,
         -movementY * this.sensitivityY)
 
-    this.hero.pitch = Math.max(-PI/2,
-        Math.min(PI/2, this.hero.pitch));
+    // this.hero.pitch = Math.max(-PI/2,
+    //     Math.min(PI/2, this.hero.pitch));
   }
 };
 

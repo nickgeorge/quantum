@@ -2,6 +2,7 @@ vec3.ZERO = [0, 0, 0];
 vec3.I = [1, 0, 0];
 vec3.J = [0, 1, 0];
 vec3.K = [0, 0, 1];
+vec3.NEG_K = [0, 0, -1];
 vec4.WHITE = [1, 1, 1, 1];
 vec4.BLACK = [0, 0, 0, 1];
 
@@ -33,7 +34,15 @@ vec3.equals = function(a, b) {
   return a[0] == b[0] &&
       a[1] == b[1] &&
       a[2] == b[2];
-}
+};
+
+
+vec4.equals = function(a, b) {
+  return a[0] == b[0] &&
+      a[1] == b[1] &&
+      a[2] == b[2] &&
+      a[3] == b[3];
+};
 
 /**
  * Clones the passed vec4 if it exists.
@@ -92,4 +101,18 @@ vec3.transformMat4 = function(out, a, m, opt_w) {
     out[1] = m[1] * x + m[5] * y + m[9] * z + w * m[13];
     out[2] = m[2] * x + m[6] * y + m[10] * z + w * m[14];
     return out;
+};
+
+
+vec3.project = function(out, a, b) {
+  var a_dot_b = vec3.dot(a, b);
+  var b_dot_b = vec3.dot(b, b);
+  var scale = a_dot_b / b_dot_b;
+  return vec3.scale(out, b, scale)
+};
+
+vec3.pitch = function(a) {
+  var opposite = a[1];
+  var adjacent = Math.sqrt(util.math.sqr(a[0]) + util.math.sqr(a[2]));
+  return Math.atan2(opposite, adjacent);
 };

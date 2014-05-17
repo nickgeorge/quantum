@@ -6,6 +6,18 @@ CollisionManager = function(world) {
 };
 
 CollisionFunctions = {
+  BULLET_HITS_FELLA: function(bullet, fella) {
+    var encounter = fella.findThingEncounter(bullet, 0);
+    if (encounter) {
+      bullet.alive = false;
+      if (fella.alive) fella.hit(bullet);
+      // vec3.copy(//encounter.part.parent.velocity,
+      //   encounter.part.parent.velocity,
+      //   vec3.scale(vec3.temp,bullet.velocity, 0));
+      encounter.part.glom(bullet, encounter);
+    }
+  },
+
   GLOM: function(glomee, glomer) {
     if (!glomer.alive) return;
     var encounter = glomee.findThingEncounter(glomer, 0);
@@ -26,9 +38,9 @@ CollisionFunctions = {
       var plumb = vec3.set(vec3.temp, 0, -Hero.HEIGHT, 0);
       vec3.transformQuat(plumb, plumb, hero.upOrientation);
       part.worldToLocalCoords(plumb, plumb, 0);
-      if (plumb[2] < 0) {
+      if (plumb[2] < 0 || heroListener.keyMap[util.events.KeyCode.F] || true) {
         var cosAngle = vec3.dot(plumb, [0, 0, -1])/Hero.HEIGHT;
-        if (cosAngle > .65) {
+        if (cosAngle > .55 || heroListener.keyMap[util.events.KeyCode.F] || true) {
           hero.land(part);
           isOnGround = true;
         }
@@ -113,7 +125,8 @@ CollisionManager.prototype.registerCollisionFunctions = function() {
   this.registerCollisionFunction(DumbCrate, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Sphere, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Shelf, Bullet, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.GLOM);
+  // this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.GLOM);
+  this.registerCollisionFunction(Bullet, Fella, CollisionFunctions.BULLET_HITS_FELLA);
 
   this.registerCollisionFunction(Shelf, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
   this.registerCollisionFunction(DumbCrate, Hero, CollisionFunctions.BOXLIKE_AND_HERO);

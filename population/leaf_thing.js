@@ -23,7 +23,7 @@ LeafThing.prototype.renderSelf = function() {
   gl.setModelMatrixUniforms();
 
   shaderProgram.setUniformColor(this.color);
-  shaderProgram.setUseTexture(this.texture && this.texture.loaded);
+  shaderProgram.setUseTexture(!!(this.texture && this.texture.loaded));
   if (this.texture) {
     shaderProgram.bindTexture(this.texture);
   }

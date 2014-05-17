@@ -19,7 +19,7 @@ Bullet.type = Types.BULLET;
 Bullet.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
   if (this.alive) {
-    this.velocity[1] -= world.G/400;
+    // this.velocity[1] -= world.G/400;
   }
 };
 

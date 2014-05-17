@@ -3,6 +3,8 @@ World = function() {
   this.camera = null;
   this.shelf = null;
   this.hero = null;
+
+  this.drawables = [];
   
   this.things = [];
   this.projectiles = [];
@@ -35,7 +37,7 @@ World.prototype.populate = function() {
   texturesByFace 
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: [500, 500, 500],
+    size: [400, 400, 400],
     texture: Textures.BYZANTINE,
     texturesByFace: {
       top: Textures.GRASS
@@ -72,7 +74,7 @@ World.prototype.populate = function() {
       this.add(dumbCrate);
 
     }
-    for (var k = 0; k < 20; k++) {
+    for (var k = 0; k < 5; k++) {
       var sphere = new Sphere({
         position: [
           (Math.random() - .5) * this.shelf.size[0],
@@ -87,7 +89,7 @@ World.prototype.populate = function() {
         latitudeCount: 25,
         longitudeCount: 25
       });
-      // this.add(sphere);
+      this.add(sphere);
     }
   }
 
@@ -100,12 +102,16 @@ World.prototype.populate = function() {
   // dumbCrate.randomizeAngle();
   // this.add(dumbCrate);
 
-  for (var i = 0; i < 40; i++) {
+  for (var i = 0; i < 30; i++) {
+    var yaw = Math.random()*2*PI;
+    var color = vec4.randomColor([]);
+    // color[3] = Math.random();
+    var velocity = [Math.sin(yaw), 0, Math.cos(yaw)];
     var fella = new Fella({
-      position: [util.math.random(-20, 20), -250, util.math.random(-20, 20)],
-      yaw: Math.random()*2*PI,
-      velocity: [0, 0, 1],
-      color: vec4.randomColor([])
+      position: [util.math.random(-20, 20), -200, util.math.random(-20, 20)],
+      yaw: yaw,
+      velocity: velocity,
+      color: color
     });
     this.add(fella);
   }
@@ -128,6 +134,7 @@ World.prototype.populate = function() {
   this.camera.setAnchor(this.hero);
   heroListener.hero = this.hero;
   this.add(this.hero);
+  this.add(this.hero.gimble);
 };
 
 
@@ -163,6 +170,11 @@ World.prototype.remove = function(thing) {
 };
 
 
+World.prototype.removeEffect = function(effect) {
+  this.effectsToRemove.push(effect);
+};
+
+
 World.prototype.add = function(thing) {
   this.thingsToAdd.push(thing);
 };
@@ -174,6 +186,16 @@ World.prototype.addDirectly_ = function(thing) {
 
 
 World.prototype.draw = function() {
+
+  util.array.forEach(this.drawables, function(thing) {
+    thing.computeDistanceSquaredToCamera();
+  });
+
+  this.drawables.sort(function(thingA, thingB) {
+    return thingB.distanceSquaredToCamera -
+        thingA.distanceSquaredToCamera;
+  });
+
   gl.pushViewMatrix();
 
   world.applyLights();
@@ -181,9 +203,7 @@ World.prototype.draw = function() {
   gl.setViewMatrixUniforms();
 
   shaderProgram.reset();
-  util.array.apply(this.things, 'draw');
-  util.array.apply(this.effects, 'draw');
-  util.array.apply(this.projectiles, 'draw');
+  util.array.apply(this.drawables, 'draw');
 
   gl.popViewMatrix();
 };
@@ -235,10 +255,16 @@ World.prototype.updateLists = function() {
   util.array.pushAll(this.things, this.thingsToAdd);
   util.array.pushAll(this.effects, this.effectsToAdd);
   util.array.pushAll(this.projectiles, this.projectilesToAdd);
+  util.array.pushAll(this.drawables, this.thingsToAdd);
+  util.array.pushAll(this.drawables, this.effectsToAdd);
+  util.array.pushAll(this.drawables, this.projectilesToAdd);
 
   util.array.removeAll(this.things, this.thingsToRemove);
   util.array.removeAll(this.effects, this.effectsToRemove);
   util.array.removeAll(this.projectiles, this.projectilesToRemove);
+  util.array.removeAll(this.drawables, this.thingsToRemove);
+  util.array.removeAll(this.drawables, this.effectsToRemove);
+  util.array.removeAll(this.drawables, this.projectilesToRemove);
 
   this.thingsToAdd.length = 0;
   this.effectsToAdd.length = 0;

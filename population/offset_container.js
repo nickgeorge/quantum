@@ -9,7 +9,7 @@ util.inherits(OffsetContainer, Thing);
 
 OffsetBox = function(message) {
   this.super({
-    position: message.position,
+    position: vec3.nullableClone(message.position),
   });
 
   message.position = message.offset;

@@ -7,5 +7,6 @@ Types = {
   SHELF: 6,
   SUN: 7,
   HERO: 8,
-  FELLA: 9
+  FELLA: 9,
+  PLUMB: 10
 };

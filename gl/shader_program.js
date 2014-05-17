@@ -99,7 +99,7 @@ ShaderProgram.prototype.setUseTexture = function(useTexture) {
 };
 
 ShaderProgram.prototype.setUniformColor = function(uniformColor) {
-  if (vec3.equals(uniformColor, this.loadedColor)) return;
+  if (vec4.equals(uniformColor, this.loadedColor)) return;
   this.loadedColor = uniformColor;
   gl.uniform4fv(this.uniformColor, uniformColor);
 };

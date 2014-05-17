@@ -20,7 +20,7 @@ Thing = function(message) {
   this.position = vec3.nullableClone(message.position);
   this.lastPosition = vec3.clone(this.position);
 
-  this.alive = message.alive;
+  this.alive = message.alive !== false;
 
   this.parts = [];
   this.parent = null;
@@ -28,6 +28,8 @@ Thing = function(message) {
   this.age = 0;
   this.root = false;
   this.name = message.name;
+
+  this.distanceSquaredToCamera = 0;
 
   this.localToParentTransform = mat4.create();
   this.parentToLocalTransform = mat4.create();
@@ -59,7 +61,7 @@ Thing.prototype.advance = function(dt) {
 
   if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
     vec3.scaleAndAdd(this.position, this.position,
-        vec3.transformQuat(vec3.temp, this.velocity, this.groundOrientation), dt);
+        this.velocity, dt);
   }
 
   this.eachPart(function(part){
@@ -297,6 +299,16 @@ Thing.prototype.setPitchOnly = function(pitch) {
 
 Thing.prototype.getNormal = function(out) {
   return this.localToWorldCoords(out, vec3.J, 0);
+};
+
+
+Thing.prototype.getUpNose = function(out) {
+  return this.localToWorldCoords(out, vec3.NEG_K, 0);
+};
+
+
+Thing.prototype.computeDistanceSquaredToCamera = function() {
+  this.distanceSquaredToCamera = this.distanceSquaredTo(world.hero);
 };
 
 

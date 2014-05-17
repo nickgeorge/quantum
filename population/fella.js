@@ -7,6 +7,8 @@ Fella = function(message) {
 
   this.color = vec4.nullableClone(message.color);
 
+  this.health = 100;
+
   this.leftLeg = new OffsetBox({
     size: [.25, 1.1, .25],
     color: this.color,
@@ -69,6 +71,10 @@ Fella = function(message) {
     thing: this,
   radius: 10
   })
+  this.healthBar = new HealthBar({
+    refThing: this
+  });
+  world.effectsToAdd.push(this.healthBar);
 };
 util.inherits(Fella, Thing);
 Fella.type = Types.FELLA;
@@ -78,6 +84,8 @@ Fella.MAX_LEG_ANGLE = PI/6;
 
 Fella.prototype.advance = function(dt) {
   util.base(this, 'advance', dt);
+
+  if (!this.alive) return;
   this.legAngle += this.speed * this.stepDirection * dt;
 
   if (this.legAngle >= Fella.MAX_LEG_ANGLE) {
@@ -96,4 +104,27 @@ Fella.prototype.advance = function(dt) {
 
 Fella.prototype.getOuterRadius = function() {
   return Hero.HEIGHT;
+};
+
+Fella.prototype.die = function() {
+  this.alive = false;
+  deathSpeed = 1;
+  this.eachPart(function(part) {
+    this.alive = false;
+    var vTheta = Math.random()*2*Math.PI;
+    vec3.set(//part.velocity,
+        part.velocity, 
+          Math.cos(vTheta)*deathSpeed,
+          Math.random()/2,
+          Math.sin(vTheta)*deathSpeed
+        );
+  });
+  world.removeEffect(this.healthBar);
+};
+
+Fella.prototype.hit = function(bullet) {
+  this.health -= 17;
+  if (this.health < 0) {
+    this.die();
+  }
 };
