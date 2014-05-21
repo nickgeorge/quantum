@@ -17,6 +17,13 @@ Sphere.normalBuffer = null;
 Sphere.indexBuffer = null;
 Sphere.textureBuffer = null;
 
+Sphere.objectCache = {
+  findEncounter: {
+    p_0: vec3.create(),
+    delta: vec3.create()
+  }
+};
+
 
 /** Parent Coords! */
 Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
@@ -76,7 +83,7 @@ Sphere.prototype.createBuffers = function() {
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
     for (var longitude = 0; longitude <= this.longitudeCount; longitude++) {
-      var phi = longitude * 2*Math.PI / this.longitudeCount;
+      var phi = longitude * 2*Math.PI / this.longitudeCount + 3*PI/2;
       var sinPhi = Math.sin(phi);
       var cosPhi = Math.cos(phi);
 
@@ -137,8 +144,4 @@ Sphere.prototype.makeEncounter = function(t, distanceSquared, point) {
 
 Sphere.prototype.getOuterRadius = function() {
   return this.radius;
-};
-
-Sphere.prototype.render = function() {
-  util.base(this, 'render');
 };

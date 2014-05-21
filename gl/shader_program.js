@@ -80,6 +80,7 @@ ShaderProgram.createShaderProgram = function(gl) {
   shaderProgram.loadedColor = [];
   shaderProgram.loadedNormalBuffer = null;
   shaderProgram.loadedIndexBuffer = null;
+  shaderProgram.loadedPositionBuffer = null;
   shaderProgram.reset();
   return shaderProgram;
 };
@@ -105,6 +106,10 @@ ShaderProgram.prototype.setUniformColor = function(uniformColor) {
 };
 
 ShaderProgram.prototype.bindVertexPositionBuffer = function(buffer) {
+  if (this.loadedPositionBuffer == buffer) {
+    return;
+  }
+  this.loadedPositionBuffer = buffer;
   this.bindAttributeBuffer_(buffer, this.vertexPositionAttribute);
 };
 

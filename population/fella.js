@@ -15,6 +15,7 @@ Fella = function(message) {
     offset: [0, -.5, 0],
     name: "left leg",
     position: [.1875, 1.1, 0],
+    isPart: true,
   });
       
   this.rightLeg = new OffsetBox({
@@ -23,6 +24,7 @@ Fella = function(message) {
     offset: [0, -.5, 0],
     name: "left leg",
     position: [-.1875, 1.1, 0],
+    isPart: true,
   });
 
   this.leftArm = new OffsetBox({
@@ -32,6 +34,8 @@ Fella = function(message) {
     offset: [0, -.45, 0],
     roll: PI/32,
     name: "left leg",
+    isPart: true,
+    damageMultiplier: .8
   });
   this.rightArm = new OffsetBox({
     size: [.125, .9, .125],
@@ -40,20 +44,27 @@ Fella = function(message) {
     offset: [0, -.45, 0],
     roll: -PI/32,
     name: "right leg",
+    isPart: true,
+    damageMultiplier: .8
   });
 
   this.head = new Sphere({
     radius: .25,
     position: [0, 2.2, 0],
-    yaw: PI/2,
     texture: Textures.KARL,
     name: "head",
+    isPart: true,
+    damageMultiplier: 4,
   });
-  this.torso = new Box({
+
+  this.torso = new LeafBox({
     size: [.6, 1, .3],
     position: [0, 1.5, 0],
     color: this.color,
     name: "torso",
+    textureCounts: [1, 1],
+    isPart: true,
+    damageMultiplier: 1.7,
   });
 
   this.addParts([
@@ -65,7 +76,7 @@ Fella = function(message) {
     this.leftArm,
   ]);
 
-  this.root = true;
+  this.isRoot = true;
 
   this.boundingSphere = new BoundingSphere({
     thing: this,
@@ -103,16 +114,17 @@ Fella.prototype.advance = function(dt) {
 
 
 Fella.prototype.getOuterRadius = function() {
-  return Hero.HEIGHT;
+  return Hero.HEIGHT * 4;
 };
 
 Fella.prototype.die = function() {
   this.alive = false;
+  this.velocity = [0, 0, 0];
   deathSpeed = 1;
   this.eachPart(function(part) {
     this.alive = false;
     var vTheta = Math.random()*2*Math.PI;
-    vec3.set(//part.velocity,
+    vec3.set(
         part.velocity, 
           Math.cos(vTheta)*deathSpeed,
           Math.random()/2,
@@ -122,9 +134,19 @@ Fella.prototype.die = function() {
   world.removeEffect(this.healthBar);
 };
 
-Fella.prototype.hit = function(bullet) {
-  this.health -= 17;
-  if (this.health < 0) {
-    this.die();
+Fella.prototype.hit = function(bullet, part) {
+  this.health -= 20 * part.damageMultiplier;
+  if (this.health <= 0) {
+    if (this.alive) this.die();
+    vec3.copy(
+        part.velocity,
+        // [0, 0, 1]);
+        part.worldToLocalCoords(vec3.temp,
+            vec3.scale(vec3.temp, 
+              bullet.velocity, 
+              // [0, 0, 1],
+              1/25), 0));
+  } else {
+    this.healthBar.updateHealth();
   }
 };

@@ -1,7 +1,7 @@
 Box = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.size = message.size;
-  this.texturesByFace = message.texturesByFace || [];
+  this.texturesByFace = message.texturesByFace || {};
   this.invertValue = message.invert ? -1 : 1;
   this.color = vec4.nullableClone(message.color);
   if (message.texture) {
@@ -11,7 +11,7 @@ Box = function(message) {
       }
     }, this);
   }
-  this.textureCountsByFace = message.textureCountsByFace || [];
+  this.textureCountsByFace = message.textureCountsByFace || {};
   if (message.textureCounts) {
     util.array.forEach(Box.Faces, function(face) {
       if (!this.textureCountsByFace[face]) {
@@ -20,12 +20,15 @@ Box = function(message) {
     }, this);
   }
 
+  var skipCreateBuffers = message.renderAsLeaf;
+
   this.frontFace = new Pane({
     size: [this.size[0], this.size[1], 0],
     position: [0, 0, this.size[2]/2 * this.invertValue],
     texture: this.texturesByFace.front,
     textureCounts: this.textureCountsByFace.front,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
   });
   this.backFace = new Pane({
     size: [this.size[0], this.size[1], 0],
@@ -33,6 +36,7 @@ Box = function(message) {
     texture: this.texturesByFace.back,
     textureCounts: this.textureCountsByFace.back,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
     yaw: PI,
   });
   this.rightFace = new Pane({
@@ -41,6 +45,7 @@ Box = function(message) {
     texture: this.texturesByFace.right,
     textureCounts: this.textureCountsByFace.right,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
     yaw: PI/2,
   });
   this.leftFace = new Pane({
@@ -49,6 +54,7 @@ Box = function(message) {
     texture: this.texturesByFace.left,
     textureCounts: this.textureCountsByFace.left,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
     yaw: 3*PI/2,
   });
   this.topFace = new Pane({
@@ -57,6 +63,7 @@ Box = function(message) {
     texture: this.texturesByFace.top,
     textureCounts: this.textureCountsByFace.top,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
     pitch: 3*PI/2,
   });
   this.bottomFace = new Pane({
@@ -65,6 +72,7 @@ Box = function(message) {
     texture: this.texturesByFace.bottom,
     textureCounts: this.textureCountsByFace.bottom,
     color: this.color,
+    skipCreateBuffers: skipCreateBuffers,
     pitch: PI/2,
   });
 
@@ -81,7 +89,7 @@ util.inherits(Box, Thing);
 Box.type = Types.BOX;
 
 Box.Faces = [
-  'top', 'bottom', 'left', 'right', 'front', 'back'
+  'top', 'bottom', 'right', 'left', 'front', 'back'
 ];
 
 Box.prototype.getOuterRadius = function() {
@@ -89,4 +97,8 @@ Box.prototype.getOuterRadius = function() {
       this.size[0],
       this.size[1],
       this.size[2]);
+};
+
+Box.eachFace = function(fn) {
+  util.array.forEach(Box.Faces, fn);
 };

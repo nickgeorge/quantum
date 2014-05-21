@@ -1,8 +1,7 @@
 DumbCrate = function(message) {
   this.super(message);
-
   this.size = message.size;
-  this.box = new Box({
+  this.box = new LeafBox({
     size: message.size,
     texture: message.texture,
     texturesByFace: message.texturesByFace,

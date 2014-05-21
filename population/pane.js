@@ -9,7 +9,12 @@ Pane = function(message) {
 
   this.texture = message.texture;
 
-  this.createBuffers();
+  this.verticies = null;
+  this.skipCreateBuffers = message.skipCreateBuffers;
+  if (!this.skipCreateBuffers) this.createBuffers();
+  else {
+    this.renderSelf = function(){};
+  }
 
   this.klass = 'Pane';
 };
@@ -50,16 +55,19 @@ Pane.init = function() {
   Pane.inited = true;
 };
 
-Pane.prototype.createVertexBuffer = function() {
+Pane.prototype.createVerticies = function() {
   var halfSize = vec2.scale([], this.size, .5);
-  var verticies = [
+  this.verticies = [
     -halfSize[0], -halfSize[1],  0,
      halfSize[0], -halfSize[1],  0,
      halfSize[0],  halfSize[1],  0,
     -halfSize[0],  halfSize[1],  0
   ];
+};
 
-  this.vertexBuffer = util.generateBuffer(verticies, 3);
+Pane.prototype.createVertexBuffer = function() {
+  if (!this.verticies) this.createVerticies();
+  this.vertexBuffer = util.generateBuffer(this.verticies, 3);
 };
 
 Pane.prototype.createNormalBuffer = function() {
@@ -187,10 +195,4 @@ Pane.prototype.getNormal = function(out) {
 
 Pane.prototype.getLeft = function(out) {
   return this.localToWorldCoords(out, vec3.I, 0);
-};
-
-
-
-Pane.prototype.render = function() {
-  util.base(this, 'render');
 };

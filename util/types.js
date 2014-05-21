@@ -8,5 +8,7 @@ Types = {
   SUN: 7,
   HERO: 8,
   FELLA: 9,
-  PLUMB: 10
+  PLUMB: 10,
+  HEALTH_BAR: 11,
+  LEAF_BOX: 12,
 };

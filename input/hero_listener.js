@@ -18,6 +18,12 @@ HeroListener = function(container) {
   document.exitPointerLock = document.exitPointerLock ||
       document.mozExitPointerLock ||
       document.webkitExitPointerLock;
+
+  this.objectCache = {
+    onMouseMove: {
+      rotY: quat.create()
+    }
+  };
 };
 
 HeroListener.prototype.attachEvents = function() {
@@ -75,7 +81,7 @@ HeroListener.prototype.onMouseMove = function(event) {
         event.webkitMovementY ||
         0;
 
-    var rotY = quat.create();
+    var rotY = this.objectCache.onMouseMove.rotY;
     quat.setAxisAngle(rotY,
         vec3.transformQuat(vec3.temp, vec3.J, this.hero.upOrientation),
         -movementX * this.sensitivityX);

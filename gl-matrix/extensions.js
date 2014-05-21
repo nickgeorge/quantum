@@ -116,3 +116,30 @@ vec3.pitch = function(a) {
   var adjacent = Math.sqrt(util.math.sqr(a[0]) + util.math.sqr(a[2]));
   return Math.atan2(opposite, adjacent);
 };
+
+
+vec3.pitchTo = (function() {
+  var tmpvec3 = vec3.create();
+  return function(v2, v1) {
+    var diff = vec3.subtract(tmpvec3, v2, v1);
+    var d_ground = Math.sqrt(util.sqr(diff[0]) + util.sqr(diff[2]));
+
+    return Math.atan2(diff[1], d_ground);
+  };
+})();
+
+
+vec3.pointToLine = (function() {
+  var tmpvec3 = vec3.create();
+  return function(out, a, point_on_line, line_vector) {
+    var vDelta = vec3.subtract(tmpvec3,
+        point_on_line,
+        a);
+    return vec3.normalize(out,
+        vec3.subtract(out,
+            vDelta,
+            vec3.scale(out,
+                line_vector,
+                vec3.dot(vDelta, line_vector))));
+  };
+})();

@@ -1,6 +1,7 @@
 LeafThing = function(message) {
   util.base(this, message);
 
+  this.elementType = message.elementType || gl.TRIANGLES;
   this.texture = message.texture;
   this.color = message.color || vec4.WHITE;
   this.vertexBuffer = null;
@@ -13,7 +14,9 @@ util.inherits(LeafThing, Thing);
 
 LeafThing.prototype.render = function() {
   if (this.parts.length) { 
-    util.base(this, 'render');
+    this.eachPart(function(part){
+      part.draw();
+    });
   }
   this.renderSelf();
 };
@@ -29,10 +32,10 @@ LeafThing.prototype.renderSelf = function() {
   }
   shaderProgram.bindVertexPositionBuffer(this.vertexBuffer);
   shaderProgram.bindVertexNormalBuffer(this.normalBuffer);
-  shaderProgram.bindVertexTextureBuffer(this.textureBuffer);
+  if (this.textureBuffer) shaderProgram.bindVertexTextureBuffer(this.textureBuffer);
   shaderProgram.bindVertexIndexBuffer(this.indexBuffer);
 
-  gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(this.elementType, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 };
 
 

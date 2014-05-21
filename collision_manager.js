@@ -10,10 +10,9 @@ CollisionFunctions = {
     var encounter = fella.findThingEncounter(bullet, 0);
     if (encounter) {
       bullet.alive = false;
-      if (fella.alive) fella.hit(bullet);
-      // vec3.copy(//encounter.part.parent.velocity,
-      //   encounter.part.parent.velocity,
-      //   vec3.scale(vec3.temp,bullet.velocity, 0));
+      // TODO: this is the worst line of code in the program
+      var partLevelPart = encounter.part.getPart();
+      fella.hit(bullet, partLevelPart);
       encounter.part.glom(bullet, encounter);
     }
   },
@@ -65,7 +64,6 @@ CollisionFunctions = {
     var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
     part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
     var normal = vec3.normalize([], heroPosition_lc);
-    vec3.scaleAndAdd
     heroVelocity_lc[2] = wasLanded ?
         Math.max(0, heroVelocity_lc[2]) :
         Math.abs(heroVelocity_lc[2]);
@@ -135,6 +133,24 @@ CollisionManager.prototype.registerCollisionFunctions = function() {
 
 
 CollisionManager.prototype.checkCollisions = function() {
+  this.thingOnThing();
+  this.thingOnProjectile();
+};
+
+
+CollisionManager.prototype.thingOnProjectile = function() {
+  for (var i = 0, thing; thing = this.world.things[i]; i++) {
+    for (var j = 0, projectile; projectile = this.world.projectiles[j]; j++) {
+      if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
+          thing.distanceSquaredTo(projectile)) {
+        continue;
+      }
+      this.test(thing, projectile);
+    }
+  }
+};
+
+CollisionManager.prototype.thingOnThing = function() {
   // TODO: Check everything, collide with the collision with min
   // value of t
   for (var i = 0, thingA; thingA = this.world.things[i]; i++) {
@@ -144,16 +160,6 @@ CollisionManager.prototype.checkCollisions = function() {
       //   continue;
       // }
       this.test(thingA, thingB);
-    }
-  }
-  for (var i = 0, thing; thing = this.world.things[i]; i++) {
-    for (var j = 0, projectile; projectile = this.world.projectiles[j]; j++) {
-      // if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
-      //     thing.distanceSquaredTo(projectile)) {
-      //   continue;
-      // }
-      // debugger;
-      this.test(thing, projectile);
     }
   }
 };

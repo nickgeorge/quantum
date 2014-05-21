@@ -10,11 +10,12 @@ util.inherits(OffsetContainer, Thing);
 OffsetBox = function(message) {
   this.super({
     position: vec3.nullableClone(message.position),
+    name: message.name,
   });
 
   message.position = message.offset;
   message.offset = null;
-  this.thing = new Box(message);
+  this.thing = new LeafBox(message);
   this.addPart(this.thing);
 };
 util.inherits(OffsetBox, Thing);

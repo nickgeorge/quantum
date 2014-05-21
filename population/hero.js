@@ -15,7 +15,7 @@ Hero = function(message) {
   this.ground = null;
 
   this.v_ground = 20;
-  this.v_air = 60;
+  this.v_air = 30;
   this.gravity = [0, -world.G, 0];
 
   this.gimble = new Gimble({
@@ -29,13 +29,22 @@ Hero = function(message) {
 util.inherits(Hero, Thing);
 Hero.type = Types.HERO;
 
-Hero.JUMP_VELOCITY = vec3.fromValues(0, 125, 0);
-Hero.HEIGHT = 2.2;
+Hero.objectCache = {
+  advance: {
+    velocityInView: vec3.create(),
+    thisNormal: vec3.create(),
+    deltaV: vec3.create(),
+  }
+};
+
+Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, 0);
+Hero.HEIGHT = 2;
 Hero.WIDTH = .5;
 
 
 Hero.prototype.advance = function(dt) {
   util.base(this, 'advance', dt, true);
+  var cache = Hero.objectCache.advance;
 
   if (this.isViewTransitioning) {
     this.viewTransitionT += 3 * dt;
@@ -47,7 +56,7 @@ Hero.prototype.advance = function(dt) {
         this.initialViewOrientation,
         this.terminalViewOrientation,
         this.viewTransitionT);
-  }
+  } 
 
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
@@ -56,15 +65,15 @@ Hero.prototype.advance = function(dt) {
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
 
-    var velocityInView = vec3.transformQuat(vec3.create(),
+    var velocityInView = vec3.transformQuat(cache.velocityInView,
         this.velocity,
         this.viewOrientation);
 
-    var groundNormal = this.getNormal(vec3.create());
+    var thisNormal = this.getNormal(cache.thisNormal);
 
     vec3.subtract(this.velocity, 
         velocityInView,
-        vec3.project(vec3.create(), velocityInView, groundNormal));
+        vec3.project(vec3.temp, velocityInView, thisNormal));
 
     if (this.ground) {
       if (!this.ground.contains_lc(
@@ -80,7 +89,7 @@ Hero.prototype.advance = function(dt) {
     }
   } else {
 
-    var deltaV = vec3.set(vec3.create(),
+    var deltaV = vec3.set(cache.deltaV,
       this.v_air * this.keyMove[0],
       0,
       this.v_air * this.keyMove[2]
@@ -90,15 +99,15 @@ Hero.prototype.advance = function(dt) {
         deltaV,
         this.viewOrientation);
 
-    var thisNormal = this.getNormal(vec3.create());
+    var thisNormal = this.getNormal(cache.thisNormal);
 
     vec3.subtract(deltaVInView, 
         deltaVInView,
-        vec3.project(vec3.create(), deltaVInView, thisNormal));
+        vec3.project(vec3.temp, deltaVInView, thisNormal));
 
     vec3.add(deltaVInView,
         deltaVInView,
-        vec3.transformQuat(vec3.create(),
+        vec3.transformQuat(vec3.temp,
             this.gravity,
             this.upOrientation));
 
@@ -168,10 +177,6 @@ Hero.prototype.shoot = function() {
     rPitch: Math.random()*100,
     rRoll: Math.random()*100,
   }))
-};
-
-Hero.prototype.draw = function() {
-  util.base(this, 'draw');
 };
 
 

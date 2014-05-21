@@ -45,6 +45,8 @@ util.bind = function(fn, thisObj, var_args) {
   };
 };
 
+util.emptyArray_ = [];
+
 util.base = function(me, opt_methodName, var_args) {
   var caller = arguments.callee.caller;
   if (caller.superClass_) {
@@ -53,7 +55,8 @@ util.base = function(me, opt_methodName, var_args) {
         me, Array.prototype.slice.call(arguments, 1));
   }
 
-  var args = Array.prototype.slice.call(arguments, 2);
+  var args = arguments.length > 2 ? 
+      Array.prototype.slice.call(arguments, 2) : util.emptyArray_;
   var foundCaller = false;
   for (var ctor = me.constructor;
        ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
@@ -121,12 +124,14 @@ util.sqr = function(x) {
   return x*x;
 };
 
-util.generateBuffer = function(primitives, itemSize, opt_bufferType) {
+util.generateBuffer = function(
+    primitives, itemSize, opt_bufferType, opt_drawType) {
+  var drawType = opt_drawType || gl.STATIC_DRAW;
   var bufferType = opt_bufferType || gl.ARRAY_BUFFER;
   var buffer = gl.createBuffer();
   gl.bindBuffer(bufferType, buffer);
   gl.bufferData(bufferType,
-      new Float32Array(primitives), gl.STATIC_DRAW);
+      new Float32Array(primitives), drawType);
   buffer.itemSize = itemSize;
   buffer.numItems = primitives.length / itemSize;
   return buffer;
@@ -218,6 +223,11 @@ util.dom.isChild = function(element, parent) {
     element = element.parentElement;
   }
   return element == parent;
+};
+
+util.dom.find = function(selector, opt_parent) {
+  return util.array.getOnlyElement(
+      util.dom.findAll(selector, opt_parent));
 };
 
 util.dom.findAll = function(selector, opt_parent) {
@@ -327,9 +337,7 @@ util.fn.goTo = function(url) {
 util.array = {};
 
 util.array.pushAll = function(arr, addee) {
-  for (var i = 0, length = addee.length; i < addee.length; i++) {
-    arr.push(addee[i]);
-  }
+  Array.prototype.push.apply(arr, addee);
 };
 
 util.array.removeAll = function(arr, removee) {
@@ -466,6 +474,10 @@ util.math.sqr = function(x) {
 
 util.math.random = function(min, max) {
   return Math.random() * (max - min) + min;
+};
+
+util.math.clamp = function(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 };
 
 

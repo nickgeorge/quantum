@@ -9,6 +9,7 @@ GL.createGL = function(canvas) {
   } catch (e) {util.log('Didn\'t init GL')}
 
   gl.modelMatrix = mat4.create();
+  gl.invertedModelMatrix = mat4.create();
   gl.viewMatrix = mat4.create();
   gl.perspectiveMatrix = mat4.create();
   gl.normalMatrix = mat3.create();
@@ -35,7 +36,7 @@ GL.prototype.reset = function() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   mat4.perspective(gl.perspectiveMatrix,
       PI/4, gl.viewportWidth/gl.viewportHeight,
-      .01, 9450.0);
+      .1, 400.0);
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND)
@@ -75,7 +76,7 @@ GL.prototype.setViewMatrixUniforms = function() {
 GL.prototype.computeNormalMatrix = function() {
   // TODO: figure out what's going on here
   mat3.fromMat4(this.normalMatrix,
-      mat4.invert([], this.modelMatrix));
+      mat4.invert(this.invertedModelMatrix, this.modelMatrix));
   mat3.transpose(this.normalMatrix, this.normalMatrix);
 };
 

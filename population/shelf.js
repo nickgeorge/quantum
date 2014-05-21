@@ -19,3 +19,5 @@ Shelf.type = Types.SHELF;
 Shelf.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();  
 };
+
+// Shelf.prototype.render = function(){}

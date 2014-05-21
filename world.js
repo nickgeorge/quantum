@@ -28,7 +28,7 @@ World = function() {
 
 World.prototype.populate = function() {
   var light = new Light({
-    ambientColor: [.29, .29, .29],
+    ambientColor: [.32, .32, .32],
     directionalColor: [.7, .5, .3]
   });
   this.addLight(light);
@@ -37,14 +37,14 @@ World.prototype.populate = function() {
   texturesByFace 
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: [400, 400, 400],
+    size: [150, 150, 150],
     texture: Textures.BYZANTINE,
     texturesByFace: {
       top: Textures.GRASS
     },
     textureCounts: [100, 100],
     textureCountsByFace: {
-      top: [400, 400]
+      top: [300, 300]
     }
     // roll: PI/8,
   })
@@ -53,7 +53,7 @@ World.prototype.populate = function() {
   var addThings = true;
 
   if (addThings) {
-    for (var k = 0; k < 60; k++) {
+    for (var k = 0; k < 20; k++) {
       var dumbCrate = new DumbCrate({
         position: [
           (Math.random() - .5) * this.shelf.size[0],
@@ -61,11 +61,13 @@ World.prototype.populate = function() {
           (Math.random() - .5) * this.shelf.size[2],
         ],
         size: [
-          20 + Math.random() * 60,
-          20 + Math.random() * 60,
-          20 + Math.random() * 60,
+          10 + Math.random() * 30,
+          10 + Math.random() * 30,
+          10 + Math.random() * 30,
         ],
         texture: Textures.THWOMP,
+
+        textureCounts: [1, 1],
         // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
         pitch: 2*Math.random() * PI,
         yaw: 2*Math.random() * PI,
@@ -81,7 +83,7 @@ World.prototype.populate = function() {
           (Math.random() - .5) * this.shelf.size[1],
           (Math.random() - .5) * this.shelf.size[2],
         ],
-        radius: 3 + Math.random()*30,
+        radius: 1.5 + Math.random()*7,
         texture: Textures.EARTH,
         pitch: Math.random()*2*PI,
         roll: Math.random()*2*PI,
@@ -94,23 +96,53 @@ World.prototype.populate = function() {
   }
 
   var dumbCrate = new DumbCrate({
-    position: [0, -225, 0],
-    size: [25, 25, 25],
-    pitch: PI / 4,
-    texture: Textures.THWOMP
+    position: [
+      -30,
+      -this.shelf.size[1]/2 + 30,
+      -15,
+    ],
+    size: [
+      10 + Math.random() * 0,
+      10 + Math.random() * 0,
+      10 + Math.random() * 0,
+    ],
+    texture: Textures.THWOMP,
+
+    textureCounts: [1, 1],
   });
-  // dumbCrate.randomizeAngle();
   // this.add(dumbCrate);
 
-  for (var i = 0; i < 30; i++) {
+  var dumbCrate = new DumbCrate({
+    position: [
+      30,
+      -this.shelf.size[1]/2 + 30,
+      -15,
+    ],
+    size: [
+      10 + Math.random() * 0,
+      10 + Math.random() * 0,
+      10 + Math.random() * 0,
+    ],
+    texture: Textures.THWOMP,
+
+    textureCounts: [1, 1],
+  });
+  // this.add(dumbCrate);
+
+  for (var i = 0; i < 200; i++) {
     var yaw = Math.random()*2*PI;
     var color = vec4.randomColor([]);
     // color[3] = Math.random();
     var velocity = [Math.sin(yaw), 0, Math.cos(yaw)];
     var fella = new Fella({
-      position: [util.math.random(-20, 20), -200, util.math.random(-20, 20)],
+      position: [
+        util.math.random(-20, 20),
+        -world.shelf.size[1]/2,
+        util.math.random(-20, 20)
+      ],
       yaw: yaw,
       velocity: velocity,
+      // velocity: [0, 0, 1],
       color: color
     });
     this.add(fella);
@@ -129,7 +161,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   this.hero = new Hero({
-    position: [0, -200, 0]
+    position: [0, -this.shelf.size[1]/2, 0]
   });
   this.camera.setAnchor(this.hero);
   heroListener.hero = this.hero;

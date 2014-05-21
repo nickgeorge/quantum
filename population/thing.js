@@ -5,6 +5,8 @@ Thing = function(message) {
   quat.rotateY(this.upOrientation, this.upOrientation, message.yaw || 0);
   quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
   quat.rotateZ(this.upOrientation, this.upOrientation, message.roll || 0);
+  this.normal = vec3.create();
+  this.upNose = vec3.create();
 
   if (message.groundOrientation) {
     this.groundOrientation = quat.clone(message.groundOrientation);
@@ -26,16 +28,39 @@ Thing = function(message) {
   this.parent = null;
 
   this.age = 0;
-  this.root = false;
+  this.isRoot = message.isRoot || false;
+  this.isPart = message.isPart || false;
   this.name = message.name;
 
   this.distanceSquaredToCamera = 0;
+  this.damageMultiplier = message.damageMultiplier || 1;
 
   this.localToParentTransform = mat4.create();
   this.parentToLocalTransform = mat4.create();
   this.computeTransforms();
+  this.objectCache = {
+    findEncounter: {
+      p_0: vec3.create(),
+      p_1: vec3.create(),
+    }
+  };
 };
 Thing.type = Types.THING;
+
+
+
+Thing.prototype.getPart = function() {
+  if (this.isPart || this.isRoot) return this;
+  util.assertNotNull(this.parent, 'No part found.');
+  return this.parent.getPart();
+};
+
+
+Thing.prototype.getRoot = function() {
+  if (this.isRoot) return this;
+  util.assertNotNull(this.parent, 'No root found.');
+  return this.parent.getPart();
+};
 
 
 Thing.prototype.eachPart = function(fn) {
@@ -55,18 +80,21 @@ Thing.prototype.advance = function(dt) {
   this.saveLastPosition();
   this.age += dt;
 
-  this.rYaw && quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
-  this.rPitch && quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
-  this.rRoll && quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
+  if (this.rYaw) quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
+  if (this.rPitch) quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
+  if (this.rRoll) quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
 
   if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
     vec3.scaleAndAdd(this.position, this.position,
         this.velocity, dt);
   }
 
-  this.eachPart(function(part){
-    part.advance(dt);
-  });
+  // this.eachPart(function(part){
+  //   part.advance(dt);
+  // });
+  for (var i = 0; this.parts[i]; i++) {
+    this.parts[i].advance(dt);
+  }
 };
 
 
@@ -108,15 +136,14 @@ Thing.prototype.findThingEncounter = function(thing, threshold) {
 
 
 Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
-  var p_0 = this.parentToLocalCoords([], p_0_pc);
-  var p_1 = this.parentToLocalCoords([], p_1_pc);
+  var cache = this.objectCache.findEncounter;
+  var p_0 = this.parentToLocalCoords(cache.p_0, p_0_pc);
+  var p_1 = this.parentToLocalCoords(cache.p_1, p_1_pc);
   
   var closestEncounter = null;
-  var encounters = [];
   for (var i = 0; this.parts[i]; i++) {
     var encounter = this.parts[i].findEncounter(p_0, p_1, threshold);
     if (!encounter) continue;
-    encounters.push(i +" : " +  encounter.t);
     if (!closestEncounter) {
       closestEncounter = encounter;
       continue;
@@ -219,12 +246,6 @@ Thing.prototype.computeTransforms = function() {
         vec3.transformQuat(vec3.temp,
             vec3.negate(vec3.temp, this.position),
             conjugateUp));
-
-
-    if (this == world.hero) {
-       // debugger;
-       this.doGreatStuff;
-    }
   }
 
   this.eachPart(function(part){
@@ -253,33 +274,9 @@ Thing.prototype.dispose = function() {
 };
 
 
-// Thing.prototype.randomizeAngle = function() {
-//   this.yaw = Math.random() * 2*PI;
-//   this.pitch = Math.random() * 2*PI;
-//   this.roll = Math.random() * 2*PI;
-// };
-
-
 Thing.prototype.saveLastPosition = function() {
-  this.lastPosition[0] = this.localToParentTransform[12];
-  this.lastPosition[1] = this.localToParentTransform[13];
-  this.lastPosition[2] = this.localToParentTransform[14];
+  vec3.copy(this.lastPosition, this.position);
 };
-
-
-// Thing.prototype.getPosition = function(out) {
-//   vec3.set(out,
-//       this.localToParentTransform[12],
-//       this.localToParentTransform[13],
-//       this.localToParentTransform[14])
-//   return out;
-// };
-
-// Thing.prototype.setPosition = function(position) {
-//   this.localToParentTransform[12] = position[0];
-//   this.localToParentTransform[13] = position[1];
-//   this.localToParentTransform[14] = position[2];
-// };
 
 
 Thing.prototype.distanceSquaredTo = function(other) {
