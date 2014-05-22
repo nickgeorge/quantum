@@ -38,7 +38,7 @@ Gimble.type = Types.Gimble;
 
 
 Gimble.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
+  this.advanceBasics(dt);
   this.saveLastPosition();
   if (this.referenceObject) {
     vec3.add(this.position, this.referenceObject.position,

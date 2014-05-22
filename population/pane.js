@@ -11,6 +11,10 @@ Pane = function(message) {
 
   this.verticies = null;
   this.skipCreateBuffers = message.skipCreateBuffers;
+
+  // TODO: this is a hack.  No reason a logical pane has to be static.
+  this.isStatic = message.skipCreateBuffers;
+  
   if (!this.skipCreateBuffers) this.createBuffers();
   else {
     this.renderSelf = function(){};

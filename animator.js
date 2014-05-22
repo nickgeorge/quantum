@@ -4,6 +4,8 @@ Animator = function(world, hud, gl, framerate) {
   this.gl = gl;
   this.framerate = framerate;
   this.paused = false;
+
+  this.boundTick = util.bind(this.tick, this);
 };
 
 
@@ -19,7 +21,7 @@ Animator.prototype.setPaused = function(paused) {
 
 
 Animator.prototype.tick = function() {
-  window.requestAnimationFrame(util.bind(this.tick, this));
+  window.requestAnimationFrame(this.boundTick);
   if (this.paused) return;
   this.advanceWorld();
   this.drawScene();
@@ -40,8 +42,8 @@ Animator.prototype.advanceWorld = function() {
     if (elapsed < 100) {
       var dt = elapsed/1000;
       this.world.advance(dt);
+      this.framerate.snapshot();
     }
-    this.framerate.snapshot();
   }
   this.framerate.lastTime = timeNow;
 };

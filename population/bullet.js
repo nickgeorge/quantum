@@ -17,7 +17,7 @@ util.inherits(Bullet, Thing);
 Bullet.type = Types.BULLET;
 
 Bullet.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
+  this.advanceBasics(dt);
   if (this.alive) {
     // this.velocity[1] -= world.G/400;
   }

@@ -11,6 +11,9 @@ OffsetBox = function(message) {
   this.super({
     position: vec3.nullableClone(message.position),
     name: message.name,
+
+    //TODO: Unhack!!
+    isStatic: false
   });
 
   message.position = message.offset;

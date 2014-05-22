@@ -71,6 +71,7 @@ World.prototype.populate = function() {
         // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
         pitch: 2*Math.random() * PI,
         yaw: 2*Math.random() * PI,
+        isStatic: true
       });
       // dumbCrate.randomizeAngle();
       this.add(dumbCrate);
@@ -129,7 +130,7 @@ World.prototype.populate = function() {
   });
   // this.add(dumbCrate);
 
-  for (var i = 0; i < 200; i++) {
+  for (var i = 0; i < 300; i++) {
     var yaw = Math.random()*2*PI;
     var color = vec4.randomColor([]);
     // color[3] = Math.random();
@@ -246,18 +247,15 @@ World.prototype.advance = function(dt) {
 
   if (this.paused) return;
 
-  util.array.forEach(this.things, function(thing) {
-    thing.advance(dt);
-    thing.computeTransforms();
-  });
-  util.array.forEach(this.projectiles, function(projectile) {
-    projectile.advance(dt);
-    projectile.computeTransforms();
-  });
-  util.array.forEach(this.effects, function(effect) {
-    effect.advance(dt);
-    effect.computeTransforms();
-  });
+  for (var i = 0; this.things[i]; i++) {
+    this.things[i].advance(dt);
+  }
+  for (var i = 0; this.projectiles[i]; i++) {
+    this.projectiles[i].advance(dt);
+  }
+  for (var i = 0; this.effects[i]; i++) {    
+    this.effects[i].advance(dt);
+  }
   this.collisionManager.checkCollisions();
 };
 
@@ -287,6 +285,7 @@ World.prototype.updateLists = function() {
   util.array.pushAll(this.things, this.thingsToAdd);
   util.array.pushAll(this.effects, this.effectsToAdd);
   util.array.pushAll(this.projectiles, this.projectilesToAdd);
+
   util.array.pushAll(this.drawables, this.thingsToAdd);
   util.array.pushAll(this.drawables, this.effectsToAdd);
   util.array.pushAll(this.drawables, this.projectilesToAdd);
@@ -294,6 +293,7 @@ World.prototype.updateLists = function() {
   util.array.removeAll(this.things, this.thingsToRemove);
   util.array.removeAll(this.effects, this.effectsToRemove);
   util.array.removeAll(this.projectiles, this.projectilesToRemove);
+
   util.array.removeAll(this.drawables, this.thingsToRemove);
   util.array.removeAll(this.drawables, this.effectsToRemove);
   util.array.removeAll(this.drawables, this.projectilesToRemove);

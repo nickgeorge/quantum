@@ -12,12 +12,12 @@ util.inherits(Sun, Thing);
 Sun.type = Types.SUN;
 
 Sun.prototype.advance = function(dt) {
+  this.advanceBasics(dt);
   this.position = [
     world.shelf.size[0]*(1/3) * Math.sin(this.age / .5/6),
     -world.shelf.size[1]*(1/2) * Math.sin(this.age / .6/6),
     world.shelf.size[2]*(1/3) * Math.sin(this.age / .4/6),
   ];
-  util.base(this, 'advance', dt);
 };
 
 Sun.prototype.render = function() {

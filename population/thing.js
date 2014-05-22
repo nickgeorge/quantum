@@ -5,8 +5,8 @@ Thing = function(message) {
   quat.rotateY(this.upOrientation, this.upOrientation, message.yaw || 0);
   quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
   quat.rotateZ(this.upOrientation, this.upOrientation, message.roll || 0);
-  this.normal = vec3.create();
-  this.upNose = vec3.create();
+  // this.normal = vec3.create();
+  // this.upNose = vec3.create();
 
   if (message.groundOrientation) {
     this.groundOrientation = quat.clone(message.groundOrientation);
@@ -30,103 +30,59 @@ Thing = function(message) {
   this.age = 0;
   this.isRoot = message.isRoot || false;
   this.isPart = message.isPart || false;
+  this.isStatic = message.isStatic || false;
   this.name = message.name;
 
   this.distanceSquaredToCamera = 0;
   this.damageMultiplier = message.damageMultiplier || 1;
 
-  this.localToParentTransform = mat4.create();
-  this.parentToLocalTransform = mat4.create();
-  this.computeTransforms();
   this.objectCache = {
     findEncounter: {
       p_0: vec3.create(),
       p_1: vec3.create(),
-    }
+    },
+    conjugateUp: quat.create()
   };
 };
 Thing.type = Types.THING;
 
 
-
-Thing.prototype.getPart = function() {
-  if (this.isPart || this.isRoot) return this;
-  util.assertNotNull(this.parent, 'No part found.');
-  return this.parent.getPart();
-};
-
-
-Thing.prototype.getRoot = function() {
-  if (this.isRoot) return this;
-  util.assertNotNull(this.parent, 'No root found.');
-  return this.parent.getPart();
-};
-
-
-Thing.prototype.eachPart = function(fn) {
-  util.array.forEach(this.parts, fn, this);
-};
-
-
-Thing.prototype.draw = function() {
-  gl.pushModelMatrix();
-  this.transform();
-  this.render();
-  gl.popModelMatrix();
-};
-
-
 Thing.prototype.advance = function(dt) {
-  this.saveLastPosition();
-  this.age += dt;
+  this.advanceBasics(dt);
+};
 
-  if (this.rYaw) quat.rotateY(this.upOrientation, this.upOrientation, this.rYaw * dt);
-  if (this.rPitch) quat.rotateX(this.upOrientation, this.upOrientation, this.rPitch * dt);
-  if (this.rRoll) quat.rotateZ(this.upOrientation, this.upOrientation, this.rRoll * dt);
+
+Thing.prototype.advanceBasics = function(dt) {
+  this.age += dt;
+  if (this.isStatic) return;
+
+  if (this.rYaw) {
+    quat.rotateY(this.upOrientation,
+        this.upOrientation, 
+        this.rYaw * dt);
+  }
+  if (this.rPitch) {
+    quat.rotateX(this.upOrientation,
+        this.upOrientation, 
+        this.rPitch * dt);
+  }
+  if (this.rRoll) {
+    quat.rotateZ(this.upOrientation,
+        this.upOrientation, 
+        this.rRoll * dt);
+  }
 
   if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
+    this.saveLastPosition();
     vec3.scaleAndAdd(this.position, this.position,
         this.velocity, dt);
   }
 
-  // this.eachPart(function(part){
-  //   part.advance(dt);
-  // });
   for (var i = 0; this.parts[i]; i++) {
     this.parts[i].advance(dt);
   }
 };
 
-
-Thing.prototype.render = function() {
-  this.eachPart(function(part){
-    part.draw();
-  });
-};
-
-
-Thing.prototype.setParent = function(parent) {
-  this.parent = parent;
-};
-
-
-Thing.prototype.addPart = function(part) {
-  this.parts.push(part);
-  part.setParent(this);
-};
-
-
-Thing.prototype.removePart = function(part) {
-  util.array.remove(this.parts, part);
-  part.setParent(null);
-};
-
-
-Thing.prototype.addParts = function(parts) {
-  util.array.forEach(parts, function(part) {
-    this.addPart(part);
-  }, this);
-};
 
 
 Thing.prototype.findThingEncounter = function(thing, threshold) {
@@ -167,12 +123,6 @@ Thing.prototype.glom = function(thing, intersection) {
   vec3.copy(thing.velocity, vec3.ZERO);
 
   vec3.copy(thing.position, point);
-  thing.computeTransforms();
-};
-
-
-Thing.prototype.transform = function() {
-  gl.transform(this.localToParentTransform);
 };
 
 
@@ -184,7 +134,12 @@ Thing.prototype.transform = function() {
  */
 Thing.prototype.localToParentCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.transformMat4(out, v, this.localToParentTransform, w);
+  if (w == 1) {
+    vec3.transformQuat(out, v, this.upOrientation);
+    vec3.add(out, out, this.position);
+  } else {
+    vec3.transformQuat(out, v, this.upOrientation);
+  }
   return out;
 };
 
@@ -196,7 +151,13 @@ Thing.prototype.localToParentCoords = function(out, v, opt_w) {
  */
 Thing.prototype.parentToLocalCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.transformMat4(out, v, this.parentToLocalTransform, w);
+  quat.conjugate(this.objectCache.conjugateUp, this.upOrientation);
+  if (w == 1) {
+    vec3.subtract(out, v, this.position);
+    vec3.transformQuat(out, out, this.objectCache.conjugateUp);
+  } else {
+    vec3.transformQuat(out, v, this.objectCache.conjugateUp);
+  }
   return out;
 };
 
@@ -209,7 +170,7 @@ Thing.prototype.parentToLocalCoords = function(out, v, opt_w) {
  */
 Thing.prototype.localToWorldCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
-  vec3.transformMat4(out, v, this.localToParentTransform, w);
+  this.localToParentCoords(out, v, w);
   if (this.parent) {
     this.parent.localToWorldCoords(out, out, w);
   }
@@ -227,30 +188,31 @@ Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
   var w = opt_w === undefined ? 1 : opt_w;
   if (this.parent) {
     this.parent.worldToLocalCoords(out, v, w);
-    vec3.transformMat4(out, out, this.parentToLocalTransform, w);
+    this.parentToLocalCoords(out, out, w);
   } else {
-    vec3.transformMat4(out, v, this.parentToLocalTransform, w);
+    this.parentToLocalCoords(out, v, w);
   }
   return out;
 };
 
+Thing.prototype.draw = function() {
+  gl.pushModelMatrix();
+  this.transform();
+  this.render();
+  gl.popModelMatrix();
+};
 
-Thing.prototype.computeTransforms = function() {
-  if (this.upOrientation) {
-    mat4.fromRotationTranslation(this.localToParentTransform,
-        this.upOrientation, this.position);
 
-    var conjugateUp = quat.conjugate(quat.temp, this.upOrientation);
-    mat4.fromRotationTranslation(this.parentToLocalTransform,
-        conjugateUp,
-        vec3.transformQuat(vec3.temp,
-            vec3.negate(vec3.temp, this.position),
-            conjugateUp));
-  }
-
+Thing.prototype.render = function() {
   this.eachPart(function(part){
-    part.computeTransforms();
+    part.draw();
   });
+};
+
+
+Thing.prototype.transform = function() {
+  gl.translate(this.position);
+  gl.rotate(this.upOrientation);
 };
 
 
@@ -271,6 +233,30 @@ Thing.prototype.dispose = function() {
   util.array.forEach(this.parts, function(part){
     part.dispose();
   });
+};
+
+
+Thing.prototype.setParent = function(parent) {
+  this.parent = parent;
+};
+
+
+Thing.prototype.addPart = function(part) {
+  this.parts.push(part);
+  part.setParent(this);
+};
+
+
+Thing.prototype.removePart = function(part) {
+  util.array.remove(this.parts, part);
+  part.setParent(null);
+};
+
+
+Thing.prototype.addParts = function(parts) {
+  util.array.forEach(parts, function(part) {
+    this.addPart(part);
+  }, this);
 };
 
 
@@ -308,8 +294,23 @@ Thing.prototype.computeDistanceSquaredToCamera = function() {
   this.distanceSquaredToCamera = this.distanceSquaredTo(world.hero);
 };
 
+Thing.prototype.getPart = function() {
+  if (this.isPart || this.isRoot) return this;
+  util.assertNotNull(this.parent, 'No part found.');
+  return this.parent.getPart();
+};
 
 
+Thing.prototype.getRoot = function() {
+  if (this.isRoot) return this;
+  util.assertNotNull(this.parent, 'No root found.');
+  return this.parent.getPart();
+};
+
+
+Thing.prototype.eachPart = function(fn) {
+  util.array.forEach(this.parts, fn, this);
+};
 
 
 

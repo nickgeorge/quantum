@@ -43,7 +43,7 @@ Hero.WIDTH = .5;
 
 
 Hero.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt, true);
+  this.advanceBasics(dt);
   var cache = Hero.objectCache.advance;
 
   if (this.isViewTransitioning) {
@@ -79,12 +79,6 @@ Hero.prototype.advance = function(dt) {
       if (!this.ground.contains_lc(
           this.ground.worldToLocalCoords(vec3.temp, this.position))) {
         this.unland();
-      } else {
-        
-        // var heroVelocity_lc = this.ground.worldToLocalCoords(vec3.temp, this.velocity, 0);
-        // heroVelocity_lc[2] = 0
-        // this.ground.localToWorldCoords(this.velocity, heroVelocity_lc, 0);
-
       }
     }
   } else {
@@ -115,7 +109,6 @@ Hero.prototype.advance = function(dt) {
         this.velocity,
         vec3.scale(deltaVInView, deltaVInView, dt));
   }
-  this.computeTransforms();
 };
 
 Hero.prototype.jump = function() {
@@ -128,7 +121,6 @@ Hero.prototype.land = function(ground) {
   vec3.set(this.velocity, 0, 0, 0);
   this.landed = true;
   this.ground = ground;
-
 
   var rotation = quat.rotationTo(quat.temp,
       this.getNormal([]),

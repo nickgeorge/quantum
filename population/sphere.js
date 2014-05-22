@@ -7,6 +7,11 @@ Sphere = function(message) {
 
   this.createBuffers();
 
+  this.objectCache.findEncounter = {
+    p_0: vec3.create(),
+    delta: vec3.create()
+  }
+
   this.klass = 'Sphere';
 };
 util.inherits(Sphere, LeafThing);
@@ -28,9 +33,10 @@ Sphere.objectCache = {
 /** Parent Coords! */
 Sphere.prototype.findEncounter = function(p_0_pc, p_1_pc,
     threshold) {
+  var cache = this.objectCache.findEncounter;
   var thresholdSquared = util.math.sqr(threshold);
-  var p_0 = this.parentToLocalCoords([], p_0_pc);
-  var delta = this.parentToLocalCoords([], p_1_pc);
+  var p_0 = this.parentToLocalCoords(cache.p_0, p_0_pc);
+  var delta = this.parentToLocalCoords(cache.delta, p_1_pc);
   vec3.subtract(delta, delta, p_0);
 
   var quadratic = Quadratic.newLineToOriginQuadratic(p_0, delta, this.radius);

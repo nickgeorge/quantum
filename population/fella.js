@@ -16,6 +16,7 @@ Fella = function(message) {
     name: "left leg",
     position: [.1875, 1.1, 0],
     isPart: true,
+    isStatic: true,
   });
       
   this.rightLeg = new OffsetBox({
@@ -25,6 +26,7 @@ Fella = function(message) {
     name: "left leg",
     position: [-.1875, 1.1, 0],
     isPart: true,
+    isStatic: true,
   });
 
   this.leftArm = new OffsetBox({
@@ -35,6 +37,7 @@ Fella = function(message) {
     roll: PI/32,
     name: "left leg",
     isPart: true,
+    isStatic: true,
     damageMultiplier: .8
   });
   this.rightArm = new OffsetBox({
@@ -45,6 +48,7 @@ Fella = function(message) {
     roll: -PI/32,
     name: "right leg",
     isPart: true,
+    isStatic: true,
     damageMultiplier: .8
   });
 
@@ -54,6 +58,7 @@ Fella = function(message) {
     texture: Textures.KARL,
     name: "head",
     isPart: true,
+    isStatic: true,
     damageMultiplier: 4,
   });
 
@@ -64,6 +69,7 @@ Fella = function(message) {
     name: "torso",
     textureCounts: [1, 1],
     isPart: true,
+    isStatic: true,
     damageMultiplier: 1.7,
   });
 
@@ -94,7 +100,7 @@ Fella.MAX_LEG_ANGLE = PI/6;
 
 
 Fella.prototype.advance = function(dt) {
-  util.base(this, 'advance', dt);
+  this.advanceBasics(dt);
 
   if (!this.alive) return;
   this.legAngle += this.speed * this.stepDirection * dt;
@@ -123,6 +129,7 @@ Fella.prototype.die = function() {
   deathSpeed = 1;
   this.eachPart(function(part) {
     this.alive = false;
+    part.isStatic = false;
     var vTheta = Math.random()*2*Math.PI;
     vec3.set(
         part.velocity, 

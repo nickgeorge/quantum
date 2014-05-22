@@ -59,10 +59,9 @@ CollisionFunctions = {
         Hero.HEIGHT + .001 :
         Math.max(Hero.WIDTH + .001, heroPosition_lc[2]);
     part.localToWorldCoords(hero.position, heroPosition_lc);
-    hero.computeTransforms();
 
     var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
-    part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
+    // part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
     var normal = vec3.normalize([], heroPosition_lc);
     heroVelocity_lc[2] = wasLanded ?
         Math.max(0, heroVelocity_lc[2]) :
@@ -84,7 +83,6 @@ CollisionFunctions = {
     vec3.scale(heroPosition_lc, heroPosition_lc,
         (part.radius + Hero.WIDTH + .001)/vec3.length(heroPosition_lc));
     part.localToWorldCoords(hero.position, heroPosition_lc);
-    hero.computeTransforms();
 
     var heroVelocity_lc = part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
     var normal = vec3.normalize([], heroPosition_lc);
@@ -98,9 +96,10 @@ CollisionFunctions = {
 CollisionManager.prototype.test = function(thingA, thingB) {
   var typeA = thingA.getType();
   var typeB = thingB.getType();
-  var collisionFunction = this.collisionFunctions[typeA] ? 
-      this.collisionFunctions[typeA][typeB] :
-      null;
+  var key = CollisionManager.getKey(typeA, typeB);
+  var collisionFunction = this.collisionFunctions[key];
+
+  // var collisionFunction = null;
   if (collisionFunction) collisionFunction(thingA, thingB);
 };
 
@@ -109,11 +108,11 @@ CollisionManager.prototype.registerCollisionFunction = function(
     classA, classB, fn) {
   var typeA = classA.type;
   var typeB = classB.type;
-  this.collisionFunctions[typeA] = this.collisionFunctions[typeA] || {};
-  this.collisionFunctions[typeB] = this.collisionFunctions[typeB] || {};
+  var key = CollisionManager.getKey(typeA, typeB);
+  var reverseKey = CollisionManager.getKey(typeB, typeA);
 
-  this.collisionFunctions[typeA][typeB] = fn;
-  this.collisionFunctions[typeB][typeA] = function(thingB, thingA) {
+  this.collisionFunctions[key] = fn;
+  this.collisionFunctions[reverseKey] = function(thingB, thingA) {
     fn(thingA, thingB);
   }
 };
@@ -162,6 +161,11 @@ CollisionManager.prototype.thingOnThing = function() {
       this.test(thingA, thingB);
     }
   }
+};
+
+
+CollisionManager.getKey = function(typeA, typeB) {
+  return typeA*1000 + typeB;
 };
 
 

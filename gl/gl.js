@@ -80,8 +80,9 @@ GL.prototype.computeNormalMatrix = function() {
   mat3.transpose(this.normalMatrix, this.normalMatrix);
 };
 
-GL.prototype.rotate = function (angle, axis) {
-  mat4.rotate(this.modelMatrix, this.modelMatrix, angle, axis);
+GL.prototype.rotate = function(rotation) {
+  mat4.multiply(this.modelMatrix, this.modelMatrix,
+      mat4.fromQuat(mat4.temp, rotation));
 };
 
 GL.prototype.translate = function(xyz) {

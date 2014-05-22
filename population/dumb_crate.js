@@ -1,5 +1,5 @@
 DumbCrate = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.size = message.size;
   this.box = new LeafBox({
     size: message.size,
@@ -7,6 +7,7 @@ DumbCrate = function(message) {
     texturesByFace: message.texturesByFace,
     textureCounts: message.textureCounts,
     textureCountsByFace: message.textureCountsByFace,
+    isStatic: true
   });
 
   this.addPart(this.box);

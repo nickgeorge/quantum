@@ -7,19 +7,6 @@ HealthBar = function(message) {
     color: [0, 0, 0, 1]
   });
 
-  // this.messagePane = new Pane({
-  //   size: [.5, .3],
-  //   color: [1, 1, 1, 1],
-  //   position: [0, .4, 0],
-  //   texture: Textures.getTextTexture({
-  //     text: 'Ow',
-  //     width: 64,
-  //     height: 64,
-  //     backgroundColor: 'rgba(0, 255, 0, 0)',
-  //     textColor: 'rgba(255, 0, 0, 1)',
-  //   }),
-  // });
-
   this.paneOffset = [0, 2.6, 0];
   this.transformedOffset = vec3.create();
 
@@ -29,12 +16,11 @@ HealthBar = function(message) {
     color: vec4.WHITE
   }));
   this.addPart(this.pane);
-  // this.addPart(this.messagePane);
   this.isRoot = true;
 
   this.visible = false;
-  this.updateHealth();
 
+  this.updateHealth();
 };
 util.inherits(HealthBar, Thing);
 
@@ -44,7 +30,7 @@ HealthBar.prototype.advance = function(dt) {
     this.visible = true;
   }
   if (!this.visible) return;
-  util.base(this, 'advance', dt);
+  this.advanceBasics(dt);
   if (this.refThing) {
     this.refThing.localToWorldCoords(this.position,
         this.paneOffset);
