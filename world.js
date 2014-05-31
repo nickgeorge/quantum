@@ -39,9 +39,9 @@ World.prototype.populate = function() {
     position: [0, 0, 0],
     size: [150, 150, 150],
     texture: Textures.BYZANTINE,
-    texturesByFace: {
-      top: Textures.GRASS
-    },
+    // texturesByFace: {
+    //   top: Textures.GRASS
+    // },
     textureCounts: [100, 100],
     textureCountsByFace: {
       top: [300, 300]
@@ -50,7 +50,7 @@ World.prototype.populate = function() {
   })
   this.add(this.shelf);
 
-  var addThings = true;
+  var addThings = false;
 
   if (addThings) {
     for (var k = 0; k < 20; k++) {
@@ -95,7 +95,7 @@ World.prototype.populate = function() {
     }
   }
 
-  for (var i = 0; i < 250; i++) {
+  for (var i = 0; i < 300; i++) {
     var fella = new Fella({
       position: [
         0, 0, 0
@@ -108,6 +108,7 @@ World.prototype.populate = function() {
       color: vec4.randomColor([]),
       yaw: Math.random()*2*PI,
       pitch: Math.random()*2*PI,
+      rYaw: Math.random()*2 - 1
     });
     this.add(fella);
   }

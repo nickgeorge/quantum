@@ -13,7 +13,7 @@ CollisionFunctions = {
       // TODO: this is the worst line of code in the program
       var partLevelPart = encounter.part.getPart();
       fella.hit(bullet, partLevelPart);
-      encounter.part.glom(bullet, encounter);
+      encounter.part.glom(bullet, encounter.point);
     }
   },
 
@@ -21,7 +21,7 @@ CollisionFunctions = {
     if (!glomer.alive) return;
     var encounter = glomee.findThingEncounter(glomer, 0);
     if (encounter) {
-      encounter.part.glom(glomer, encounter);
+      encounter.part.glom(glomer, encounter.point);
       glomer.alive = false;
     }
   },

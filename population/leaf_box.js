@@ -1,5 +1,5 @@
 LeafBox = function(message) {
-  message.renderAsLeaf = true;
+  message.skipCreatePaneBuffers = true;
   util.base(this, message);
 
   this.vertexBuffer = null;
@@ -10,7 +10,7 @@ LeafBox = function(message) {
   this.textureCounts = message.textureCounts || [1, 1];
 
   this.color = message.color || [1, 1, 1, 1];
-  this.texture = message.texture ;
+  this.texture = message.texture;
 
   this.elementType = message.elementType || gl.TRIANGLES;
 

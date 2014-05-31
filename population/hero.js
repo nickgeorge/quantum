@@ -57,17 +57,6 @@ Hero.prototype.advance = function(dt) {
     this.velocity[0] = factor * this.v_ground * (this.keyMove[0]);
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
-
-    var velocityInView = vec3.transformQuat(cache.advance.velocityInView,
-        this.velocity,
-        this.viewOrientation);
-
-    var thisNormal = this.getNormal();
-
-    vec3.subtract(this.velocity, 
-        velocityInView,
-        vec3.project(vec3.temp, velocityInView, thisNormal));
-
   } else {
 
     var deltaV = vec3.set(cache.advance.deltaV,
@@ -103,17 +92,14 @@ Hero.prototype.shoot = function(e) {
   if (e.button == 0) {
     var v = 130;
     var v_shot = [0, 0, -v];
-    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
+    // vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
     // vec3.add(v_shot, v_shot, this.velocity);
     world.projectilesToAdd.push(new Bullet({
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
-      upOrientation: this.upOrientation,
-      rYaw: Math.random()*100,
-      rPitch: Math.random()*100,
-      rRoll: Math.random()*100,
+      upOrientation: this.viewOrientation
     }));
   } else {    
     var v = 20;

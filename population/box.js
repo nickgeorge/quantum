@@ -20,7 +20,7 @@ Box = function(message) {
     }, this);
   }
 
-  var skipCreateBuffers = message.renderAsLeaf;
+  var skipCreateBuffers = message.skipCreatePaneBuffers;
 
   this.frontFace = new Pane({
     size: [this.size[0], this.size[1], 0],
@@ -29,6 +29,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.front,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
   });
   this.backFace = new Pane({
     size: [this.size[0], this.size[1], 0],
@@ -37,6 +38,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.back,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
     yaw: PI,
   });
   this.rightFace = new Pane({
@@ -46,6 +48,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.right,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
     yaw: PI/2,
   });
   this.leftFace = new Pane({
@@ -55,6 +58,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.left,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
     yaw: 3*PI/2,
   });
   this.topFace = new Pane({
@@ -64,6 +68,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.top,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
     pitch: 3*PI/2,
   });
   this.bottomFace = new Pane({
@@ -73,6 +78,7 @@ Box = function(message) {
     textureCounts: this.textureCountsByFace.bottom,
     color: this.color,
     skipCreateBuffers: skipCreateBuffers,
+    glommable: false,
     pitch: PI/2,
   });
 

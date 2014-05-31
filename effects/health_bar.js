@@ -24,13 +24,11 @@ util.inherits(HealthBar, Thing);
 
 
 HealthBar.prototype.advance = function(dt) {
-  if (this.parent.health < 100) {
+  if (this.parent.health < 100 && false) {
     this.visible = true;
   }
   if (!this.visible) return;
   if (this.parent) {
-    var oldref = this.parent.position[1];
-
     var normalToCamera = vec3.pointToLine(vec3.create(),
         this.position,
         world.hero.position,

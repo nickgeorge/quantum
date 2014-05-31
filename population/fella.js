@@ -4,17 +4,23 @@ Fella = function(message) {
   this.stepDirection = 1;
   this.speed = message.speed || 0;
 
-  if (!message.velocity) {
-    this.yaw = message.yaw || 0;
-    message.velocity = [
-      Math.sin(message.yaw)*this.speed,
-      0,
-      Math.cos(message.yaw)*this.speed
-    ];
-  } else {
-    message.velocity = vec3.clone(message.velocity);
-    message.yaw = -Math.atan2(this.velocity[2], this.velocity[0]) + PI/2;
-  }
+  // if (!message.velocity) {
+  //   this.yaw = message.yaw || 0;
+  //   message.velocity = [
+  //     Math.sin(message.yaw)*this.speed,
+  //     0,
+  //     Math.cos(message.yaw)*this.speed
+  //   ];
+  // } else {
+  //   message.velocity = vec3.clone(message.velocity);
+  //   message.yaw = -Math.atan2(this.velocity[2], this.velocity[0]) + PI/2;
+  // }
+
+  this.velocity = [
+    0,
+    0,
+    this.speed
+  ];
 
   util.base(this, message);
 
@@ -44,6 +50,9 @@ Fella.MAX_LEG_ANGLE = PI/6;
 Fella.prototype.advance = function(dt) {
   this.advanceWalker(dt);
   if (!this.alive) return;
+  if (Math.random() < .02) {
+    this.rYaw = Math.random()*2 - 1;
+  }
   this.legAngle += this.speed * this.stepDirection * dt;
 
   if (this.legAngle >= Fella.MAX_LEG_ANGLE) {

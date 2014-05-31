@@ -31,7 +31,8 @@ Thing = function(message) {
   this.isRoot = message.isRoot || false;
   this.isPart = message.isPart || false;
   this.isStatic = message.isStatic || false;
-  this.name = message.name;
+  this.glommable = message.glommable !== false;
+  this.name = message.name || null;
 
   this.isDisposed = false;
 
@@ -80,7 +81,10 @@ Thing.prototype.advanceBasics = function(dt) {
   if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
     this.saveLastPosition();
     vec3.scaleAndAdd(this.position, this.position,
-        this.velocity, dt);
+        vec3.transformQuat(
+            vec3.temp,
+            this.velocity,
+            this.upOrientation), dt);
   }
 
   for (var i = 0; this.parts[i]; i++) {
@@ -122,15 +126,19 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
 };
 
 
-Thing.prototype.glom = function(thing, intersection) {
-  var point = intersection.point;
+Thing.prototype.glom = function(thing, point) {
+  if (this.glommable) {
+    world.projectilesToRemove.push(thing);
+    world.disposables.push(thing);
+    this.addEffect(thing);
+    vec3.copy(thing.velocity, vec3.ZERO);
 
-  world.projectilesToRemove.push(thing);
-  world.disposables.push(thing);
-  this.addPart(thing);
-  vec3.copy(thing.velocity, vec3.ZERO);
-
-  vec3.copy(thing.position, point);
+    vec3.copy(thing.position, point);
+  } else {
+    var parent = this.parent;
+    this.localToParentCoords(point, point);
+    parent.glom(thing, point);
+  }
 };
 
 

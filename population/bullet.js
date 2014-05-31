@@ -6,6 +6,9 @@ Bullet = function(message) {
     // color: [.3, 1, .3, 1],
     position: [0, 0, 0],
     texture: Textures.GREEN_PLASMA,
+    rYaw: 100,
+    rPitch: 100,
+    rRoll: 100,
   });
   this.parts = [this.sphere];
 

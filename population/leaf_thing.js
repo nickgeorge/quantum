@@ -14,6 +14,11 @@ util.inherits(LeafThing, Thing);
 
 LeafThing.prototype.render = function() {
   this.renderSelf();
+  if (this.effects.length) {
+    this.eachEffect(function(effect){
+      effect.draw();
+    });
+  }
 };
 
 
