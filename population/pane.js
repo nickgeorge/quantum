@@ -20,7 +20,14 @@ Pane = function(message) {
     this.renderSelf = function(){};
   }
 
-  this.klass = 'Pane';
+  this.objectCache.findEncounter = {
+    encounter: {},
+    p_0_lc: vec3.create(),
+    p_1_lc: vec3.create(),
+    delta: vec3.create(),
+    encounterPoint: vec3.create()
+  }
+  
 };
 util.inherits(Pane, LeafThing);
 Pane.type = Types.PANE;
@@ -116,25 +123,28 @@ Pane.prototype.contains_lc = function(p_lc) {
 
 Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
     threshold) {
-  var p_0_lc = this.parentToLocalCoords([], p_0_pc);
-  var p_1_lc = this.parentToLocalCoords([], p_1_pc);
+  var cache = this.objectCache.findEncounter;
+  var p_0_lc = this.parentToLocalCoords(cache.p_0_lc, p_0_pc);
+  var p_1_lc = this.parentToLocalCoords(cache.p_1_lc, p_1_pc);
   
-  var delta = vec3.subtract(vec3.temp, p_1_lc, p_0_lc);
+  var delta = vec3.subtract(cache.delta, p_1_lc, p_0_lc);
   var t_cross = -p_0_lc[2] / delta[2];
 
-  var encounters = [];
-  var intersectionEncounter = null;
+  var closestEncounter = cache.encounter;
+  closestEncounter.expired = true;
   if (Quadratic.inFrame(t_cross)) {
-    var p_int_lc = vec3.scaleAndAdd([], p_0_lc, delta, t_cross);
+    var p_int_lc = vec3.scaleAndAdd(cache.encounterPoint,
+        p_0_lc,
+        delta,
+        t_cross);
     if (this.contains_lc(p_int_lc)) {
       // We've intersected the pane in this past frame
-      intersectionEncounter = this.makeEncounter(t_cross, 0, p_int_lc);
-      encounters.push(intersectionEncounter);
+      // If threshold is 0 (intersection), this is the only form of
+      // encounter we have to consider.
+      this.maybeSetEncounter_(threshold, t_cross, 0, p_int_lc);
+      if (threshold == 0) return closestEncounter;
     }
   }
-  // If threshold is 0 (intersection), this is the only form of encounter
-  // we have to consider.
-  if (threshold == 0) return intersectionEncounter;
 
   // At this point, there are other points that need to be considered.
   // Make an array of all points that could possibly be the closest.
@@ -143,10 +153,10 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
 
   // Add first/last points, if they're contained
   if (this.contains_lc(p_0_lc)) {
-    encounters.push(this.makeEncounter(0, p_0_lc[2], p_0_lc));
+    this.maybeSetEncounter_(threshold, 0, p_0_lc[2], p_0_lc);
   }
   if (this.contains_lc(p_1_lc)) {
-    encounters.push(this.makeEncounter(1, p_1_lc[2], p_1_lc));
+    this.maybeSetEncounter_(threshold, 1, p_1_lc[2], p_1_lc);
   }
 
   // For both axes (not including z), test if we've crossed
@@ -154,47 +164,40 @@ Pane.prototype.findEncounter = function(p_0_pc, p_1_pc,
     var halfSize = this.size[i]/2;
     var maxInI = Math.max(p_0_lc[i], p_1_lc[i]);
     var minInI = Math.min(p_0_lc[i], p_1_lc[i]);
-    util.array.forEach(Pane.MIN_AND_MAX, function(direction) {
+    for (var direction = -1; direction <= 1; direction += 2) {
       var bound = direction*halfSize;
       if (maxInI > bound && minInI < bound) {
         var t = (bound - p_0_lc[i]) / delta[i];
-        var p = vec3.scaleAndAdd([], p_0_lc, delta, t);
+        var p = vec3.scaleAndAdd(cache.encounterPoint, p_0_lc, delta, t);
         if (this.contains_lc(p)) {
-          encounters.push(this.makeEncounter(t, p[2], p));
+          this.maybeSetEncounter_(threshold, t, p[2], p);
         }
       }      
-    }, this);
-  }
-
-  if (encounters.length == 0) {
-    return null;
-  }
-
-
-  var closestEncounter = null;
-  for (var i = 0; i < encounters.length; i++) {
-    if (Math.abs(encounters[i].distance) < threshold && (!closestEncounter ||
-        encounters[i].t < closestEncounter.t)) {
-      closestEncounter = encounters[i];
     }
   }
+  if (closestEncounter.expired) return null;
   return closestEncounter;
 };
 
 
-Pane.prototype.makeEncounter = function(t, distance, point) {
-  return {
-    part: this,
-    t: t,
-    distance: distance,
-    distanceSquared: util.math.sqr(distance),
-    point: point
-  }
+Pane.prototype.maybeSetEncounter_ = function(threshold, t, distance, point) {
+  var cached = this.objectCache.findEncounter.encounter;
+  if (Math.abs(distance) > threshold) return;
+  if (!cached.expired && t > cached.t) return;
+  cached.part = this;
+  cached.t = t;
+  cached.distance = distance;
+  cached.distanceSquared = util.math.sqr(distance);
+  cached.point = point;
+  cached.expired = false;
+  return cached;
 };
 
 
 Pane.prototype.getNormal = function(out) {
-  return this.localToWorldCoords(out, vec3.K, 0);
+  return this.localToWorldCoords(this.objectCache.normal,
+      vec3.K,
+      0);
 };
 
 Pane.prototype.getLeft = function(out) {

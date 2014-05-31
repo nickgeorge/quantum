@@ -13,11 +13,6 @@ util.inherits(LeafThing, Thing);
 
 
 LeafThing.prototype.render = function() {
-  if (this.parts.length) { 
-    this.eachPart(function(part){
-      part.draw();
-    });
-  }
   this.renderSelf();
 };
 

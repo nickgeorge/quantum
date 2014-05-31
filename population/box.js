@@ -83,7 +83,7 @@ Box = function(message) {
     this.leftFace,
     this.topFace,
     this.bottomFace
-  ]);
+  ], true);
 };
 util.inherits(Box, Thing);
 Box.type = Types.BOX;

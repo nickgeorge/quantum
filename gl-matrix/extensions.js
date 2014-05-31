@@ -1,10 +1,12 @@
-vec3.ZERO = [0, 0, 0];
-vec3.I = [1, 0, 0];
-vec3.J = [0, 1, 0];
-vec3.K = [0, 0, 1];
-vec3.NEG_K = [0, 0, -1];
-vec4.WHITE = [1, 1, 1, 1];
-vec4.BLACK = [0, 0, 0, 1];
+vec3.ZERO = vec3.fromValues(0, 0, 0);
+vec3.I = vec3.fromValues(1, 0, 0);
+vec3.J = vec3.fromValues(0, 1, 0);
+vec3.K = vec3.fromValues(0, 0, 1);
+vec3.NEG_K = vec3.fromValues(0, 0, -1);
+vec4.WHITE = vec4.fromValues(1, 1, 1, 1);
+// vec4.WHITE = [1, 1, 1, 1];
+vec4.BLACK = vec4.fromValues(0, 0, 0, 1);
+quat.IDENTITY = quat.create();
 
 /**
  * A vector that can be used as a temporary container.
@@ -43,6 +45,9 @@ vec4.equals = function(a, b) {
       a[2] == b[2] &&
       a[3] == b[3];
 };
+
+
+quat.equals = vec4.equals;
 
 /**
  * Clones the passed vec4 if it exists.

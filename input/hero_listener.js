@@ -56,13 +56,7 @@ HeroListener.prototype.onMouseDown = function(e) {
     // return;
   }
 
-  if (e.button == 0) {
-    this.hero && this.hero.shoot();
-  } else if (e.button == 2) {
-    e.preventDefault();
-  } else {
-    util.log(e.button);
-  }
+  this.hero && this.hero.shoot(e);
 };
 
 HeroListener.prototype.enableMouseLock = function() {
@@ -93,8 +87,6 @@ HeroListener.prototype.onMouseMove = function(event) {
         this.hero.viewOrientation,
         -movementY * this.sensitivityY)
 
-    // this.hero.pitch = Math.max(-PI/2,
-    //     Math.min(PI/2, this.hero.pitch));
   }
 };
 

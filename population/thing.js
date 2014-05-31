@@ -5,8 +5,7 @@ Thing = function(message) {
   quat.rotateY(this.upOrientation, this.upOrientation, message.yaw || 0);
   quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
   quat.rotateZ(this.upOrientation, this.upOrientation, message.roll || 0);
-  // this.normal = vec3.create();
-  // this.upNose = vec3.create();
+
 
   if (message.groundOrientation) {
     this.groundOrientation = quat.clone(message.groundOrientation);
@@ -25,6 +24,7 @@ Thing = function(message) {
   this.alive = message.alive !== false;
 
   this.parts = [];
+  this.effects = [];
   this.parent = null;
 
   this.age = 0;
@@ -32,6 +32,8 @@ Thing = function(message) {
   this.isPart = message.isPart || false;
   this.isStatic = message.isStatic || false;
   this.name = message.name;
+
+  this.isDisposed = false;
 
   this.distanceSquaredToCamera = 0;
   this.damageMultiplier = message.damageMultiplier || 1;
@@ -41,7 +43,9 @@ Thing = function(message) {
       p_0: vec3.create(),
       p_1: vec3.create(),
     },
-    conjugateUp: quat.create()
+    conjugateUp: quat.create(),
+    normal: vec3.create(),
+    upNose: vec3.create(),
   };
 };
 Thing.type = Types.THING;
@@ -53,6 +57,7 @@ Thing.prototype.advance = function(dt) {
 
 
 Thing.prototype.advanceBasics = function(dt) {
+  if (this.isDisposed) return;
   this.age += dt;
   if (this.isStatic) return;
 
@@ -80,6 +85,9 @@ Thing.prototype.advanceBasics = function(dt) {
 
   for (var i = 0; this.parts[i]; i++) {
     this.parts[i].advance(dt);
+  }
+  for (var i = 0; this.effects[i]; i++) {
+    this.effects[i].advance(dt);
   }
 };
 
@@ -206,6 +214,9 @@ Thing.prototype.draw = function() {
 Thing.prototype.render = function() {
   this.eachPart(function(part){
     part.draw();
+  });  
+  this.eachEffect(function(effect){
+    effect.draw();
   });
 };
 
@@ -226,6 +237,8 @@ Thing.prototype.dispose = function() {
   this.parentToLocalTransform = null;
   this.velocity = null;
   this.position = null;
+  this.isDisposed = true;
+
   if (this.parent) {
     this.parent.removePart(this);
   }
@@ -244,6 +257,12 @@ Thing.prototype.setParent = function(parent) {
 Thing.prototype.addPart = function(part) {
   this.parts.push(part);
   part.setParent(this);
+};
+
+
+Thing.prototype.addEffect = function(effect) {
+  this.effects.push(effect);
+  effect.setParent(this);
 };
 
 
@@ -280,13 +299,17 @@ Thing.prototype.setPitchOnly = function(pitch) {
 };
 
 
-Thing.prototype.getNormal = function(out) {
-  return this.localToWorldCoords(out, vec3.J, 0);
+Thing.prototype.getNormal = function() {
+  return this.localToWorldCoords(this.objectCache.normal,
+      vec3.J,
+      0);
 };
 
 
-Thing.prototype.getUpNose = function(out) {
-  return this.localToWorldCoords(out, vec3.NEG_K, 0);
+Thing.prototype.getUpNose = function() {
+  return this.localToWorldCoords(this.objectCache.upNose,
+      vec3.NEG_K,
+      0);
 };
 
 
@@ -310,6 +333,11 @@ Thing.prototype.getRoot = function() {
 
 Thing.prototype.eachPart = function(fn) {
   util.array.forEach(this.parts, fn, this);
+};
+
+
+Thing.prototype.eachEffect = function(fn) {
+  util.array.forEach(this.effects, fn, this);
 };
 
 

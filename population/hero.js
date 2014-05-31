@@ -11,22 +11,14 @@ Hero = function(message) {
   this.isViewTransitioning = false;
   this.viewTransitionT = 0;
 
-  this.landed = false;
-  this.ground = null;
-
   this.v_ground = 20;
   this.v_air = 30;
-  this.gravity = [0, -world.G, 0];
 
   this.gimble = new Gimble({
     referenceObject: this
   });
-
-  // world.add(this.plumb);
-
-  this.klass = 'Hero';
 };
-util.inherits(Hero, Thing);
+util.inherits(Hero, Walker);
 Hero.type = Types.HERO;
 
 Hero.objectCache = {
@@ -34,7 +26,8 @@ Hero.objectCache = {
     velocityInView: vec3.create(),
     thisNormal: vec3.create(),
     deltaV: vec3.create(),
-  }
+  },
+  normal: vec3.create()
 };
 
 Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, 0);
@@ -43,8 +36,8 @@ Hero.WIDTH = .5;
 
 
 Hero.prototype.advance = function(dt) {
-  this.advanceBasics(dt);
-  var cache = Hero.objectCache.advance;
+  this.advanceWalker(dt);
+  var cache = Hero.objectCache;
 
   if (this.isViewTransitioning) {
     this.viewTransitionT += 3 * dt;
@@ -65,25 +58,19 @@ Hero.prototype.advance = function(dt) {
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
 
-    var velocityInView = vec3.transformQuat(cache.velocityInView,
+    var velocityInView = vec3.transformQuat(cache.advance.velocityInView,
         this.velocity,
         this.viewOrientation);
 
-    var thisNormal = this.getNormal(cache.thisNormal);
+    var thisNormal = this.getNormal();
 
     vec3.subtract(this.velocity, 
         velocityInView,
         vec3.project(vec3.temp, velocityInView, thisNormal));
 
-    if (this.ground) {
-      if (!this.ground.contains_lc(
-          this.ground.worldToLocalCoords(vec3.temp, this.position))) {
-        this.unland();
-      }
-    }
   } else {
 
-    var deltaV = vec3.set(cache.deltaV,
+    var deltaV = vec3.set(cache.advance.deltaV,
       this.v_air * this.keyMove[0],
       0,
       this.v_air * this.keyMove[2]
@@ -93,17 +80,11 @@ Hero.prototype.advance = function(dt) {
         deltaV,
         this.viewOrientation);
 
-    var thisNormal = this.getNormal(cache.thisNormal);
+    var thisNormal = this.getNormal();
 
     vec3.subtract(deltaVInView, 
         deltaVInView,
         vec3.project(vec3.temp, deltaVInView, thisNormal));
-
-    vec3.add(deltaVInView,
-        deltaVInView,
-        vec3.transformQuat(vec3.temp,
-            this.gravity,
-            this.upOrientation));
 
     vec3.add(this.velocity,
         this.velocity,
@@ -117,58 +98,37 @@ Hero.prototype.jump = function() {
   this.unland();
 };
 
-Hero.prototype.land = function(ground) {
-  vec3.set(this.velocity, 0, 0, 0);
-  this.landed = true;
-  this.ground = ground;
 
-  var rotation = quat.rotationTo(quat.temp,
-      this.getNormal([]),
-      this.ground.getNormal([]));
-  
-  quat.multiply(this.groundOrientation, rotation, this.groundOrientation);
-  quat.multiply(this.upOrientation, rotation, this.upOrientation);
+Hero.prototype.shoot = function(e) {
+  if (e.button == 0) {
+    var v = 130;
+    var v_shot = [0, 0, -v];
+    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
-  quat.copy(this.initialViewOrientation, this.viewOrientation);
-  quat.multiply(this.terminalViewOrientation, rotation, this.viewOrientation);
-  this.viewTransitionT = 0;
-  this.isViewTransitioning = true;
-};
+    // vec3.add(v_shot, v_shot, this.velocity);
+    world.projectilesToAdd.push(new Bullet({
+      position: this.position,
+      velocity: v_shot,
+      radius: .075 * 1.5,
+      upOrientation: this.upOrientation,
+      rYaw: Math.random()*100,
+      rPitch: Math.random()*100,
+      rRoll: Math.random()*100,
+    }));
+  } else {    
+    var v = 20;
+    var v_shot = [0, 0, -v];
+    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
-Hero.prototype.unland = function() {
-  this.landed = false;
-  this.ground = null;
-};
-
-Hero.prototype.isLandedOn = function(ground) {
-  return this.ground == ground;
-};
-
-Hero.prototype.isLanded = function() {
-  return this.landed;
-};
-
-
-Hero.prototype.getOuterRadius = function() {
-  return Hero.HEIGHT;
-};
-
-
-Hero.prototype.shoot = function() {
-  var v = 130;
-  var v_shot = [0, 0, -v];
-  vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
-
-  // vec3.add(v_shot, v_shot, this.velocity);
-  world.projectilesToAdd.push(new Bullet({
-    position: this.position,
-    velocity: v_shot,
-    radius: .075 * 1.5,
-    upOrientation: this.upOrientation,
-    rYaw: Math.random()*100,
-    rPitch: Math.random()*100,
-    rRoll: Math.random()*100,
-  }))
+    var fella = new Fella({
+      position: this.position,
+      upOrientation: this.upOrientation,
+      speed: 5,
+      color: vec4.randomColor([]),
+      velocity: v_shot,
+    });
+    world.add(fella);
+  }
 };
 
 

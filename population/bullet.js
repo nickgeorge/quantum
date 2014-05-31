@@ -10,8 +10,6 @@ Bullet = function(message) {
   this.parts = [this.sphere];
 
   this.alive = true;
-
-  this.klass = 'Bullet';
 };
 util.inherits(Bullet, Thing);
 Bullet.type = Types.BULLET;

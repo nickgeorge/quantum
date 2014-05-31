@@ -58,6 +58,7 @@ World.prototype.populate = function() {
         position: [
           (Math.random() - .5) * this.shelf.size[0],
           (Math.random() - .5) * this.shelf.size[1],
+          // -75,
           (Math.random() - .5) * this.shelf.size[2],
         ],
         size: [
@@ -66,14 +67,12 @@ World.prototype.populate = function() {
           10 + Math.random() * 30,
         ],
         texture: Textures.THWOMP,
-
         textureCounts: [1, 1],
-        // rYaw: (2*Math.random() - 1) * (1/4)*Math.random() * PI,
         pitch: 2*Math.random() * PI,
         yaw: 2*Math.random() * PI,
+        roll: 2*Math.random() * PI,
         isStatic: true
       });
-      // dumbCrate.randomizeAngle();
       this.add(dumbCrate);
 
     }
@@ -96,55 +95,19 @@ World.prototype.populate = function() {
     }
   }
 
-  var dumbCrate = new DumbCrate({
-    position: [
-      -30,
-      -this.shelf.size[1]/2 + 30,
-      -15,
-    ],
-    size: [
-      10 + Math.random() * 0,
-      10 + Math.random() * 0,
-      10 + Math.random() * 0,
-    ],
-    texture: Textures.THWOMP,
-
-    textureCounts: [1, 1],
-  });
-  // this.add(dumbCrate);
-
-  var dumbCrate = new DumbCrate({
-    position: [
-      30,
-      -this.shelf.size[1]/2 + 30,
-      -15,
-    ],
-    size: [
-      10 + Math.random() * 0,
-      10 + Math.random() * 0,
-      10 + Math.random() * 0,
-    ],
-    texture: Textures.THWOMP,
-
-    textureCounts: [1, 1],
-  });
-  // this.add(dumbCrate);
-
-  for (var i = 0; i < 300; i++) {
-    var yaw = Math.random()*2*PI;
-    var color = vec4.randomColor([]);
-    // color[3] = Math.random();
-    var velocity = [Math.sin(yaw), 0, Math.cos(yaw)];
+  for (var i = 0; i < 250; i++) {
     var fella = new Fella({
       position: [
-        util.math.random(-20, 20),
-        -world.shelf.size[1]/2,
-        util.math.random(-20, 20)
+        0, 0, 0
+        // util.math.random(-40, 40),
+        // -world.shelf.size[1]/2 + 5,
+        // util.math.random(-40, 40)
       ],
-      yaw: yaw,
-      velocity: velocity,
-      // velocity: [0, 0, 1],
-      color: color
+      // speed: .25 + Math.random() * .1,
+      speed: 5,
+      color: vec4.randomColor([]),
+      yaw: Math.random()*2*PI,
+      pitch: Math.random()*2*PI,
     });
     this.add(fella);
   }
@@ -162,7 +125,7 @@ World.prototype.populate = function() {
 
   this.camera = new Camera();
   this.hero = new Hero({
-    position: [0, -this.shelf.size[1]/2, 0]
+    position: [0, -this.shelf.size[1]/2+5, 0]
   });
   this.camera.setAnchor(this.hero);
   heroListener.hero = this.hero;
@@ -185,17 +148,14 @@ World.prototype.checkCollisions = function() {
   }
   for (var i = 0, thing; thing = this.things[i]; i++) {
     for (var j = 0, projectile; projectile = this.projectiles[j]; j++) {
-      // if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
-      //     thing.distanceSquaredTo(projectile)) {
-      //   continue;
-      // }
+      if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
+          thing.distanceSquaredTo(projectile)) {
+        continue;
+      }
       this.collisionManager.test(thing, projectile);
     }
   }
 };
-
-
-
 
 
 World.prototype.remove = function(thing) {

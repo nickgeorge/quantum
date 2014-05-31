@@ -6,7 +6,7 @@ CollisionManager = function(world) {
 };
 
 CollisionFunctions = {
-  BULLET_HITS_FELLA: function(bullet, fella) {
+  FELLA_AND_BULLET: function(fella, bullet) {
     var encounter = fella.findThingEncounter(bullet, 0);
     if (encounter) {
       bullet.alive = false;
@@ -37,9 +37,9 @@ CollisionFunctions = {
       var plumb = vec3.set(vec3.temp, 0, -Hero.HEIGHT, 0);
       vec3.transformQuat(plumb, plumb, hero.upOrientation);
       part.worldToLocalCoords(plumb, plumb, 0);
-      if (plumb[2] < 0 || heroListener.keyMap[util.events.KeyCode.F] || true) {
-        var cosAngle = vec3.dot(plumb, [0, 0, -1])/Hero.HEIGHT;
-        if (cosAngle > .55 || heroListener.keyMap[util.events.KeyCode.F] || true) {
+      if (plumb[2] < 0 || true) {
+        var cosAngle = vec3.dot(plumb, vec3.NEG_K)/Hero.HEIGHT;
+        if (cosAngle > .55 || true) {
           hero.land(part);
           isOnGround = true;
         }
@@ -49,7 +49,6 @@ CollisionFunctions = {
         if (!encounter) {
           return;
         }
-        hero.unland();
         var part = encounter.part;
       }
     }
@@ -60,16 +59,14 @@ CollisionFunctions = {
         Math.max(Hero.WIDTH + .001, heroPosition_lc[2]);
     part.localToWorldCoords(hero.position, heroPosition_lc);
 
-    var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
-    // part.worldToLocalCoords(vec3.temp, hero.velocity, 0);
-    var normal = vec3.normalize([], heroPosition_lc);
-    heroVelocity_lc[2] = wasLanded ?
-        Math.max(0, heroVelocity_lc[2]) :
-        Math.abs(heroVelocity_lc[2]);
+    // var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
+    // heroVelocity_lc[2] = wasLanded ?
+    //     Math.max(0, heroVelocity_lc[2]) :
+    //     Math.abs(heroVelocity_lc[2]);
 
-    part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc, 0);
-    vec3.transformQuat(hero.velocity, heroVelocity_lc,
-        quat.conjugate(quat.temp, hero.groundOrientation));
+    // part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc, 0);
+    // vec3.transformQuat(hero.velocity, heroVelocity_lc,
+    //     quat.conjugate(quat.temp, hero.groundOrientation));
   },
 
   SPHERELIKE_AND_HERO: function(spherelike, hero) {
@@ -93,14 +90,15 @@ CollisionFunctions = {
 };
 
 
-CollisionManager.prototype.test = function(thingA, thingB) {
-  var typeA = thingA.getType();
-  var typeB = thingB.getType();
-  var key = CollisionManager.getKey(typeA, typeB);
+CollisionManager.prototype.test = function(shapeLike, pointLike) {
+  var shapeLikeType = shapeLike.getType();
+  var pointLikeType = pointLike.getType();
+  var key = CollisionManager.getKey(shapeLikeType, pointLikeType);
   var collisionFunction = this.collisionFunctions[key];
 
-  // var collisionFunction = null;
-  if (collisionFunction) collisionFunction(thingA, thingB);
+  if (!collisionFunction) return;
+
+  collisionFunction(shapeLike, pointLike);
 };
 
 
@@ -122,10 +120,11 @@ CollisionManager.prototype.registerCollisionFunctions = function() {
   this.registerCollisionFunction(DumbCrate, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Sphere, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Shelf, Bullet, CollisionFunctions.GLOM);
-  // this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Bullet, Fella, CollisionFunctions.BULLET_HITS_FELLA);
+  this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.FELLA_AND_BULLET);
 
   this.registerCollisionFunction(Shelf, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionFunction(Shelf, Fella, CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionFunction(DumbCrate, Fella, CollisionFunctions.BOXLIKE_AND_HERO);
   this.registerCollisionFunction(DumbCrate, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
   this.registerCollisionFunction(Sphere, Hero, CollisionFunctions.SPHERELIKE_AND_HERO);
 };
@@ -154,10 +153,10 @@ CollisionManager.prototype.thingOnThing = function() {
   // value of t
   for (var i = 0, thingA; thingA = this.world.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.world.things[j]; j++) {
-      // if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
-      //     thingA.distanceSquaredTo(thingB)) {
-      //   continue;
-      // }
+      if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
+          thingA.distanceSquaredTo(thingB)) {
+        continue;
+      }
       this.test(thingA, thingB);
     }
   }

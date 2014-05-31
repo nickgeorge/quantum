@@ -11,8 +11,6 @@ Sphere = function(message) {
     p_0: vec3.create(),
     delta: vec3.create()
   }
-
-  this.klass = 'Sphere';
 };
 util.inherits(Sphere, LeafThing);
 Sphere.type = Types.SPHERE;

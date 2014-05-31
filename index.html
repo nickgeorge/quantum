@@ -33,6 +33,7 @@
     <script src="population/bullet.js"></script>
     <script src="population/shelf.js"></script>
     <script src="population/sphere.js"></script>
+    <script src="population/walker.js"></script>
     <script src="population/hero.js"></script>
     <script src="population/fella.js"></script>
     <script src="population/gimble.js"></script>
@@ -186,6 +187,16 @@
         glCanvas.height = window.innerHeight;
         gl.viewportWidth = window.innerWidth;
         gl.viewportHeight = window.innerHeight;
+      };
+
+
+      function profile(t) {
+        animator.paused = false;
+        console.profile();
+        setTimeout(function(){
+          console.profileEnd();
+          animator.paused = true;
+        }, t*1000);
       };
     </script>
   </head>

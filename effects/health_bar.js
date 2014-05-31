@@ -1,13 +1,13 @@
 HealthBar = function(message) {
   this.super(message);
-  this.refThing = message.refThing;
 
   this.pane = new Pane({
     size: [1, .2],
-    color: [0, 0, 0, 1]
+    color: [0, 0, 0, 1],
+    position: [0, .8, 0],
+    yaw: PI,
   });
 
-  this.paneOffset = [0, 2.6, 0];
   this.transformedOffset = vec3.create();
 
 
@@ -19,29 +19,25 @@ HealthBar = function(message) {
   this.isRoot = true;
 
   this.visible = false;
-
-  this.updateHealth();
 };
 util.inherits(HealthBar, Thing);
 
 
 HealthBar.prototype.advance = function(dt) {
-  if (this.refThing.health < 100) {
+  if (this.parent.health < 100) {
     this.visible = true;
   }
   if (!this.visible) return;
-  this.advanceBasics(dt);
-  if (this.refThing) {
-    this.refThing.localToWorldCoords(this.position,
-        this.paneOffset);
+  if (this.parent) {
+    var oldref = this.parent.position[1];
 
     var normalToCamera = vec3.pointToLine(vec3.create(),
         this.position,
         world.hero.position,
-        this.refThing.getNormal(vec3.create()));
+        this.parent.getNormal());
 
     var spriteRotation = quat.rotationTo(quat.create(),
-        this.refThing.getUpNose(vec3.create()),
+        this.parent.getUpNose(),
         normalToCamera);
 
     var deltaPitch = vec3.pitchTo(
@@ -52,19 +48,15 @@ HealthBar.prototype.advance = function(dt) {
         spriteRotation,
         deltaPitch);
     quat.multiply(this.upOrientation,
-        this.refThing.upOrientation,
+        this.parent.upOrientation,
         spriteRotation);
 
-    // TODO: Figure out why this is backwards.
-    quat.rotateY(this.upOrientation,
-        this.upOrientation,
-        PI)
   }
 };
 
 
 HealthBar.prototype.getHealthPercent = function() {
-  return this.refThing.health / 100;
+  return this.parent.health / 100;
 };
 
 
@@ -78,8 +70,8 @@ HealthBar.prototype.updateHealth = function() {
   gl.bufferSubData(gl.ARRAY_BUFFER, 0,
       new Float32Array(this.pane.verticies));
 
-  this.pane.color[0] = (100 - this.refThing.health)/ 100.0;
-  this.pane.color[1] = this.refThing.health / 100.0;
+  this.pane.color[0] = (100 - this.parent.health)/ 100.0;
+  this.pane.color[1] = this.parent.health / 100.0;
 };
 
 
