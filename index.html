@@ -30,6 +30,7 @@
     <script src="population/dumb_crate.js"></script>
     <script src="population/sun.js"></script>
     <script src="population/bullet.js"></script>
+    <script src="population/throwin_gurnade.js"></script>
     <script src="population/shelf.js"></script>
     <script src="population/sphere.js"></script>
     <script src="population/walker.js"></script>
@@ -68,7 +69,7 @@
       uniform bool uUseTexture;
 
       uniform vec3 uPointLightingLocation;
-      uniform vec4 uColor; 
+      uniform vec4 uColor;
       uniform vec3 uAmbientColor;
       uniform vec3 uPointLightingColor;
 
@@ -104,7 +105,7 @@
 
         vec4 fragmentColor;
         if (uUseTexture) {
-          fragmentColor = texture2D(uSampler, vTextureCoord);
+          fragmentColor = texture2D(uSampler, vTextureCoord) * uColor;
         } else {
           fragmentColor = uColor;
         }
@@ -124,6 +125,7 @@
       uniform mat4 uPerspectiveMatrix;
       uniform mat3 uNormalMatrix;
       uniform vec3 uEyeLocation;
+      // uniform vec4 uScale;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;

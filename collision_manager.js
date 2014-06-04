@@ -120,6 +120,9 @@ CollisionManager.prototype.registerCollisionFunctions = function() {
   this.registerCollisionFunction(DumbCrate, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Sphere, Bullet, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Shelf, Bullet, CollisionFunctions.GLOM);
+  this.registerCollisionFunction(DumbCrate, ThrowinGurnade, CollisionFunctions.GLOM);
+  this.registerCollisionFunction(Sphere, ThrowinGurnade, CollisionFunctions.GLOM);
+  this.registerCollisionFunction(Shelf, ThrowinGurnade, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.FELLA_AND_BULLET);
 
   this.registerCollisionFunction(Shelf, Hero, CollisionFunctions.BOXLIKE_AND_HERO);

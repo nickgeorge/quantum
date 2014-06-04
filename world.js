@@ -45,12 +45,13 @@ World.prototype.populate = function() {
     textureCounts: [100, 100],
     textureCountsByFace: {
       top: [300, 300]
-    }
+    },
+    color: [1, 1, 1, 1]
     // roll: PI/8,
   })
   this.add(this.shelf);
 
-  var addThings = false;
+  var addThings = true;
 
   if (addThings) {
     for (var k = 0; k < 20; k++) {
@@ -103,7 +104,7 @@ World.prototype.populate = function() {
         // -world.shelf.size[1]/2 + 5,
         // util.math.random(-40, 40)
       ],
-      // speed: .25 + Math.random() * .1,
+    // speed: .25 + Math.random() * .1,
       speed: 5,
       color: vec4.randomColor([]),
       yaw: Math.random()*2*PI,

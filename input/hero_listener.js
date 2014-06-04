@@ -79,18 +79,17 @@ HeroListener.prototype.onMouseMove = function(event) {
     quat.setAxisAngle(rotY,
         vec3.transformQuat(vec3.temp, vec3.J, this.hero.upOrientation),
         -movementX * this.sensitivityX);
-    
-    quat.multiply(this.hero.viewOrientation,
-        rotY,
-        this.hero.viewOrientation);
+  
     quat.multiply(this.hero.upOrientation,
         rotY,
         this.hero.upOrientation);
 
-    quat.rotateX(this.hero.viewOrientation,
-        this.hero.viewOrientation,
-        -movementY * this.sensitivityY)
-
+    if ((this.hero.viewOrientation[0] < ROOT_POINT_5 || movementY > 0) &&
+        (this.hero.viewOrientation[0] > -ROOT_POINT_5 || movementY < 0)) {
+      quat.rotateX(this.hero.viewOrientation,
+          this.hero.viewOrientation,
+          -movementY * this.sensitivityY);
+    }
   }
 };
 

@@ -4,8 +4,8 @@ HealthBar = function(message) {
   this.pane = new Pane({
     size: [1, .2],
     color: [0, 0, 0, 1],
-    position: [0, .8, 0],
-    yaw: PI,
+    // position: [0, .8, 0],
+    // yaw: PI,
   });
 
   this.transformedOffset = vec3.create();
@@ -24,30 +24,35 @@ util.inherits(HealthBar, Thing);
 
 
 HealthBar.prototype.advance = function(dt) {
-  if (this.parent.health < 100 && false) {
-    this.visible = true;
-  }
+  this.visible = this.parent.alive && this.parent.health < 100;
   if (!this.visible) return;
   if (this.parent) {
-    var normalToCamera = vec3.pointToLine(vec3.create(),
-        this.position,
-        world.hero.position,
-        this.parent.getNormal());
+    // var normalToCamera = vec3.pointToLine(vec3.create(),
+    //     this.position,
+    //     world.hero.position,
+    //     this.parent.getNormal());
 
-    var spriteRotation = quat.rotationTo(quat.create(),
-        this.parent.getUpNose(),
-        normalToCamera);
+    // var spriteRotation = quat.rotationTo(this.upOrientation,
+    //     world.hero.getNormal(),
+    //     this.parent.getNormal());
 
     var deltaPitch = vec3.pitchTo(
-        world.hero.position,
-        this.position);
+        this.parent.position,
+        world.hero.position);
 
-    quat.rotateX(spriteRotation,
-        spriteRotation,
-        deltaPitch);
+    // quat.multiply(this.upOrientation,
+    //     this.parent.upOrientation,
+    //     spriteRotation);
+    // quat.copy(this.upOrientation,
+    //     world.hero.upOrientation);
+
     quat.multiply(this.upOrientation,
-        this.parent.upOrientation,
-        spriteRotation);
+        quat.conjugate([], this.parent.upOrientation),
+        world.hero.upOrientation);
+
+    // quat.rotateX(this.upOrientation,
+    //     this.upOrientation,
+    //     deltaPitch);
 
   }
 };
@@ -77,5 +82,11 @@ HealthBar.prototype.draw = function() {
   if (!this.visible) return;
   shaderProgram.setUseLighting(false);
   util.base(this, 'draw');
-  shaderProgram.setUseLighting(true);
-}
+  shaderProgram.setUseLighting(true);;
+};
+
+
+HealthBar.prototype.setParent = function(parent) {
+  util.base(this, 'setParent', parent);
+  this.updateHealth();
+};

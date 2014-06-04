@@ -8,7 +8,8 @@ Shelf = function(message) {
     texturesByFace: message.texturesByFace,
     textureCounts: message.textureCounts,
     textureCountsByFace: message.textureCountsByFace,
-    invert: true
+    invert: true,
+    color: message.color,
   });
 
   this.addPart(this.box);

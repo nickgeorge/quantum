@@ -13,6 +13,7 @@ Hero = function(message) {
 
   this.v_ground = 20;
   this.v_air = 30;
+  this.bobAge = 0;
 
   this.gimble = new Gimble({
     referenceObject: this
@@ -57,6 +58,7 @@ Hero.prototype.advance = function(dt) {
     this.velocity[0] = factor * this.v_ground * (this.keyMove[0]);
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
+    if (sum) this.bobAge += dt;
   } else {
 
     var deltaV = vec3.set(cache.advance.deltaV,
@@ -65,25 +67,15 @@ Hero.prototype.advance = function(dt) {
       this.v_air * this.keyMove[2]
     );
 
-    var deltaVInView = vec3.transformQuat(deltaV,
-        deltaV,
-        this.viewOrientation);
-
-    var thisNormal = this.getNormal();
-
-    vec3.subtract(deltaVInView, 
-        deltaVInView,
-        vec3.project(vec3.temp, deltaVInView, thisNormal));
-
     vec3.add(this.velocity,
         this.velocity,
-        vec3.scale(deltaVInView, deltaVInView, dt));
+        vec3.scale(deltaV, deltaV, dt));
   }
 };
 
 Hero.prototype.jump = function() {
   if (!this.isLanded()) return;
-  vec3.transformQuat(this.velocity, Hero.JUMP_VELOCITY, this.upOrientation);
+  vec3.copy(this.velocity, Hero.JUMP_VELOCITY);
   this.unland();
 };
 
@@ -92,28 +84,27 @@ Hero.prototype.shoot = function(e) {
   if (e.button == 0) {
     var v = 130;
     var v_shot = [0, 0, -v];
-    // vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
+    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
     // vec3.add(v_shot, v_shot, this.velocity);
     world.projectilesToAdd.push(new Bullet({
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
-      upOrientation: this.viewOrientation
+      upOrientation: this.upOrientation
     }));
-  } else {    
-    var v = 20;
+  } else {
+    var v = 70;
     var v_shot = [0, 0, -v];
     vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
 
-    var fella = new Fella({
+    // vec3.add(v_shot, v_shot, this.velocity);
+    world.projectilesToAdd.push(new ThrowinGurnade({
       position: this.position,
-      upOrientation: this.upOrientation,
-      speed: 5,
-      color: vec4.randomColor([]),
       velocity: v_shot,
-    });
-    world.add(fella);
+      radius: .075 * 1.5,
+      upOrientation: this.upOrientation
+    }));
   }
 };
 
@@ -125,4 +116,9 @@ Hero.prototype.getViewNormal = function(out) {
 
 Hero.prototype.getViewNose = function(out) {
   return vec3.transformQuat(out, vec3.NEG_K, this.viewOrientation);
+};
+
+Hero.prototype.getViewRotation = function(out) {
+  quat.multiply(out, this.upOrientation, this.viewOrientation);
+  return quat.invert(out, out);
 };

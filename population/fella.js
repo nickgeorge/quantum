@@ -37,7 +37,8 @@ Fella = function(message) {
   this.buildBody();
 
   this.healthBar = new HealthBar({
-    refThing: this
+    refThing: this,
+    position: [0, .8, 0]
   });
   this.addEffect(this.healthBar);
 };
@@ -76,6 +77,7 @@ Fella.prototype.getOuterRadius = function() {
 Fella.prototype.die = function() {
   this.alive = false;
   this.velocity = [0, 0, 0];
+  this.rYaw = this.rPitch = this.rRoll = 0;
   deathSpeed = 1;
   this.eachPart(function(part) {
     this.alive = false;
@@ -97,9 +99,9 @@ Fella.prototype.hit = function(bullet, part) {
         part.velocity,
         part.worldToLocalCoords(vec3.temp,
             vec3.scale(vec3.temp, 
-              bullet.velocity, 
-              // [0, 0, 1],
-              1/25), 0));
+              bullet.velocity,
+              1/25),
+            0));
   } else {
     this.healthBar.updateHealth();
   }

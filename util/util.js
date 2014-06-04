@@ -1,5 +1,6 @@
 PI = Math.PI;
 ROOT_2 = Math.sqrt(2);
+ROOT_POINT_5 = Math.sqrt(1/2);
 ROOT_3 = Math.sqrt(3);
 
 util = {};

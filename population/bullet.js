@@ -5,10 +5,11 @@ Bullet = function(message) {
     radius: this.radius,
     // color: [.3, 1, .3, 1],
     position: [0, 0, 0],
-    texture: Textures.GREEN_PLASMA,
+    texture: Textures.PLASMA,
     rYaw: 100,
     rPitch: 100,
     rRoll: 100,
+    color: [1, .3, .8, 1],
   });
   this.parts = [this.sphere];
 

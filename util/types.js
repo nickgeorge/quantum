@@ -11,4 +11,5 @@ Types = {
   PLUMB: 10,
   HEALTH_BAR: 11,
   LEAF_BOX: 12,
+  THROWIN_GURNADE: 13,
 };
