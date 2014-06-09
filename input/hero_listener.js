@@ -84,10 +84,10 @@ HeroListener.prototype.onMouseMove = function(event) {
         rotY,
         this.hero.upOrientation);
 
-    if ((this.hero.viewOrientation[0] < ROOT_POINT_5 || movementY > 0) &&
-        (this.hero.viewOrientation[0] > -ROOT_POINT_5 || movementY < 0)) {
-      quat.rotateX(this.hero.viewOrientation,
-          this.hero.viewOrientation,
+    if ((this.hero.viewRotation[0] < ROOT_POINT_5 || movementY > 0) &&
+        (this.hero.viewRotation[0] > -ROOT_POINT_5 || movementY < 0)) {
+      quat.rotateX(this.hero.viewRotation,
+          this.hero.viewRotation,
           -movementY * this.sensitivityY);
     }
   }

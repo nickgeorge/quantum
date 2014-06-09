@@ -23,6 +23,7 @@ CollisionFunctions = {
     if (encounter) {
       encounter.part.glom(glomer, encounter.point);
       glomer.alive = false;
+      glomer.landed = true;
     }
   },
 
@@ -58,15 +59,6 @@ CollisionFunctions = {
         Hero.HEIGHT + .001 :
         Math.max(Hero.WIDTH + .001, heroPosition_lc[2]);
     part.localToWorldCoords(hero.position, heroPosition_lc);
-
-    // var heroVelocity_lc = vec3.transformQuat(vec3.temp, hero.velocity, hero.groundOrientation);
-    // heroVelocity_lc[2] = wasLanded ?
-    //     Math.max(0, heroVelocity_lc[2]) :
-    //     Math.abs(heroVelocity_lc[2]);
-
-    // part.localToWorldCoords(heroVelocity_lc, heroVelocity_lc, 0);
-    // vec3.transformQuat(hero.velocity, heroVelocity_lc,
-    //     quat.conjugate(quat.temp, hero.groundOrientation));
   },
 
   SPHERELIKE_AND_HERO: function(spherelike, hero) {

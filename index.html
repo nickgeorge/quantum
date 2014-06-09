@@ -125,7 +125,7 @@
       uniform mat4 uPerspectiveMatrix;
       uniform mat3 uNormalMatrix;
       uniform vec3 uEyeLocation;
-      // uniform vec4 uScale;
+      uniform vec3 uScale;
 
       varying vec2 vTextureCoord;
       varying vec3 vTransformedNormal;
@@ -133,7 +133,7 @@
       varying vec3 vEyeDirection;
 
       void main(void) {
-        vPosition = uModelMatrix * vec4(aVertexPosition, 1.0);
+        vPosition = uModelMatrix * vec4(uScale * aVertexPosition, 1.0);
         
         gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
         vTextureCoord = aTextureCoord;

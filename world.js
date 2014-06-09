@@ -132,7 +132,7 @@ World.prototype.populate = function() {
   this.camera.setAnchor(this.hero);
   heroListener.hero = this.hero;
   this.add(this.hero);
-  this.add(this.hero.gimble);
+  // this.add(this.hero.gimble);
 };
 
 

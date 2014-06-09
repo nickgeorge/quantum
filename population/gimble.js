@@ -44,7 +44,7 @@ Gimble.prototype.advance = function(dt) {
     vec3.add(this.position, this.referenceObject.position,
         vec3.transformQuat(vec3.temp,
             this.offset,
-            this.referenceObject.viewOrientation));
+            this.referenceObject.viewRotation));
 
     quat.copy(this.upOrientation, this.referenceObject.upOrientation);
   }

@@ -2,7 +2,8 @@ ShaderProgram = function() {}
 
 ShaderProgram.USE_TEXTURE_DEFAULT = false;
 ShaderProgram.USE_LIGHTING_DEFAULT = true;
-ShaderProgram.UNIFORM_COLOR_DEFAULT = [1, 1, 1, 1];
+ShaderProgram.UNIFORM_COLOR_DEFAULT = [1, 1, 1, 1.0];
+ShaderProgram.UNIFORM_SCALE_DEFAULT = [1, 1, 1];
 
 ShaderProgram.getShader = function(gl, id) {
   var shaderScript = document.getElementById(id);
@@ -70,6 +71,7 @@ ShaderProgram.createShaderProgram = function(gl) {
   shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, 'uUseLighting');
   shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, 'uUseTexture');
   shaderProgram.uniformColor = gl.getUniformLocation(shaderProgram, 'uColor');
+  shaderProgram.uniformScale = gl.getUniformLocation(shaderProgram, 'uScale');
 
   for (var key in ShaderProgram.prototype) {
     shaderProgram[key] = ShaderProgram.prototype[key];
@@ -78,6 +80,7 @@ ShaderProgram.createShaderProgram = function(gl) {
 
   shaderProgram.loadedTexture = -1;
   shaderProgram.loadedColor = [];
+  shaderProgram.loadedScale = [];
   shaderProgram.loadedNormalBuffer = null;
   shaderProgram.loadedIndexBuffer = null;
   shaderProgram.loadedPositionBuffer = null;
@@ -89,6 +92,7 @@ ShaderProgram.prototype.reset = function() {
   this.setUseLighting(ShaderProgram.USE_LIGHTING_DEFAULT);
   this.setUseTexture(ShaderProgram.USE_TEXTURE_DEFAULT)
   this.setUniformColor(ShaderProgram.UNIFORM_COLOR_DEFAULT);
+  this.setUniformScale(ShaderProgram.UNIFORM_SCALE_DEFAULT);
 };
 
 ShaderProgram.prototype.setUseLighting = function(useLighting) {
@@ -102,7 +106,15 @@ ShaderProgram.prototype.setUseTexture = function(useTexture) {
 ShaderProgram.prototype.setUniformColor = function(uniformColor) {
   if (vec4.equals(uniformColor, this.loadedColor)) return;
   this.loadedColor = uniformColor;
+  // // debugger;
+  // console.log(uniformColor);
   gl.uniform4fv(this.uniformColor, uniformColor);
+};
+
+ShaderProgram.prototype.setUniformScale = function(uniformScale) {
+  if (vec4.equals(uniformScale, this.loadedScale)) return;
+  this.loadedScale = uniformScale;
+  gl.uniform3fv(this.uniformScale, uniformScale);
 };
 
 ShaderProgram.prototype.bindVertexPositionBuffer = function(buffer) {

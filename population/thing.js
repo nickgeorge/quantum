@@ -6,13 +6,6 @@ Thing = function(message) {
   quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
   quat.rotateZ(this.upOrientation, this.upOrientation, message.roll || 0);
 
-
-  if (message.groundOrientation) {
-    this.groundOrientation = quat.clone(message.groundOrientation);
-  } else {
-    this.groundOrientation = quat.clone(this.upOrientation);
-  }
-
   this.rPitch = message.rPitch || 0;
   this.rYaw = message.rYaw || 0;
   this.rRoll = message.rRoll || 0;
@@ -21,7 +14,10 @@ Thing = function(message) {
   this.position = vec3.nullableClone(message.position);
   this.lastPosition = vec3.clone(this.position);
 
+  this.scale = vec3.fromValues(1, 1, 1);
+
   this.alive = message.alive !== false;
+  this.landed = false;
 
   this.parts = [];
   this.effects = [];
@@ -60,7 +56,20 @@ Thing.prototype.advance = function(dt) {
 Thing.prototype.advanceBasics = function(dt) {
   if (this.isDisposed) return;
   this.age += dt;
+  if (this.effects.length) {
+      for (var i = 0; this.effects[i]; i++) {
+      this.effects[i].advance(dt);
+    }
+  }
+
   if (this.isStatic) return;
+  
+  if (this.parts.length) {
+      for (var i = 0; this.parts[i]; i++) {
+      this.parts[i].advance(dt);
+    }
+  }
+
 
   if (this.rYaw) {
     quat.rotateY(this.upOrientation,
@@ -87,12 +96,6 @@ Thing.prototype.advanceBasics = function(dt) {
             this.upOrientation), dt);
   }
 
-  for (var i = 0; this.parts[i]; i++) {
-    this.parts[i].advance(dt);
-  }
-  for (var i = 0; this.effects[i]; i++) {
-    this.effects[i].advance(dt);
-  }
 };
 
 
@@ -232,6 +235,7 @@ Thing.prototype.render = function() {
 Thing.prototype.transform = function() {
   gl.translate(this.position);
   gl.rotate(this.upOrientation);
+  shaderProgram.setUniformScale(this.scale);
 };
 
 

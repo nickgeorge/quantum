@@ -3,11 +3,11 @@ Hero = function(message) {
 
   this.keyMove = vec3.create();
 
-  this.viewOrientation = quat.clone(this.upOrientation);
+  this.viewRotation = quat.clone(this.upOrientation);
 
 
-  this.initialViewOrientation = quat.create();
-  this.terminalViewOrientation = quat.create();
+  this.initialViewRotation = quat.create();
+  this.terminalViewRotation = quat.create();
   this.isViewTransitioning = false;
   this.viewTransitionT = 0;
 
@@ -15,9 +15,9 @@ Hero = function(message) {
   this.v_air = 30;
   this.bobAge = 0;
 
-  this.gimble = new Gimble({
-    referenceObject: this
-  });
+  // this.gimble = new Gimble({
+  //   referenceObject: this
+  // });
 };
 util.inherits(Hero, Walker);
 Hero.type = Types.HERO;
@@ -46,9 +46,9 @@ Hero.prototype.advance = function(dt) {
       this.viewTransitionT = 1;
       this.isViewTransitioning = false;
     }
-    quat.slerp(this.viewOrientation,
-        this.initialViewOrientation,
-        this.terminalViewOrientation,
+    quat.slerp(this.viewRotation,
+        this.initialViewRotation,
+        this.terminalViewRotation,
         this.viewTransitionT);
   } 
 
@@ -84,9 +84,8 @@ Hero.prototype.shoot = function(e) {
   if (e.button == 0) {
     var v = 130;
     var v_shot = [0, 0, -v];
-    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
+    vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    // vec3.add(v_shot, v_shot, this.velocity);
     world.projectilesToAdd.push(new Bullet({
       position: this.position,
       velocity: v_shot,
@@ -96,9 +95,8 @@ Hero.prototype.shoot = function(e) {
   } else {
     var v = 70;
     var v_shot = [0, 0, -v];
-    vec3.transformQuat(v_shot, v_shot, this.viewOrientation);
+    vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    // vec3.add(v_shot, v_shot, this.velocity);
     world.projectilesToAdd.push(new ThrowinGurnade({
       position: this.position,
       velocity: v_shot,
@@ -110,15 +108,15 @@ Hero.prototype.shoot = function(e) {
 
 
 Hero.prototype.getViewNormal = function(out) {
-  return vec3.transformQuat(out, vec3.J, this.viewOrientation);
+  return vec3.transformQuat(out, vec3.J, this.viewRotation);
 };
 
 
 Hero.prototype.getViewNose = function(out) {
-  return vec3.transformQuat(out, vec3.NEG_K, this.viewOrientation);
+  return vec3.transformQuat(out, vec3.NEG_K, this.viewRotation);
 };
 
 Hero.prototype.getViewRotation = function(out) {
-  quat.multiply(out, this.upOrientation, this.viewOrientation);
+  quat.multiply(out, this.upOrientation, this.viewRotation);
   return quat.invert(out, out);
 };
