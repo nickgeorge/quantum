@@ -7,7 +7,8 @@ DumbCrate = function(message) {
     texturesByFace: message.texturesByFace,
     textureCounts: message.textureCounts,
     textureCountsByFace: message.textureCountsByFace,
-    isStatic: true
+    isStatic: true,
+    glommable: false,
   });
 
   this.addPart(this.box);

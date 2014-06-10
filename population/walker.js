@@ -5,6 +5,8 @@ Walker = function(message) {
   this.gravity = [0, -world.G, 0];
 
   this.isRoot = true;
+  
+  this.landed = false;
 
   this.objectCache.land = {
     rotation: quat.create(),
@@ -33,11 +35,7 @@ Walker.prototype.advanceWalker = function(dt) {
 Walker.prototype.land = function(ground) {
   var cache = this.objectCache.land;
   if (this.speed) {
-    this.velocity = [
-      0,
-      0,
-      this.speed
-    ];
+    vec3.set(this.velocity, 0, 0, this.speed);
   }
 
   this.landed = true;
@@ -47,17 +45,18 @@ Walker.prototype.land = function(ground) {
       this.getNormal(),
       this.ground.getNormal());
   var conjugateRotation = quat.conjugate([], rotation);
-  var conjugateUp = quat.conjugate([], this.upOrientation);
-
-  
+  var conjugateUp = quat.conjugate(this.objectCache.conjugateUp,
+      this.upOrientation);
 
   if (this.viewRotation) {
     if (this.isViewTransitioning) {
       quat.copy(this.viewRotation, this.terminalViewRotation);
     }
-    var viewMultiplier = cache.viewMultiplier;
-    quat.multiply(viewMultiplier, conjugateUp, conjugateRotation);
+    var viewMultiplier = quat.multiply(cache.viewMultiplier,
+        conjugateUp, 
+        conjugateRotation);
     quat.multiply(viewMultiplier, viewMultiplier, this.upOrientation);
+
     quat.multiply(this.initialViewRotation, viewMultiplier, this.viewRotation);
     quat.copy(this.terminalViewRotation, this.viewRotation);
     quat.copy(this.viewRotation, this.initialViewRotation);

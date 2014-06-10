@@ -5,6 +5,15 @@ CollisionManager = function(world) {
   this.registerCollisionFunctions();
 };
 
+CollisionManager.maybeGlom = function(glomee, glomer) {
+  var encounter = glomee.findThingEncounter(glomer, 0);
+  if (encounter) {
+    encounter.part.glom(glomer, encounter.point);
+    glomer.alive = false;
+    glomer.landed = true;
+  }
+};
+
 CollisionFunctions = {
   FELLA_AND_BULLET: function(fella, bullet) {
     var encounter = fella.findThingEncounter(bullet, 0);
@@ -17,14 +26,22 @@ CollisionFunctions = {
     }
   },
 
+  GRENADE_AND_FELLA: function(fella, grenade) {
+    if (!glomer.alive) return;
+    if (grenade.stage == ThrowinGurnade.Stage.EXPLODING) {
+      var encounter = fella.findThingEncounter(grenade, 25);
+      if (encounter) {
+        console.log("bang!");
+      }
+    } else {
+      CollisionManager.maybeGlom(glomee, glomer);
+    }
+
+  },
+
   GLOM: function(glomee, glomer) {
     if (!glomer.alive) return;
-    var encounter = glomee.findThingEncounter(glomer, 0);
-    if (encounter) {
-      encounter.part.glom(glomer, encounter.point);
-      glomer.alive = false;
-      glomer.landed = true;
-    }
+    CollisionManager.maybeGlom(glomee, glomer);
   },
 
   BOXLIKE_AND_HERO: function(boxlike, hero) {
@@ -115,6 +132,7 @@ CollisionManager.prototype.registerCollisionFunctions = function() {
   this.registerCollisionFunction(DumbCrate, ThrowinGurnade, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Sphere, ThrowinGurnade, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Shelf, ThrowinGurnade, CollisionFunctions.GLOM);
+  this.registerCollisionFunction(Fella, ThrowinGurnade, CollisionFunctions.GLOM);
   this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.FELLA_AND_BULLET);
 
   this.registerCollisionFunction(Shelf, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
@@ -148,8 +166,9 @@ CollisionManager.prototype.thingOnThing = function() {
   // value of t
   for (var i = 0, thingA; thingA = this.world.things[i]; i++) {
     for (var j = i + 1, thingB; thingB = this.world.things[j]; j++) {
+      var minDistance = thingA.distanceSquaredTo(thingB);
       if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
-          thingA.distanceSquaredTo(thingB)) {
+          minDistance) {
         continue;
       }
       this.test(thingA, thingB);

@@ -17,13 +17,14 @@ Thing = function(message) {
   this.scale = vec3.fromValues(1, 1, 1);
 
   this.alive = message.alive !== false;
-  this.landed = false;
+  this.age = 0;
+  this.damageMultiplier = message.damageMultiplier || 1;
 
   this.parts = [];
   this.effects = [];
   this.parent = null;
 
-  this.age = 0;
+
   this.isRoot = message.isRoot || false;
   this.isPart = message.isPart || false;
   this.isStatic = message.isStatic || false;
@@ -33,7 +34,6 @@ Thing = function(message) {
   this.isDisposed = false;
 
   this.distanceSquaredToCamera = 0;
-  this.damageMultiplier = message.damageMultiplier || 1;
 
   this.objectCache = {
     findEncounter: {
@@ -215,6 +215,7 @@ Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
 };
 
 Thing.prototype.draw = function() {
+  if (this.isDisposed) return;
   gl.pushModelMatrix();
   this.transform();
   this.render();

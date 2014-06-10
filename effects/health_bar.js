@@ -27,33 +27,13 @@ HealthBar.prototype.advance = function(dt) {
   this.visible = this.parent.alive && this.parent.health < 100;
   if (!this.visible) return;
   if (this.parent) {
-    // var normalToCamera = vec3.pointToLine(vec3.create(),
-    //     this.position,
-    //     world.hero.position,
-    //     this.parent.getNormal());
-
-    // var spriteRotation = quat.rotationTo(this.upOrientation,
-    //     world.hero.getNormal(),
-    //     this.parent.getNormal());
-
     var deltaPitch = vec3.pitchTo(
         this.parent.position,
         world.hero.position);
 
-    // quat.multiply(this.upOrientation,
-    //     this.parent.upOrientation,
-    //     spriteRotation);
-    // quat.copy(this.upOrientation,
-    //     world.hero.upOrientation);
-
     quat.multiply(this.upOrientation,
         quat.conjugate([], this.parent.upOrientation),
         world.hero.upOrientation);
-
-    // quat.rotateX(this.upOrientation,
-    //     this.upOrientation,
-    //     deltaPitch);
-
   }
 };
 

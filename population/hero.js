@@ -3,8 +3,7 @@ Hero = function(message) {
 
   this.keyMove = vec3.create();
 
-  this.viewRotation = quat.clone(this.upOrientation);
-
+  this.viewRotation = quat.create();
 
   this.initialViewRotation = quat.create();
   this.terminalViewRotation = quat.create();
@@ -82,8 +81,7 @@ Hero.prototype.jump = function() {
 
 Hero.prototype.shoot = function(e) {
   if (e.button == 0) {
-    var v = 130;
-    var v_shot = [0, 0, -v];
+    var v_shot = [0, 0, -130];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
     world.projectilesToAdd.push(new Bullet({
@@ -93,8 +91,7 @@ Hero.prototype.shoot = function(e) {
       upOrientation: this.upOrientation
     }));
   } else {
-    var v = 70;
-    var v_shot = [0, 0, -v];
+    var v_shot = [0, 0, -100];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
     world.projectilesToAdd.push(new ThrowinGurnade({
@@ -106,17 +103,7 @@ Hero.prototype.shoot = function(e) {
   }
 };
 
-
-Hero.prototype.getViewNormal = function(out) {
-  return vec3.transformQuat(out, vec3.J, this.viewRotation);
-};
-
-
-Hero.prototype.getViewNose = function(out) {
-  return vec3.transformQuat(out, vec3.NEG_K, this.viewRotation);
-};
-
-Hero.prototype.getViewRotation = function(out) {
+Hero.prototype.getViewOrientation = function(out) {
   quat.multiply(out, this.upOrientation, this.viewRotation);
   return quat.invert(out, out);
 };

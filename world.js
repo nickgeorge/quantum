@@ -67,7 +67,7 @@ World.prototype.populate = function() {
           10 + Math.random() * 30,
           10 + Math.random() * 30,
         ],
-        texture: Textures.THWOMP,
+        texture: Textures.CRATE,
         textureCounts: [1, 1],
         pitch: 2*Math.random() * PI,
         yaw: 2*Math.random() * PI,
@@ -136,30 +136,6 @@ World.prototype.populate = function() {
 };
 
 
-World.prototype.checkCollisions = function() {
-  // TODO: Check everything, collide with the collision with min
-  // value of t
-  for (var i = 0, thingA; thingA = this.things[i]; i++) {
-    for (var j = i + 1, thingB; thingB = this.things[j]; j++) {
-      // if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
-      //     thingA.distanceSquaredTo(thingB)) {
-      //   continue;
-      // }
-      this.collisionManager.test(thingA, thingB);
-    }
-  }
-  for (var i = 0, thing; thing = this.things[i]; i++) {
-    for (var j = 0, projectile; projectile = this.projectiles[j]; j++) {
-      if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
-          thing.distanceSquaredTo(projectile)) {
-        continue;
-      }
-      this.collisionManager.test(thing, projectile);
-    }
-  }
-};
-
-
 World.prototype.remove = function(thing) {
   this.thingsToRemove.push(thing);
 };
@@ -210,13 +186,13 @@ World.prototype.advance = function(dt) {
   if (this.paused) return;
 
   for (var i = 0; this.things[i]; i++) {
-    this.things[i].advance(dt);
+    if (!this.things[i].isDisposed) this.things[i].advance(dt);
   }
   for (var i = 0; this.projectiles[i]; i++) {
-    this.projectiles[i].advance(dt);
+    if (!this.projectiles[i].isDisposed) this.projectiles[i].advance(dt);
   }
   for (var i = 0; this.effects[i]; i++) {    
-    this.effects[i].advance(dt);
+    if (!this.effects[i].isDisposed) this.effects[i].advance(dt);
   }
   this.collisionManager.checkCollisions();
 };
@@ -268,7 +244,7 @@ World.prototype.updateLists = function() {
   this.effectsToRemove.length = 0;
   this.projectilesToRemove.length = 0;
 
-  while (this.disposables.length > 50) {
+  while (this.disposables.length > 100) {
     this.disposables.shift().dispose();
   }
 };

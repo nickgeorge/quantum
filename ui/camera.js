@@ -1,15 +1,25 @@
 Camera = function() {
+  util.base(this, {});
   this.bob = 0;
 
   this.anchor = null;
+  this.objectCache.transform = {
+    anchorViewOrientation: quat.create(),
+    anchorPosition: vec3.create(),
+    negatedAnchorPosition: vec3.create(),
+  }
 };
 util.inherits(Camera, Thing);
 
 Camera.prototype.transform = function() {
-  gl.rotateView(this.anchor.getViewRotation([]));
-  var position = vec3.copy(vec3.temp, this.anchor.position);
+  var cache = this.objectCache.transform;
+
+  gl.rotateView(
+      this.anchor.getViewOrientation(cache.anchorViewOrientation));
+  var position = vec3.copy(cache.anchorPosition,
+      this.anchor.position);
   // position[1] += Math.cos(this.anchor.bobAge*10)/4;
-  gl.translateView(vec3.negate(vec3.temp, position));
+  gl.translateView(vec3.negate(cache.negatedAnchorPosition, position));
   gl.uniform3fv(shaderProgram.eyeLocationUniform, position);
 };
 
