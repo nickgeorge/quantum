@@ -3,7 +3,6 @@ Bullet = function(message) {
   this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
-    // color: [.3, 1, .3, 1],
     position: [0, 0, 0],
     texture: Textures.PLASMA,
     rYaw: 100,
@@ -13,6 +12,8 @@ Bullet = function(message) {
   });
   this.parts = [this.sphere];
 
+  this.damage = 30;
+
   this.alive = true;
 };
 util.inherits(Bullet, Thing);
@@ -20,9 +21,9 @@ Bullet.type = Types.BULLET;
 
 Bullet.prototype.advance = function(dt) {
   this.advanceBasics(dt);
-  if (this.alive) {
-    // this.velocity[1] -= world.G/400;
-  }
+  // if (this.alive) {
+  //   this.velocity[1] -= world.G/400;
+  // }
 };
 
 Bullet.prototype.getOuterRadius = function() {

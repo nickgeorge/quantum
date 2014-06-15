@@ -4,20 +4,12 @@ World = function() {
   this.shelf = null;
   this.hero = null;
 
-  this.drawables = [];
+  this.drawables = new ControlledList();
   
-  this.things = [];
-  this.projectiles = [];
-  this.effects = [];
-  this.disposables = [];
-
-  this.thingsToAdd = [];
-  this.effectsToAdd = [];
-  this.projectilesToAdd = [];
-
-  this.thingsToRemove = [];
-  this.effectsToRemove = [];
-  this.projectilesToRemove = [];
+  this.things = new ControlledList();
+  this.projectiles = new ControlledList();
+  this.effects = new ControlledList();
+  this.disposables =  [];
 
   this.collisionManager = new CollisionManager(this);
 
@@ -49,7 +41,7 @@ World.prototype.populate = function() {
     color: [1, 1, 1, 1]
     // roll: PI/8,
   })
-  this.add(this.shelf);
+  this.addDrawableThing(this.shelf);
 
   var addThings = true;
 
@@ -67,14 +59,14 @@ World.prototype.populate = function() {
           10 + Math.random() * 30,
           10 + Math.random() * 30,
         ],
-        texture: Textures.CRATE,
+        texture: Textures.THWOMP,
         textureCounts: [1, 1],
         pitch: 2*Math.random() * PI,
         yaw: 2*Math.random() * PI,
         roll: 2*Math.random() * PI,
         isStatic: true
       });
-      this.add(dumbCrate);
+      this.addDrawableThing(dumbCrate);
 
     }
     for (var k = 0; k < 5; k++) {
@@ -92,7 +84,7 @@ World.prototype.populate = function() {
         latitudeCount: 25,
         longitudeCount: 25
       });
-      this.add(sphere);
+      this.addDrawableThing(sphere);
     }
   }
 
@@ -111,7 +103,7 @@ World.prototype.populate = function() {
       pitch: Math.random()*2*PI,
       rYaw: Math.random()*2 - 1
     });
-    this.add(fella);
+    this.addDrawableThing(fella);
   }
 
   var sun = new Sun({
@@ -123,7 +115,7 @@ World.prototype.populate = function() {
     rYaw: 8*.9*PI,
   });
   light.anchor = sun;
-  this.add(sun);
+  this.addDrawableThing(sun);
 
   this.camera = new Camera();
   this.hero = new Hero({
@@ -131,38 +123,50 @@ World.prototype.populate = function() {
   });
   this.camera.setAnchor(this.hero);
   heroListener.hero = this.hero;
-  this.add(this.hero);
+  this.addDrawableThing(this.hero);
   // this.add(this.hero.gimble);
 };
 
 
-World.prototype.remove = function(thing) {
-  this.thingsToRemove.push(thing);
+World.prototype.addDrawableThing = function(thing) {
+  this.drawables.add(thing);
+  this.addThing(thing);
 };
 
 
-World.prototype.removeEffect = function(effect) {
-  this.effectsToRemove.push(effect);
+World.prototype.addThing = function(thing) {
+  this.things.add(thing);
 };
 
 
-World.prototype.add = function(thing) {
-  this.thingsToAdd.push(thing);
+World.prototype.addDrawableProjectile = function(projectile) {
+  this.drawables.add(projectile);
+  this.addProjectile(projectile);
 };
 
 
-World.prototype.addDirectly_ = function(thing) {
-  this.things.push(thing);
+World.prototype.addProjectile = function(projectile) {
+  this.projectiles.add(projectile);
+};
+
+
+World.prototype.addDrawableEffect = function(effect) {
+  this.drawables.add(effect);
+  this.addEffect(effect);
+};
+
+
+World.prototype.addEffect = function(effect) {
+  this.effects.add(effect);
 };
 
 
 World.prototype.draw = function() {
-
-  util.array.forEach(this.drawables, function(thing) {
+  util.array.forEach(this.drawables.elements, function(thing) {
     thing.computeDistanceSquaredToCamera();
   });
 
-  this.drawables.sort(function(thingA, thingB) {
+  this.drawables.elements.sort(function(thingA, thingB) {
     return thingB.distanceSquaredToCamera -
         thingA.distanceSquaredToCamera;
   });
@@ -174,7 +178,7 @@ World.prototype.draw = function() {
   gl.setViewMatrixUniforms();
 
   shaderProgram.reset();
-  util.array.apply(this.drawables, 'draw');
+  util.array.apply(this.drawables.elements, 'draw');
 
   gl.popViewMatrix();
 };
@@ -185,14 +189,14 @@ World.prototype.advance = function(dt) {
 
   if (this.paused) return;
 
-  for (var i = 0; this.things[i]; i++) {
-    if (!this.things[i].isDisposed) this.things[i].advance(dt);
+  for (var i = 0; this.things.get(i); i++) {
+    if (!this.things.get(i).isDisposed) this.things.get(i).advance(dt);
   }
-  for (var i = 0; this.projectiles[i]; i++) {
-    if (!this.projectiles[i].isDisposed) this.projectiles[i].advance(dt);
+  for (var i = 0; this.projectiles.get(i); i++) {
+    if (!this.projectiles.get(i).isDisposed) this.projectiles.get(i).advance(dt);
   }
-  for (var i = 0; this.effects[i]; i++) {    
-    if (!this.effects[i].isDisposed) this.effects[i].advance(dt);
+  for (var i = 0; this.effects.get(i); i++) {    
+    if (!this.effects.get(i).isDisposed) this.effects.get(i).advance(dt);
   }
   this.collisionManager.checkCollisions();
 };
@@ -220,29 +224,10 @@ World.prototype.reset = function() {
 
 
 World.prototype.updateLists = function() {
-  util.array.pushAll(this.things, this.thingsToAdd);
-  util.array.pushAll(this.effects, this.effectsToAdd);
-  util.array.pushAll(this.projectiles, this.projectilesToAdd);
-
-  util.array.pushAll(this.drawables, this.thingsToAdd);
-  util.array.pushAll(this.drawables, this.effectsToAdd);
-  util.array.pushAll(this.drawables, this.projectilesToAdd);
-
-  util.array.removeAll(this.things, this.thingsToRemove);
-  util.array.removeAll(this.effects, this.effectsToRemove);
-  util.array.removeAll(this.projectiles, this.projectilesToRemove);
-
-  util.array.removeAll(this.drawables, this.thingsToRemove);
-  util.array.removeAll(this.drawables, this.effectsToRemove);
-  util.array.removeAll(this.drawables, this.projectilesToRemove);
-
-  this.thingsToAdd.length = 0;
-  this.effectsToAdd.length = 0;
-  this.projectilesToAdd.length = 0;
-
-  this.thingsToRemove.length = 0;
-  this.effectsToRemove.length = 0;
-  this.projectilesToRemove.length = 0;
+  this.things.update();
+  this.effects.update();
+  this.projectiles.update();
+  this.drawables.update();
 
   while (this.disposables.length > 100) {
     this.disposables.shift().dispose();

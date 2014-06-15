@@ -84,7 +84,7 @@ Hero.prototype.shoot = function(e) {
     var v_shot = [0, 0, -130];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    world.projectilesToAdd.push(new Bullet({
+    world.addDrawableProjectile(new Bullet({
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
@@ -94,7 +94,7 @@ Hero.prototype.shoot = function(e) {
     var v_shot = [0, 0, -100];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    world.projectilesToAdd.push(new ThrowinGurnade({
+    world.addDrawableProjectile(new ThrowinGurnade({
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
@@ -104,6 +104,5 @@ Hero.prototype.shoot = function(e) {
 };
 
 Hero.prototype.getViewOrientation = function(out) {
-  quat.multiply(out, this.upOrientation, this.viewRotation);
-  return quat.invert(out, out);
+  return quat.multiply(out, this.upOrientation, this.viewRotation);
 };

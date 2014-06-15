@@ -4,18 +4,6 @@ Fella = function(message) {
   this.stepDirection = 1;
   this.speed = message.speed || 0;
 
-  // if (!message.velocity) {
-  //   this.yaw = message.yaw || 0;
-  //   message.velocity = [
-  //     Math.sin(message.yaw)*this.speed,
-  //     0,
-  //     Math.cos(message.yaw)*this.speed
-  //   ];
-  // } else {
-  //   message.velocity = vec3.clone(message.velocity);
-  //   message.yaw = -Math.atan2(this.velocity[2], this.velocity[0]) + PI/2;
-  // }
-
   this.velocity = [
     0,
     0,
@@ -88,19 +76,21 @@ Fella.prototype.die = function() {
         Math.random()/2,
         Math.sin(vTheta)*deathSpeed);
   });
-  world.removeEffect(this.healthBar);
+  world.effects.remove(this.healthBar);
 };
 
 Fella.prototype.hit = function(bullet, part) {
-  this.health -= 20 * part.damageMultiplier;
+  this.health -= bullet.damage * part.damageMultiplier;
   if (this.health <= 0) {
     if (this.alive) this.die();
     vec3.copy(
         part.velocity,
         part.worldToLocalCoords(vec3.temp,
             vec3.scale(vec3.temp, 
-              bullet.velocity,
-              1/25),
+                vec3.transformQuat(vec3.temp,
+                    bullet.velocity,
+                    bullet.upOrientation),
+                1/25),
             0));
   } else {
     this.healthBar.updateHealth();
@@ -138,7 +128,7 @@ Fella.prototype.buildBody = function() {
     name: "left leg",
     isPart: true,
     isStatic: true,
-    damageMultiplier: .8
+    damageMultiplier: .85
   });
   this.rightArm = new OffsetBox({
     size: [.115, .9, .115],
@@ -149,7 +139,7 @@ Fella.prototype.buildBody = function() {
     name: "right leg",
     isPart: true,
     isStatic: true,
-    damageMultiplier: .8
+    damageMultiplier: .85
   });
 
   this.head = new Sphere({

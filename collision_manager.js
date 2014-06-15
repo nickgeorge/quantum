@@ -150,8 +150,8 @@ CollisionManager.prototype.checkCollisions = function() {
 
 
 CollisionManager.prototype.thingOnProjectile = function() {
-  for (var i = 0, thing; thing = this.world.things[i]; i++) {
-    for (var j = 0, projectile; projectile = this.world.projectiles[j]; j++) {
+  for (var i = 0, thing; thing = this.world.things.get(i); i++) {
+    for (var j = 0, projectile; projectile = this.world.projectiles.get(j); j++) {
       if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
           thing.distanceSquaredTo(projectile)) {
         continue;
@@ -164,8 +164,8 @@ CollisionManager.prototype.thingOnProjectile = function() {
 CollisionManager.prototype.thingOnThing = function() {
   // TODO: Check everything, collide with the collision with min
   // value of t
-  for (var i = 0, thingA; thingA = this.world.things[i]; i++) {
-    for (var j = i + 1, thingB; thingB = this.world.things[j]; j++) {
+  for (var i = 0, thingA; thingA = this.world.things.get(i); i++) {
+    for (var j = i + 1, thingB; thingB = this.world.things.get(j); j++) {
       var minDistance = thingA.distanceSquaredTo(thingB);
       if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
           minDistance) {
