@@ -131,7 +131,6 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
 
 Thing.prototype.glom = function(thing, point) {
   if (this.glommable) {
-    // world.projectilesToRemove.push(thing);
     world.disposables.push(thing);
     this.addEffect(thing);
     vec3.copy(thing.velocity, vec3.ZERO);
@@ -255,6 +254,8 @@ Thing.prototype.dispose = function() {
   if (this.parent) {
     this.parent.removePart(this);
   }
+  world.things.remove(this);
+  world.projectiles.remove(this);
 
   util.array.forEach(this.parts, function(part){
     part.dispose();

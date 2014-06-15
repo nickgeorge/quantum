@@ -100,6 +100,7 @@ CollisionFunctions = {
 
 
 CollisionManager.prototype.test = function(shapeLike, pointLike) {
+  if (shapeLike.isDisposed || pointLike.isDisposed) return;
   var shapeLikeType = shapeLike.getType();
   var pointLikeType = pointLike.getType();
   var key = CollisionManager.getKey(shapeLikeType, pointLikeType);
