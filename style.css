@@ -26,3 +26,8 @@ body {
 #hidden-canvas {
   display: none;
 }
+
+@font-face {
+    font-family: 'wolfenstein'; /*a name to be used later*/
+    src: url('DSFetteGotisch.ttf'); /*URL to font*/
+}

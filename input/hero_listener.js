@@ -50,13 +50,12 @@ HeroListener.prototype.onMouseDown = function(e) {
     // this.container.requestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
   }
   if (!this.mouseIsLocked) {
-    // this.enableMouseLock();
-    // e.preventDefault();
-    // util.log("locked");
-    // return;
+    this.enableMouseLock();
+    e.preventDefault();
+    return;
+  } else {
+    this.hero && this.hero.shoot(e);
   }
-
-  this.hero && this.hero.shoot(e);
 };
 
 HeroListener.prototype.enableMouseLock = function() {

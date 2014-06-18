@@ -1,5 +1,7 @@
-HUD = function(canvas, framerate) {
+HUD = function(world, canvas, heroListener, framerate) {
+  this.world = world;
   this.canvas = canvas;
+  this.heroListener = heroListener;
   this.context = canvas.getContext('2d');
   this.hero = null;
   this.framerate = framerate;
@@ -11,6 +13,10 @@ HUD = function(canvas, framerate) {
   this.widgets.push(this.logger);
   this.widgets.push(new Crosshair(this.context));
   this.widgets.push(new Fraps(this.context, -100, 25, framerate));
+  var thisHud = this;
+  setTimeout(function(){
+    thisHud.widgets.push(new StartButton(thisHud.context, thisHud.heroListener,
+        thisHud.canvas.height/2, thisHud.canvas.width/2))}, 0);
 };
 
 HUD.prototype.render = function() {
@@ -71,10 +77,11 @@ Fraps.prototype.render = function() {
       this.position[0], this.position[1]);
 };
 
-Crosshair = function(context) {
+Crosshair = function(context, world) {
   util.base(this, context,
       context.canvas.width / 2,
       context.canvas.height / 2);
+  this.world = world;
 };
 util.inherits(Crosshair, Widget);
 
@@ -134,3 +141,18 @@ Logger.prototype.render = function() {
         this.position[0], this.position[1] + 25*(i));
   }
 };
+
+StartButton = function(context, heroListener, x, y) {
+  util.base(this, context, x, y, '56px wolfenstein', '#FFF');
+  this.heroListener = heroListener;
+};
+util.inherits(StartButton, Widget);
+
+
+StartButton.prototype.render = function() {
+  if (this.heroListener.mouseIsLocked) return;
+  this.setFont();
+  this.context.fillText('Klicken fer St' + String.fromCharCode(228) + 'rten',
+      this.context.canvas.width/2 - 180, this.context.canvas.height/2 - 75);
+};
+

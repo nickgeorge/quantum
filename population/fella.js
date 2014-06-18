@@ -79,6 +79,7 @@ Fella.prototype.die = function() {
   world.effects.remove(this.healthBar);
 };
 
+
 Fella.prototype.hit = function(bullet, part) {
   this.health -= bullet.damage * part.damageMultiplier;
   if (this.health <= 0) {

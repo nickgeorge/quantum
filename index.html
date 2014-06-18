@@ -165,16 +165,16 @@
 
         Textures.initTextures();
 
+
         var framerate = new Framerate('framerate');
-        hud = new HUD(hudCanvas, framerate);
         var gameDiv = document.getElementById('game-div');
         heroListener = new HeroListener(gameDiv);
         heroListener.attachEvents();
-
         world = new World();
         world.populate();
-
+        hud = new HUD(world, hudCanvas, heroListener, framerate);
         resize(hudCanvas, glCanvas, gl);
+
         animator = new Animator(world, hud, gl, framerate);
         animator.setPaused(true);
         animator.start();

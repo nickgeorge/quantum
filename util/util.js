@@ -325,6 +325,12 @@ util.fn.greaterThan = function(ref) {
   }
 };
 
+util.fn.constant = function(ref) {
+  return function() {
+    return ref;
+  };
+};
+
 util.fn.goTo = function(url) {
   return function() {
     window.location.href = url;

@@ -1,8 +1,8 @@
 CollisionManager = function(world) {
   this.world = world;
-  this.collisionFunctions = {};
+  this.collisionConditions = {};
 
-  this.registerCollisionFunctions();
+  this.registerCollisionConditions();
 };
 
 CollisionManager.maybeGlom = function(glomee, glomer) {
@@ -27,15 +27,12 @@ CollisionFunctions = {
   },
 
   GRENADE_AND_FELLA: function(fella, grenade) {
-    if (!glomer.alive) return;
-    if (grenade.stage == ThrowinGurnade.Stage.EXPLODING) {
-      var encounter = fella.findThingEncounter(grenade, 25);
-      if (encounter) {
-        console.log("bang!");
-      }
-    } else {
-      CollisionManager.maybeGlom(glomee, glomer);
-    }
+    // if (!glomer.alive) return;
+    // if (grenade.stage == ThrowinGurnade.Stage.EXPLODING) {
+    //   var encounter = fella.findThingEncounter(grenade, 25);
+    // } else {
+    //   CollisionManager.maybeGlom(glomee, glomer);
+    // }
 
   },
 
@@ -79,7 +76,7 @@ CollisionFunctions = {
   },
 
   SPHERELIKE_AND_HERO: function(spherelike, hero) {
-    var encounter = spherelike.findThingEncounter(hero, Hero.WIDTH);
+    var encounter = spherelike.findThingEncounter(hero, Hero.HEIGHT);
     if (!encounter) return;
     var part = encounter.part;
 
@@ -99,48 +96,62 @@ CollisionFunctions = {
 };
 
 
-CollisionManager.prototype.test = function(shapeLike, pointLike) {
-  if (shapeLike.isDisposed || pointLike.isDisposed) return;
-  var shapeLikeType = shapeLike.getType();
-  var pointLikeType = pointLike.getType();
-  var key = CollisionManager.getKey(shapeLikeType, pointLikeType);
-  var collisionFunction = this.collisionFunctions[key];
-
-  if (!collisionFunction) return;
-
-  collisionFunction(shapeLike, pointLike);
-};
-
-
-CollisionManager.prototype.registerCollisionFunction = function(
-    classA, classB, fn) {
+CollisionManager.prototype.registerCollisionCondition = function(
+    classA, classB, thresholdFunction, collisionFunction) {
   var typeA = classA.type;
   var typeB = classB.type;
   var key = CollisionManager.getKey(typeA, typeB);
   var reverseKey = CollisionManager.getKey(typeB, typeA);
+  var condition = new CollisionCondition(
+      thresholdFunction,
+      collisionFunction);
 
-  this.collisionFunctions[key] = fn;
-  this.collisionFunctions[reverseKey] = function(thingB, thingA) {
-    fn(thingA, thingB);
-  }
+  this.collisionConditions[key] = condition;
+  this.collisionConditions[reverseKey] = condition.getInverted();
 };
 
 
-CollisionManager.prototype.registerCollisionFunctions = function() {
-  this.registerCollisionFunction(DumbCrate, Bullet, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Sphere, Bullet, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Shelf, Bullet, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(DumbCrate, ThrowinGurnade, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Sphere, ThrowinGurnade, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Shelf, ThrowinGurnade, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Fella, ThrowinGurnade, CollisionFunctions.GLOM);
-  this.registerCollisionFunction(Fella, Bullet, CollisionFunctions.FELLA_AND_BULLET);
+CollisionManager.prototype.registerCollisionConditions = function() {
+  this.registerCollisionCondition(DumbCrate, Bullet,
+      util.fn.constant(0),
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Sphere, Bullet,
+      util.fn.constant(0),
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Shelf, Bullet,
+      util.fn.constant(0),
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(DumbCrate, ThrowinGurnade,
+      function(){},
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Sphere, ThrowinGurnade,
+      function(){},
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Shelf, ThrowinGurnade,
+      function(){},
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Fella, ThrowinGurnade,
+      function(){},
+      CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Fella, Bullet,
+      util.fn.constant(0),
+      CollisionFunctions.FELLA_AND_BULLET);
 
-  this.registerCollisionFunction(Shelf, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
-  this.registerCollisionFunction(Shelf, Fella, CollisionFunctions.BOXLIKE_AND_HERO);
-  this.registerCollisionFunction(DumbCrate, Fella, CollisionFunctions.BOXLIKE_AND_HERO);
-  this.registerCollisionFunction(DumbCrate, Hero, CollisionFunctions.BOXLIKE_AND_HERO);
-  this.registerCollisionFunction(Sphere, Hero, CollisionFunctions.SPHERELIKE_AND_HERO);
+  this.registerCollisionCondition(Shelf, Hero,
+      util.fn.constant(Hero.HEIGHT),
+      CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionCondition(Shelf, Fella,
+      util.fn.constant(Hero.HEIGHT),
+      CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionCondition(DumbCrate, Fella,
+      util.fn.constant(Hero.HEIGHT),
+      CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionCondition(DumbCrate, Hero,
+      util.fn.constant(Hero.HEIGHT),
+      CollisionFunctions.BOXLIKE_AND_HERO);
+  this.registerCollisionCondition(Sphere, Hero,
+      util.fn.constant(Hero.HEIGHT),
+      CollisionFunctions.SPHERELIKE_AND_HERO);
 };
 
 
@@ -153,6 +164,7 @@ CollisionManager.prototype.checkCollisions = function() {
 CollisionManager.prototype.thingOnProjectile = function() {
   for (var i = 0, thing; thing = this.world.things.get(i); i++) {
     for (var j = 0, projectile; projectile = this.world.projectiles.get(j); j++) {
+      if (thing.isDisposed || projectile.isDisposed) return;
       if (util.math.sqr(thing.getOuterRadius() + projectile.getOuterRadius()) < 
           thing.distanceSquaredTo(projectile)) {
         continue;
@@ -162,11 +174,13 @@ CollisionManager.prototype.thingOnProjectile = function() {
   }
 };
 
+
 CollisionManager.prototype.thingOnThing = function() {
   // TODO: Check everything, collide with the collision with min
   // value of t
   for (var i = 0, thingA; thingA = this.world.things.get(i); i++) {
     for (var j = i + 1, thingB; thingB = this.world.things.get(j); j++) {
+      if (thingA.isDisposed || thingB.isDisposed) return;
       var minDistance = thingA.distanceSquaredTo(thingB);
       if (util.math.sqr(thingA.getOuterRadius() + thingB.getOuterRadius()) < 
           minDistance) {
@@ -178,8 +192,39 @@ CollisionManager.prototype.thingOnThing = function() {
 };
 
 
+CollisionManager.prototype.test = function(shapeLike, pointLike) {
+  var shapeLikeType = shapeLike.getType();
+  var pointLikeType = pointLike.getType();
+  var key = CollisionManager.getKey(shapeLikeType, pointLikeType);
+  var collisionCondition = this.collisionConditions[key];
+
+  if (!collisionCondition) return;
+
+  // var threshold = collisionCondition.thresholdFunction(shapeLike, pointLike);
+  // var encounter = shapeLike.findThingEncounter(bullet, 0);
+  collisionCondition.collisionFunction(shapeLike, pointLike);
+};
+
+
 CollisionManager.getKey = function(typeA, typeB) {
   return typeA*1000 + typeB;
 };
 
 
+CollisionCondition = function(thresholdFunction, collisionFunction) {
+  this.thresholdFunction = thresholdFunction;
+  this.collisionFunction = collisionFunction;
+};
+
+
+CollisionCondition.prototype.getInverted = function() {
+  var invertedThresholdFunction = function(pointLike, shapeLike) {
+    return this.thresholdFunction(shapeLike, pointLike);
+  };
+  var invertedCollisionFunction = function(pointLike, shapeLike, encounter) {
+    return this.collisionFunction(shapeLike, pointLike, encounter);
+  };
+  return new CollisionCondition(
+      invertedThresholdFunction,
+      invertedCollisionFunction);
+};

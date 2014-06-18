@@ -113,6 +113,7 @@ World.prototype.populate = function() {
     alive: true,
     rPitch: 8*PI,
     rYaw: 8*.9*PI,
+    rRoll: 8*.8*PI,
   });
   light.anchor = sun;
   this.addDrawableThing(sun);

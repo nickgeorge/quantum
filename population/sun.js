@@ -1,9 +1,11 @@
 Sun = function(message) {
   this.super(message);
-  this.radius = message.radius || 3;
+  this.radius = message.radius || 5;
   this.sphere = new Sphere({
     radius: this.radius,
-    texture: Textures.SUN
+    texture: Textures.SUN,
+    longitudeCount: 20,
+    latitudeCount: 20
   });
 
   this.addPart(this.sphere);

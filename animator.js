@@ -22,16 +22,19 @@ Animator.prototype.setPaused = function(paused) {
 
 Animator.prototype.tick = function() {
   window.requestAnimationFrame(this.boundTick);
-  if (this.paused) return;
+  if (this.paused) {
+    this.hud.render();
+    return;
+  }
   this.advanceWorld();
   this.drawScene();
+  this.hud.render();
 };
 
 
 Animator.prototype.drawScene = function() {
   this.gl.reset();
   this.world.draw();
-  this.hud.render();
 };
 
 

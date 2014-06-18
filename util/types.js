@@ -12,4 +12,5 @@ Types = {
   HEALTH_BAR: 11,
   LEAF_BOX: 12,
   THROWIN_GURNADE: 13,
+  RAIL: 14,
 };
