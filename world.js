@@ -164,6 +164,7 @@ World.prototype.addEffect = function(effect) {
 
 World.prototype.draw = function() {
   util.array.forEach(this.drawables.elements, function(thing) {
+    if (thing.isDisposed) return;
     thing.computeDistanceSquaredToCamera();
   });
 
