@@ -152,7 +152,10 @@ util.inherits(StartButton, Widget);
 StartButton.prototype.render = function() {
   if (this.heroListener.mouseIsLocked) return;
   this.setFont();
-  this.context.fillText('Klicken f' + String.fromCharCode(252) + 'r St' + String.fromCharCode(228) + 'rten',
-      this.context.canvas.width/2 - 200, this.context.canvas.height/2 - 75);
+  // this.context.fillText('Klicken f' + String.fromCharCode(252) + 'r St' + String.fromCharCode(228) + 'rten',
+  //     this.context.canvas.width/2 - 200, this.context.canvas.height/2 - 75);
+  this.context.fillText('Click to Start',
+      this.context.canvas.width/2 - 150, this.context.canvas.height/2 - 75);
+  
 };
 
