@@ -34,7 +34,7 @@ World.prototype.populate = function() {
     // texturesByFace: {
     //   top: Textures.GRASS
     // },
-    textureCounts: [100, 100],
+    textureCounts: [50, 50],
     textureCountsByFace: {
       top: [300, 300]
     },

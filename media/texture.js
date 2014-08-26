@@ -14,7 +14,7 @@ Textures.initTextures = function() {
     EARTH: Textures.initTexture(Textures.ROOT + 'earth_bright.jpg'),
     SUN: Textures.initTexture(Textures.ROOT + 'sun.gif'),
     FLOOR: Textures.initTexture(Textures.ROOT + 'floor.png'),
-    BYZANTINE: Textures.initTexture(Textures.ROOT + 'byzantine.jpg'),
+    BYZANTINE: Textures.initTexture(Textures.ROOT + 'wall.png'),
     RED_PLASMA: Textures.initTexture(Textures.ROOT + 'red_plasma.jpg'),
     PLASMA: Textures.initTexture(Textures.ROOT + 'plasma.jpg'),
     FACE: Textures.initTexture(Textures.ROOT + 'face.jpg'),

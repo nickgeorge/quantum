@@ -8,9 +8,6 @@ HealthBar = function(message) {
     // yaw: PI,
   });
 
-  this.transformedOffset = vec3.create();
-
-
   this.addPart(new PaneOutline({
     pane: this.pane,
     color: vec4.WHITE
