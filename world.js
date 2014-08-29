@@ -5,7 +5,7 @@ World = function() {
   this.hero = null;
 
   this.drawables = new ControlledList();
-  
+
   this.things = new ControlledList();
   this.projectiles = new ControlledList();
   this.effects = new ControlledList();
@@ -34,7 +34,7 @@ World.prototype.populate = function() {
   this.addLight(light);
 
   var texturesByFace = {};
-  texturesByFace 
+  texturesByFace
   this.shelf = new Shelf({
     position: [0, 0, 0],
     size: [150, 150, 150],
@@ -56,7 +56,7 @@ World.prototype.populate = function() {
   if (addThings) {
     for (var k = 0; k < 20; k++) {
       var dumbCrate = new DumbCrate({
-  
+
         position: [
           (Math.random() - .5) * this.shelf.size[0],
           (Math.random() - .5) * this.shelf.size[1],
@@ -80,7 +80,7 @@ World.prototype.populate = function() {
     }
     for (var k = 0; k < 5; k++) {
       var sphere = new Sphere({
-  
+
         position: [
           (Math.random() - .5) * this.shelf.size[0],
           (Math.random() - .5) * this.shelf.size[1],
@@ -152,7 +152,6 @@ World.prototype.addDrawableThing = function(thing) {
 
 World.prototype.addThing = function(thing) {
   this.things.add(thing);
-  thing.setWorld(this);
 };
 
 
@@ -164,7 +163,6 @@ World.prototype.addDrawableProjectile = function(projectile) {
 
 World.prototype.addProjectile = function(projectile) {
   this.projectiles.add(projectile);
-  projectile.setWorld(this);
 };
 
 
@@ -176,7 +174,6 @@ World.prototype.addDrawableEffect = function(effect) {
 
 World.prototype.addEffect = function(effect) {
   this.effects.add(effect);
-  effect.setWorld(this);
 };
 
 
@@ -219,7 +216,7 @@ World.prototype.advance = function(dt) {
   for (var i = 0; this.projectiles.get(i); i++) {
     if (!this.projectiles.get(i).isDisposed) this.projectiles.get(i).advance(dt);
   }
-  for (var i = 0; this.effects.get(i); i++) {    
+  for (var i = 0; this.effects.get(i); i++) {
     if (!this.effects.get(i).isDisposed) this.effects.get(i).advance(dt);
   }
   this.collisionManager.checkCollisions();

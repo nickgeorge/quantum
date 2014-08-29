@@ -5,7 +5,7 @@ FullWindowResizer = function(gl, glCanvas, hud, hudCanvas) {
   this.hudCanvas = hudCanvas;
 };
 
-FullWindowResizer.prototype.resize = function() {  
+FullWindowResizer.prototype.resize = function() {
   this.glCanvas.width = window.innerWidth;
   this.glCanvas.height = window.innerHeight;
   this.gl.viewportWidth = window.innerWidth;

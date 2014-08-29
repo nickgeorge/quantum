@@ -55,10 +55,10 @@
     <script src="collision_manager.js"></script>
     <script src="animator.js"></script>
 
-    <!--     
+    <!--
         <audio src="media/sounds/walk.m4a" preload="auto"> </audio>
         <audio src="media/sounds/shu.m4a" preload="auto"> </audio>
-        <audio src="media/sounds/jump.m4a" preload="auto"> </audio> 
+        <audio src="media/sounds/jump.m4a" preload="auto"> </audio>
     -->
 
     <script type="text/javascript">
@@ -68,7 +68,7 @@
 
         var hudCanvas = document.getElementById('hud-canvas')
         var hud = new HUD(hudCanvas);
-        
+
         var glCanvas = document.getElementById('gl-canvas');
         var gl = GL.createGLWithDefaultShaders(glCanvas);
 
@@ -77,7 +77,7 @@
 
         var world = new World();
         Env.setEnvironment(world, hud, gl);
-        Animator.initSingleton(world, hud);   
+        Animator.initSingleton(world, hud);
 
         world.populate();
         resizer.resize();

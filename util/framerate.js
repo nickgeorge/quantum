@@ -1,3 +1,5 @@
+goog.provide('Framerate');
+
 Framerate = function() {
   this.lastTime = 0;
   this.numFramerates = 30;

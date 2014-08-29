@@ -66,7 +66,7 @@ util.base = function(me, opt_methodName, var_args) {
         me, Array.prototype.slice.call(arguments, 1));
   }
 
-  var args = arguments.length > 2 ? 
+  var args = arguments.length > 2 ?
       Array.prototype.slice.call(arguments, 2) : util.emptyArray_;
   var foundCaller = false;
   for (var ctor = me.constructor;
@@ -173,7 +173,7 @@ util.dom.expandToFit = function(elm, text, isUpExpand) {
   var finalHeight = getComputedStyle(textSection).height;
 
   textSection.style.height = initialHeight;
-  
+
   /** @suppress {suspiciousCode} */
   textSection.offsetHeight; // Forces render
   textSection.style.transition = 'height .4s ease-in-out';

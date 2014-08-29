@@ -60,7 +60,7 @@ Thing.prototype.advanceBasics = function(dt) {
   }
 
   if (this.isStatic) return;
-  
+
   if (this.parts.length) {
       for (var i = 0; this.parts[i]; i++) {
       this.parts[i].advance(dt);
@@ -70,21 +70,21 @@ Thing.prototype.advanceBasics = function(dt) {
 
   if (this.rYaw) {
     quat.rotateY(this.upOrientation,
-        this.upOrientation, 
+        this.upOrientation,
         this.rYaw * dt);
   }
   if (this.rPitch) {
     quat.rotateX(this.upOrientation,
-        this.upOrientation, 
+        this.upOrientation,
         this.rPitch * dt);
   }
   if (this.rRoll) {
     quat.rotateZ(this.upOrientation,
-        this.upOrientation, 
+        this.upOrientation,
         this.rRoll * dt);
   }
 
-  if (this.velocity[0] || this.velocity[1] || this.velocity[2]) { 
+  if (this.velocity[0] || this.velocity[1] || this.velocity[2]) {
     this.saveLastPosition();
     vec3.scaleAndAdd(this.position, this.position,
         vec3.transformQuat(
@@ -107,7 +107,7 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
   var cache = this.objectCache.findEncounter;
   var p_0 = this.parentToLocalCoords(cache.p_0, p_0_pc);
   var p_1 = this.parentToLocalCoords(cache.p_1, p_1_pc);
-  
+
   var closestEncounter = null;
   for (var i = 0; this.parts[i]; i++) {
     var encounter = this.parts[i].findEncounter(p_0, p_1, threshold);
@@ -219,21 +219,20 @@ Thing.prototype.draw = function() {
 };
 
 
-Thing.prototype.render = function() {
-  this.eachPart(function(part){
-    part.draw();
-  });  
-  this.eachEffect(function(effect){
-    effect.draw();
-  });
+Thing.prototype.transform = function() {
+  Env.gl.translate(this.position);
+  Env.gl.rotate(this.upOrientation);
+  Env.gl.getActiveProgram().setUniformScale(this.scale);
 };
 
 
-Thing.prototype.transform = function() {
-  var gl = Env.gl;
-  gl.translate(this.position);
-  gl.rotate(this.upOrientation);
-  gl.getActiveProgram().setUniformScale(this.scale);
+Thing.prototype.render = function() {
+  this.eachPart(function(part){
+    part.draw();
+  });
+  this.eachEffect(function(effect){
+    effect.draw();
+  });
 };
 
 
@@ -249,7 +248,6 @@ Thing.prototype.dispose = function() {
   this.position = null;
   this.isDisposed = true;
 
-  this.world = Env.world;
   if (this.parent) {
     this.parent.removePart(this);
   }
@@ -327,7 +325,7 @@ Thing.prototype.getUpNose = function() {
 
 
 Thing.prototype.computeDistanceSquaredToCamera = function() {
-  this.distanceSquaredToCamera = 
+  this.distanceSquaredToCamera =
       this.distanceSquaredTo(Env.world.getHero());
 };
 
@@ -353,20 +351,4 @@ Thing.prototype.eachPart = function(fn) {
 Thing.prototype.eachEffect = function(fn) {
   util.array.forEach(this.effects, fn, this);
 };
-
-
-Thing.prototype.setWorld = function(world) {
-  this.world = world;
-};
-
-
-Thing.prototype.getWorld = function() {
-  return this.world;
-};
-
-
-Thing.prototype.getGl = function(gl) {
-  return Env.world.getGl();
-};
-
 

@@ -62,7 +62,7 @@ Hero.prototype.advance = function(dt) {
         this.initialViewRotation,
         this.terminalViewRotation,
         this.viewTransitionT);
-  } 
+  }
 
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
@@ -129,7 +129,7 @@ Hero.prototype.onMouseButton = function(event) {
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
     Env.world.addDrawableProjectile(new Bullet({
-      
+
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
@@ -140,7 +140,7 @@ Hero.prototype.onMouseButton = function(event) {
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
     Env.world.addDrawableProjectile(new ThrowinGurnade({
-      
+
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,

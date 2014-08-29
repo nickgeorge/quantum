@@ -28,11 +28,11 @@ ShaderProgram.createShader = function(gl, shaderString, type) {
 ShaderProgram.createProgramWithDefaultShaders = function(gl) {
   var fragmentShader = ShaderProgram.loadExternalShader(gl,
       // 'http://njpg.me/quantum/shaders/fragment.shader',
-      '/quantum/shaders/fragment.shader',
+      '/rootworld/shaders/fragment.shader',
       gl.FRAGMENT_SHADER);
   var vertexShader = ShaderProgram.loadExternalShader(gl,
       // 'http://njpg.me/quantum/shaders/vertex.shader',
-      '/quantum/shaders/vertex.shader',
+      '/rootworld/shaders/vertex.shader',
       gl.VERTEX_SHADER);
   return ShaderProgram.createShaderProgram(gl,
       vertexShader,
@@ -57,7 +57,7 @@ ShaderProgram.createShaderProgram = function(gl, vertexShader, fragmentShader) {
   shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
   shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, 'aVertexNormal');
   shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, 'aTextureCoord');
-  
+
   gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
   gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
   gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
@@ -152,7 +152,7 @@ ShaderProgram.prototype.bindVertexIndexBuffer = function(buffer) {
 
 ShaderProgram.prototype.bindAttributeBuffer_ = function(buffer, location) {
   this.gl.bindBuffer(GL.ARRAY_BUFFER, buffer);
-  this.gl.vertexAttribPointer(location, buffer.itemSize, GL.FLOAT, false, 0, 0); 
+  this.gl.vertexAttribPointer(location, buffer.itemSize, GL.FLOAT, false, 0, 0);
 };
 
 ShaderProgram.prototype.bindTexture = function(texture) {
