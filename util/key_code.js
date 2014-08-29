@@ -1,7 +1,4 @@
-util = util || {};
-util.events = util.events || {};
-
-util.events.KeyCode = {
+KeyCode = {
   MAC_ENTER: 3,
   BACKSPACE: 8,
   TAB: 9,

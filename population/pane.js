@@ -1,5 +1,5 @@
 Pane = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.size = message.size;
   util.assert(!this.size[2], 'z-size must be 0 or undefined for a pane.');
 
@@ -57,12 +57,12 @@ Pane.init = function() {
     0.0,  0.0,  1.0,
     0.0,  0.0,  1.0,
   ];
-  Pane.normalBuffer = util.generateBuffer(vertexNormals, 3);
+  Pane.normalBuffer = Env.gl.generateBuffer(vertexNormals, 3);
 
   var vertexIndices = [
     0, 1, 2,    0, 2, 3
   ];
-  Pane.indexBuffer = util.generateIndexBuffer(vertexIndices);
+  Pane.indexBuffer = Env.gl.generateIndexBuffer(vertexIndices);
   Pane.inited = true;
 };
 
@@ -78,7 +78,8 @@ Pane.prototype.createVerticies = function() {
 
 Pane.prototype.createVertexBuffer = function() {
   if (!this.verticies) this.createVerticies();
-  this.vertexBuffer = util.generateBuffer(this.verticies, 3);
+  
+  this.vertexBuffer = Env.gl.generateBuffer(this.verticies, 3);
 };
 
 Pane.prototype.createNormalBuffer = function() {
@@ -104,7 +105,7 @@ Pane.prototype.createTextureBuffer = function(){
       0, tc[1]
     ];
 
-    Pane.textureBufferCache[tc[0]][tc[1]] = util.generateBuffer(textureCoords, 2);
+    Pane.textureBufferCache[tc[0]][tc[1]] = Env.gl.generateBuffer(textureCoords, 2);
   }
   this.textureBuffer = Pane.textureBufferCache[tc[0]][tc[1]];
 };

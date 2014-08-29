@@ -1,5 +1,5 @@
 Bullet = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
@@ -18,13 +18,6 @@ Bullet = function(message) {
 };
 util.inherits(Bullet, Thing);
 Bullet.type = Types.BULLET;
-
-Bullet.prototype.advance = function(dt) {
-  this.advanceBasics(dt);
-  // if (this.alive) {
-  //   this.velocity[1] -= world.G/400;
-  // }
-};
 
 Bullet.prototype.getOuterRadius = function() {
   return this.sphere.getOuterRadius();

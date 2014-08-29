@@ -23,6 +23,7 @@ Box = function(message) {
   var skipCreateBuffers = message.skipCreatePaneBuffers;
 
   this.frontFace = new Pane({
+    world: this.world,
     size: [this.size[0], this.size[1], 0],
     position: [0, 0, this.size[2]/2 * this.invertValue],
     texture: this.texturesByFace.front,
@@ -32,6 +33,7 @@ Box = function(message) {
     glommable: false,
   });
   this.backFace = new Pane({
+    world: this.world,
     size: [this.size[0], this.size[1], 0],
     position: [0, 0, -this.size[2]/2 * this.invertValue],
     texture: this.texturesByFace.back,
@@ -42,6 +44,7 @@ Box = function(message) {
     yaw: PI,
   });
   this.rightFace = new Pane({
+    world: this.world,
     size: [this.size[2], this.size[1], 0],
     position: [this.size[0]/2 * this.invertValue, 0, 0],
     texture: this.texturesByFace.right,
@@ -52,6 +55,7 @@ Box = function(message) {
     yaw: PI/2,
   });
   this.leftFace = new Pane({
+    world: this.world,
     size: [this.size[2], this.size[1], 0],
     position: [-this.size[0]/2 * this.invertValue, 0, 0],
     texture: this.texturesByFace.left,
@@ -62,6 +66,7 @@ Box = function(message) {
     yaw: 3*PI/2,
   });
   this.topFace = new Pane({
+    world: this.world,
     size: [this.size[0], this.size[2], 0],
     position: [0, this.size[1]/2 * this.invertValue, 0],
     texture: this.texturesByFace.top,
@@ -72,6 +77,7 @@ Box = function(message) {
     pitch: 3*PI/2,
   });
   this.bottomFace = new Pane({
+    world: this.world,
     size: [this.size[0], this.size[2], 0],
     position: [0, -this.size[1]/2 * this.invertValue, 0],
     texture: this.texturesByFace.bottom,

@@ -1,5 +1,5 @@
 ThrowinGurnade = function(message) {  
-  this.super(message);
+  util.base(this, message);
   this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
@@ -31,7 +31,7 @@ ThrowinGurnade.prototype.advance = function(dt) {
   if (this.isDisposed) return;
   this.advanceBasics(dt);
   if (this.stage == ThrowinGurnade.Stage.TICKING) {
-    if (!this.landed) this.velocity[1] -= world.G/25;
+    if (!this.landed) this.velocity[1] -= Env.world.G/25;
     vec3.set(this.sphere.scale,
         .5 + Math.random() * this.age*2,
         .5 + Math.random() * this.age*2,

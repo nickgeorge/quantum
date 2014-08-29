@@ -1,5 +1,5 @@
 Gimble = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.referenceObject = message.referenceObject;
 
   this.sphere = new Sphere({

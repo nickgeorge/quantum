@@ -1,7 +1,8 @@
 HealthBar = function(message) {
-  this.super(message);
+  util.base(this, message);
 
   this.pane = new Pane({
+    
     size: [1, .2],
     color: [0, 0, 0, 1],
     // position: [0, .8, 0],
@@ -9,6 +10,7 @@ HealthBar = function(message) {
   });
 
   this.addPart(new PaneOutline({
+    
     pane: this.pane,
     color: vec4.WHITE
   }));
@@ -23,14 +25,15 @@ util.inherits(HealthBar, Thing);
 HealthBar.prototype.advance = function(dt) {
   this.visible = this.parent.alive && this.parent.health < 100;
   if (!this.visible) return;
+  var hero = Env.world.getHero();
   if (this.parent) {
     var deltaPitch = vec3.pitchTo(
         this.parent.position,
-        world.hero.position);
+        hero.position);
 
     quat.multiply(this.upOrientation,
         quat.conjugate([], this.parent.upOrientation),
-        world.hero.upOrientation);
+        hero.upOrientation);
   }
 };
 
@@ -41,13 +44,13 @@ HealthBar.prototype.getHealthPercent = function() {
 
 
 HealthBar.prototype.updateHealth = function() {  
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.pane.vertexBuffer);
+  Env.gl.bindBuffer(GL.ARRAY_BUFFER, this.pane.vertexBuffer);
   this.pane.verticies[3] = 
       this.pane.verticies[0] + this.pane.size[0] * this.getHealthPercent();
   this.pane.verticies[6] = 
       this.pane.verticies[0] + this.pane.size[0] * this.getHealthPercent();
 
-  gl.bufferSubData(gl.ARRAY_BUFFER, 0,
+  Env.gl.bufferSubData(GL.ARRAY_BUFFER, 0,
       new Float32Array(this.pane.verticies));
 
   this.pane.color[0] = (100 - this.parent.health)/ 100.0;
@@ -57,13 +60,12 @@ HealthBar.prototype.updateHealth = function() {
 
 HealthBar.prototype.draw = function() {
   if (!this.visible) return;
-  shaderProgram.setUseLighting(false);
+  Env.gl.getActiveProgram().setUseLighting(false);
   util.base(this, 'draw');
-  shaderProgram.setUseLighting(true);;
+  Env.gl.getActiveProgram().setUseLighting(true);
 };
 
 
 HealthBar.prototype.setParent = function(parent) {
   util.base(this, 'setParent', parent);
-  this.updateHealth();
 };

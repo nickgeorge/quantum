@@ -1,17 +1,17 @@
 Camera = function() {
-  util.base(this, {});
   this.bob = 0;
 
   this.anchor = null;
-  this.objectCache.transform = {
-    viewOrientation: quat.create(),
-    conjugateViewOrientation: quat.create(),
-    anchorPosition: vec3.create(),
-    bobOffset: vec3.create(),
-    negatedAnchorPosition: vec3.create(),
-  }
+  this.objectCache = {
+    transform: {
+      viewOrientation: quat.create(),
+      conjugateViewOrientation: quat.create(),
+      anchorPosition: vec3.create(),
+      bobOffset: vec3.create(),
+      negatedAnchorPosition: vec3.create(),
+    }
+  };
 };
-util.inherits(Camera, Thing);
 
 Camera.prototype.transform = function() {
   var cache = this.objectCache.transform;
@@ -20,7 +20,7 @@ Camera.prototype.transform = function() {
   var conjugateViewOrientation = quat.conjugate(
       cache.conjugateViewOrientation,
       viewOrientation);
-  gl.rotateView(conjugateViewOrientation);
+  Env.gl.rotateView(conjugateViewOrientation);
   var position = vec3.copy(cache.anchorPosition,
       this.anchor.position);
 
@@ -31,8 +31,8 @@ Camera.prototype.transform = function() {
       viewOrientation);
 
   vec3.add(position, position, bobOffset);
-  gl.translateView(vec3.negate(cache.negatedAnchorPosition, position));
-  gl.uniform3fv(shaderProgram.eyeLocationUniform, position);
+  Env.gl.translateView(vec3.negate(cache.negatedAnchorPosition, position));
+  Env.gl.uniform3fv(Env.gl.getActiveProgram().eyeLocationUniform, position);
 };
 
 Camera.prototype.advance = function(dt) {

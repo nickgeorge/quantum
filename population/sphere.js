@@ -1,6 +1,6 @@
 Sphere = function(message) {
   message.leaf = true;
-  this.super(message);
+  util.base(this, message);
   this.radius = message.radius || 1;
   this.longitudeCount = message.longitudeCount || 15;
   this.latitudeCount = message.latitudeCount || 15;
@@ -124,12 +124,12 @@ Sphere.prototype.createBuffers = function() {
   }
 
   if (!Sphere.inited) {
-    Sphere.normalBuffer = util.generateBuffer(normalData, 3);
-    Sphere.textureBuffer = util.generateBuffer(textureCoordData, 2);
+    Sphere.normalBuffer = Env.gl.generateBuffer(normalData, 3);
+    Sphere.textureBuffer = Env.gl.generateBuffer(textureCoordData, 2);
     indexData.reverse();
-    Sphere.indexBuffer = util.generateIndexBuffer(indexData);
+    Sphere.indexBuffer = Env.gl.generateIndexBuffer(indexData);
   }
-  this.vertexBuffer = util.generateBuffer(vertexData, 3);
+  this.vertexBuffer = Env.gl.generateBuffer(vertexData, 3);
   this.normalBuffer = Sphere.normalBuffer;
   this.textureBuffer = Sphere.textureBuffer;
   this.indexBuffer = Sphere.indexBuffer;

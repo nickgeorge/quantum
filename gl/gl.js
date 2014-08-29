@@ -1,12 +1,21 @@
-GL = function(){}
+// WebGLRenderingContext is a really obnoxiously long name.
+// Here it is aliased to GL.
+// I also supplement the prototype of WebGLRenderingContext directly
+// to add useful functionality.
+// It's a bit hacky, but I think it's cleaner to have the gl functions
+// defined on the prototype itself rather than using ugly helpers.
+// Fuck static helpers, and fuck wrapper classes.
+GL = WebGLRenderingContext;
 
 GL.createGL = function(canvas) {
   var gl;
   try {
     gl = canvas.getContext('experimental-webgl');
-    gl.viewportWidth = canvas.width;
-    gl.viewportHeight = canvas.height;
-  } catch (e) {util.log('Didn\'t init GL')}
+  } catch (e) {
+    throw new Error('Didn\'t init GL')
+  }
+  gl.viewportWidth = canvas.width;
+  gl.viewportHeight = canvas.height;
 
   gl.modelMatrix = mat4.create();
   gl.invertedModelMatrix = mat4.create();
@@ -19,31 +28,63 @@ GL.createGL = function(canvas) {
 
   gl.canvas = canvas;
 
-  for (var key in GL.prototype) {
-    gl[key] = GL.prototype[key];
-  }       
+  gl.activeShaderProgram = null;
 
   return gl;
 };
 
-GL.prototype.reset = function() {  
+
+GL.createGLWithDefaultShaders = function(canvas) {
+  var gl = GL.createGL(canvas);
+  var shaderProgram = ShaderProgram.createProgramWithDefaultShaders(gl);
+  gl.setActiveProgram(shaderProgram);
+  return gl;
+};
+
+
+/**
+ * <GL>.useShaderProgram actually makes the necessary bindings,
+ * but I don't see any way to get the currently used program.
+ * This 'uses' the passed in program, while also setting a local variable
+ * that can be referenced.
+ */
+GL.prototype.setActiveProgram = function(program) {
+  this.activeShaderProgram = program;
+  this.useProgram(program);
+};
+
+
+/**
+ * Gets the currently 'used' program (see <GL>.setShaderProgram).
+ */
+GL.prototype.getActiveProgram = function() {
+  return this.activeShaderProgram;
+};
+
+
+GL.prototype.reset = function(backgroundColor) {  
   util.assert(this.modelMatrixStack.nextIndex == 0, 
       'Model matrix stack not fully unloaded');
   util.assert(this.viewMatrixStack.nextIndex == 0, 
       'View matrix stack not fully unloaded');      
-  gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  mat4.perspective(gl.perspectiveMatrix,
-      PI/4, gl.viewportWidth/gl.viewportHeight,
+  this.viewport(0, 0, this.viewportWidth, this.viewportHeight);
+  this.clearColor(backgroundColor[0],
+      backgroundColor[1],
+      backgroundColor[2],
+      backgroundColor[3]);
+  this.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+  mat4.perspective(this.perspectiveMatrix,
+      PI/4, this.viewportWidth/this.viewportHeight,
       .1, 400.0);
 
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.BLEND)
-  gl.enable(gl.CULL_FACE);  
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  this.enable(GL.DEPTH_TEST);
+  this.enable(GL.BLEND)
+  this.enable(GL.CULL_FACE);  
+  this.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
 
-  mat4.identity(gl.modelMatrix);
+  mat4.identity(this.modelMatrix);
+
+  this.getActiveProgram().reset();
 };
 
 GL.prototype.pushModelMatrix = function() {
@@ -63,12 +104,14 @@ GL.prototype.popViewMatrix = function() {
 };
 
 GL.prototype.setModelMatrixUniforms = function() {
+  var shaderProgram = this.getActiveProgram();
   this.computeNormalMatrix();
   this.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, this.modelMatrix);
   this.uniformMatrix3fv(shaderProgram.normalMatrixUniform, false, this.normalMatrix);
 };
 
 GL.prototype.setViewMatrixUniforms = function() {
+  var shaderProgram = this.getActiveProgram();
   this.uniformMatrix4fv(shaderProgram.perspectiveMatrixUniform, false, this.perspectiveMatrix);
   this.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, this.viewMatrix);
 };
@@ -101,4 +144,37 @@ GL.prototype.rotateView = function(rotation) {
 GL.prototype.translateView = function(translation) {
   mat4.translate(this.viewMatrix, this.viewMatrix,
       translation);
+};
+
+
+
+GL.prototype.updateBuffer = function(buffer, newData) {
+  this.bindBuffer(GL.ARRAY_BUFFER, buffer);
+  this.bufferSubData(GL.ARRAY_BUFFER, 0, new Float32Array(newData));
+};
+
+GL.prototype.generateBuffer = function(
+    primitives, itemSize, opt_bufferType, opt_drawType) {
+  var drawType = opt_drawType || GL.STATIC_DRAW;
+  var bufferType = opt_bufferType || GL.ARRAY_BUFFER;
+  var buffer = this.createBuffer();
+  this.bindBuffer(bufferType, buffer);
+  this.bufferData(bufferType,
+      new Float32Array(primitives), drawType);
+  buffer.itemSize = itemSize;
+  buffer.numItems = primitives.length / itemSize;
+  return buffer;
+};
+
+
+
+GL.prototype.generateIndexBuffer = function(primitives) {
+  var buffer = this.createBuffer();
+  this.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
+  this.bufferData(GL.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(primitives), GL.STATIC_DRAW);
+  buffer.itemSize = 1;
+  buffer.numItems = primitives.length;
+
+  return buffer;
 };

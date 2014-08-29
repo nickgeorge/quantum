@@ -12,7 +12,7 @@ LeafBox = function(message) {
   this.color = message.color || [1, 1, 1, 1];
   this.texture = message.texture;
 
-  this.elementType = message.elementType || gl.TRIANGLES;
+  this.elementType = message.elementType || GL.TRIANGLES;
 
   this.createBuffers();
 };
@@ -47,8 +47,10 @@ LeafBox.init = function() {
     ]);
   });
 
-  LeafBox.normalBuffer = util.generateBuffer(vertexNormals, 3);
-  LeafBox.indexBuffer = util.generateIndexBuffer(vertexIndicies);
+  LeafBox.normalBuffer = Env.gl.generateBuffer(vertexNormals, 3);
+  LeafBox.normalBuffer = Env.gl.generateBuffer(vertexNormals, 3);
+  LeafBox.indexBuffer = Env.gl.generateIndexBuffer(vertexIndicies);
+  LeafBox.indexBuffer = Env.gl.generateIndexBuffer(vertexIndicies);
   LeafBox.inited = true;
 };
 
@@ -83,7 +85,7 @@ LeafBox.prototype.generatePositionBuffer = function() {
       positions.push(normalPositions[i] * halfSize[i % 3]);
     };
     LeafBox.positionBufferCache[size[0]][size[1]][size[2]] = 
-        util.generateBuffer(positions, 3);
+        Env.gl.generateBuffer(positions, 3);
   }
 
   return LeafBox.positionBufferCache[size[0]][size[1]][size[2]];
@@ -106,7 +108,7 @@ LeafBox.prototype.generateTextureBuffer = function() {
       ]);
     });
     LeafBox.textureBufferCache[tc[0]][tc[1]] =
-        util.generateBuffer(vertexTextures, 2);
+        Env.gl.generateBuffer(vertexTextures, 2);
   }
   return LeafBox.textureBufferCache[tc[0]][tc[1]];
 };

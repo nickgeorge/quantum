@@ -1,7 +1,7 @@
 LeafThing = function(message) {
   util.base(this, message);
 
-  this.elementType = message.elementType || gl.TRIANGLES;
+  this.elementType = message.elementType || GL.TRIANGLES;
   this.texture = message.texture;
   this.color = message.color || vec4.WHITE;
   this.vertexBuffer = null;
@@ -23,8 +23,10 @@ LeafThing.prototype.render = function() {
 
 
 LeafThing.prototype.renderSelf = function() {
+  var gl = Env.gl;
   gl.setModelMatrixUniforms();
 
+  var shaderProgram = gl.getActiveProgram();
   shaderProgram.setUniformColor(this.color);
   shaderProgram.setUseTexture(!!(this.texture && this.texture.loaded));
   if (this.texture) {

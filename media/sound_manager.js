@@ -15,12 +15,12 @@ SoundManager = {
 }
 
 Sounds = {
-  ARROW: 'arrow_short.wav',
-  METAL_EXPLOSION: 'metal_explosion.wav',
-  GLASS: 'glass_short.wav',
-  POP: 'pop_short.wav',
-  OW: 'ow.mp3',
-  JUMP: 'jump.mp3',
-  SHU: 'shu.mp3',
-  WALK: 'walk.mp3',
+  // ARROW: 'arrow_short.wav',
+  // METAL_EXPLOSION: 'metal_explosion.wav',
+  // GLASS: 'glass_short.wav',
+  // POP: 'pop_short.wav',
+  // OW: 'ow.mp3',
+  // JUMP: 'jump.mp3',
+  // SHU: 'shu.mp3',
+  // WALK: 'walk.mp3',
 }

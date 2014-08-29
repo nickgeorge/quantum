@@ -1,5 +1,5 @@
 OffsetContainer = function(message) {
-  this.super(message);
+  util.base(this, message);
   this.thing = message.thing;
 
   this.addPart(this.thing);
@@ -8,7 +8,8 @@ util.inherits(OffsetContainer, Thing);
 
 
 OffsetBox = function(message) {
-  this.super({
+  util.base(this, {
+    world: message.world,
     position: vec3.nullableClone(message.position),
     name: message.name,
 

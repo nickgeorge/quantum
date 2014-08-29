@@ -1,5 +1,5 @@
 Shelf = function(message) {
-  this.super(message);
+  util.base(this, message);
   
   this.size = message.size;
   this.box = new Box({

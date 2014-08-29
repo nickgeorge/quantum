@@ -1,22 +1,21 @@
-HUD = function(world, canvas, heroListener, framerate) {
-  this.world = world;
+goog.provide('hud');
+
+goog.require('util');
+
+HUD = function(canvas) {
   this.canvas = canvas;
-  this.heroListener = heroListener;
   this.context = canvas.getContext('2d');
   this.hero = null;
-  this.framerate = framerate;
   this.isRendering = true;
   this.logger = new Logger(this.context, 25, -300);
+
 
   this.widgets = [];
 
   this.widgets.push(this.logger);
   this.widgets.push(new Crosshair(this.context));
-  this.widgets.push(new Fraps(this.context, -100, 25, framerate));
-  var thisHud = this;
-  setTimeout(function(){
-    thisHud.widgets.push(new StartButton(thisHud.context, thisHud.heroListener,
-        thisHud.canvas.height/2, thisHud.canvas.width/2))}, 0);
+  this.widgets.push(new Fraps(this.context, -100, 25));
+  this.widgets.push(new StartButton(this.context));
 };
 
 HUD.prototype.render = function() {
@@ -64,24 +63,23 @@ Widget.prototype.setFont = function(opt_font, opt_fillStyle) {
   this.context.fillStyle = opt_fillStyle || this.fillStyle;
 };
 
-Fraps = function(context, x, y, framerate) {
+Fraps = function(context, x, y) {
   util.base(this, context, x, y, 'bold 16px courier');
-  this.framerate = framerate;
 };
 util.inherits(Fraps, Widget);
 
 Fraps.prototype.render = function() {
-  var fraps = this.framerate.rollingAverage;
+  var animator = Animator.getInstance();
+  var fraps = Animator.getInstance().getRollingAverageFramerate();
   this.setFont(null, fraps < 45 ? '#F00' : '#0F0');
   this.context.fillText('FPS: ' + fraps,
       this.position[0], this.position[1]);
 };
 
-Crosshair = function(context, world) {
+Crosshair = function(context) {
   util.base(this, context,
       context.canvas.width / 2,
       context.canvas.height / 2);
-  this.world = world;
 };
 util.inherits(Crosshair, Widget);
 
@@ -93,6 +91,7 @@ Crosshair.prototype.resize = function() {
 };
 
 Crosshair.prototype.render = function() {
+  if (Animator.getInstance().isPaused()) return;
   this.context.strokeStyle = '#ff0000';
   this.context.translate(this.position[0], this.position[1]);
   this.context.beginPath();
@@ -142,17 +141,16 @@ Logger.prototype.render = function() {
   }
 };
 
-StartButton = function(context, heroListener, x, y) {
-  util.base(this, context, x, y, '56px wolfenstein', '#FFF');
-  this.heroListener = heroListener;
+StartButton = function(context) {
+  util.base(this, context, 0, 0, '56px wolfenstein', '#FFF');
 };
 util.inherits(StartButton, Widget);
 
 
 StartButton.prototype.render = function() {
-  if (this.heroListener.mouseIsLocked) return;
+  if (!Animator.getInstance().paused) return;
   this.setFont();
   this.context.fillText('Klicken f' + String.fromCharCode(252) + 'r St' + String.fromCharCode(228) + 'rten',
-      this.context.canvas.width/2 - 200, this.context.canvas.height/2 - 75); 
+      this.context.canvas.width/2 - 200, this.context.canvas.height/2 - 25);
 };
 

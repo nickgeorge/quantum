@@ -1,13 +1,30 @@
-Animator = function(world, hud, gl, framerate) {
+goog.provide('Animator');
+
+goog.require('Framerate');
+
+
+/** @private */
+Animator = function(world, hud) {
   this.world = world;
   this.hud = hud;
-  this.gl = gl;
-  this.framerate = framerate;
-  this.paused = false;
+  this.framerate = new Framerate();
+  this.paused = true;
 
   this.boundTick = util.bind(this.tick, this);
 };
+Animator.instance_ = null;
 
+Animator.initSingleton = function(world, hud) {
+  util.assertNull(Animator.instance_,
+      'Cannot init Animator: already init\'d');
+
+  Animator.instance_ = new Animator(world, hud);
+  return Animator.instance_;
+};
+
+Animator.getInstance = function() {
+  return Animator.instance_;
+}
 
 Animator.prototype.start = function() {
   this.drawScene();
@@ -17,6 +34,16 @@ Animator.prototype.start = function() {
 
 Animator.prototype.setPaused = function(paused) {
   this.paused = paused;
+};
+
+
+Animator.prototype.togglePause = function() {
+  this.paused = !this.paused;
+};
+
+
+Animator.prototype.isPaused = function() {
+  return this.paused;
 };
 
 
@@ -33,7 +60,6 @@ Animator.prototype.tick = function() {
 
 
 Animator.prototype.drawScene = function() {
-  this.gl.reset();
   this.world.draw();
 };
 
@@ -49,4 +75,19 @@ Animator.prototype.advanceWorld = function() {
     }
   }
   this.framerate.lastTime = timeNow;
+};
+
+
+Animator.prototype.getRollingAverageFramerate = function() {
+  return this.framerate.rollingAverage;
+};
+
+
+Animator.prototype.profile = function(t) {
+  this.paused = false;
+  console.profile();
+  setTimeout(function(){
+    console.profileEnd();
+    this.paused = true;
+  }, t*1000);
 };

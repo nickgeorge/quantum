@@ -1,8 +1,16 @@
-Textures = {};
-Textures.ROOT = 'media/images/';
-Textures.byText = {};
+goog.provide('Textures');
 
-Textures.initTextures = function() {
+goog.require('GL');
+
+
+Textures = {
+  gl: null,
+  ROOT: 'media/images/',
+  byText: {}
+};
+
+Textures.initTextures = function(gl) {
+  Textures.gl = gl;
   var textures = {
     CRATE: Textures.initTexture(Textures.ROOT + 'crate.png'),
     THWOMP: Textures.initTexture(Textures.ROOT + 'adambw.png'),
@@ -14,8 +22,8 @@ Textures.initTextures = function() {
     EARTH: Textures.initTexture(Textures.ROOT + 'earth_bright.jpg'),
     SUN: Textures.initTexture(Textures.ROOT + 'sun.gif'),
     FLOOR: Textures.initTexture(Textures.ROOT + 'floor.png'),
-    BYZANTINE: Textures.initTexture(Textures.ROOT + 'wall.png'),
-    RED_PLASMA: Textures.initTexture(Textures.ROOT + 'red_plasma.jpg'),
+    BYZANTINE: Textures.initTexture(Textures.ROOT + 'byzantine.jpg'),
+    WALL: Textures.initTexture(Textures.ROOT + 'wall.png'),
     PLASMA: Textures.initTexture(Textures.ROOT + 'plasma.jpg'),
     FACE: Textures.initTexture(Textures.ROOT + 'face.jpg'),
     KARL: Textures.initTexture(Textures.ROOT + 'karl.jpg'),
@@ -28,7 +36,7 @@ Textures.initTextures = function() {
 
 
 Textures.initTexture = function(src) {
-  var texture = gl.createTexture();
+  var texture = Textures.gl.createTexture();
   texture.image = new Image();
   texture.loaded = false;
   texture.image.onload = function() {
@@ -39,13 +47,14 @@ Textures.initTexture = function(src) {
 };
 
 Textures.packageTexture = function(texture) {
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-  // gl.texParameterf(gl.TEXTURE_2D, gl.extensions.anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-  gl.generateMipmap(gl.TEXTURE_2D);
+  var gl = Textures.gl;
+  gl.bindTexture(GL.TEXTURE_2D, texture);
+  gl.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, texture.image);
+  gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+  gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST);
+  // gl.texParameterf(GL.TEXTURE_2D, GL.extensions.anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+  gl.generateMipmap(GL.TEXTURE_2D);
   texture.loaded = true;
 };
 
@@ -58,15 +67,14 @@ Textures.getTextTexture = function(message) {
   }
 
   // draw texture
-  // var hiddenCanvas = util.dom.find('#hidden-canvas');
 
-    var hiddenCanvas = document.createElement('canvas');
-    hiddenCanvas.id     = "hiddenCanvas";
-    hiddenCanvas.style.display   = "none";
-    hiddenCanvas.width  = 64;
-    hiddenCanvas.height = 64;
-    var body = document.getElementsByTagName("body")[0];
-    body.appendChild(hiddenCanvas);  
+  var hiddenCanvas = document.createElement('canvas');
+  hiddenCanvas.id = "hiddenCanvas";
+  hiddenCanvas.style.display = "none";
+  hiddenCanvas.width = 64;
+  hiddenCanvas.height = 64;
+  var body = document.getElementsByTagName("body")[0];
+  body.appendChild(hiddenCanvas);  
 
 
   hiddenCanvas = document.getElementById('hiddenCanvas');
@@ -84,6 +92,7 @@ Textures.getTextTexture = function(message) {
   ctx.restore();        
 
   // create new texture
+  var gl = Textures.gl;
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

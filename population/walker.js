@@ -2,7 +2,7 @@ Walker = function(message) {
   util.base(this, message);
 
   this.ground = null;
-  this.gravity = [0, -world.G, 0];
+  this.gravity = vec3.create();
 
   this.isRoot = true;
   
@@ -16,7 +16,7 @@ Walker = function(message) {
 util.inherits(Walker, Thing);
 
 Walker.prototype.advanceWalker = function(dt) {
-  this.advanceBasics(dt); 
+  this.advanceBasics(dt);
 
   if (this.landed) {
     if (!this.ground.contains_lc(
@@ -24,6 +24,7 @@ Walker.prototype.advanceWalker = function(dt) {
       this.unland();
     }
   } else {
+    this.gravity[1] = -Env.world.G;
     vec3.add(this.velocity,
         this.velocity,
         vec3.scale(vec3.temp,

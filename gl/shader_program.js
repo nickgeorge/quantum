@@ -2,40 +2,46 @@ ShaderProgram = function() {}
 
 ShaderProgram.USE_TEXTURE_DEFAULT = false;
 ShaderProgram.USE_LIGHTING_DEFAULT = true;
-ShaderProgram.UNIFORM_COLOR_DEFAULT = [1, 1, 1, 1.0];
+ShaderProgram.UNIFORM_COLOR_DEFAULT = [1, 1, 1, 1];
 ShaderProgram.UNIFORM_SCALE_DEFAULT = [1, 1, 1];
 
-ShaderProgram.getShader = function(gl, id) {
-  var shaderScript = document.getElementById(id);
-  if (!shaderScript) {
-    return null;
-  }
+ShaderProgram.loadExternalShader = function(gl, url, type) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, false);
+  xhr.send();
+  return ShaderProgram.createShader(gl, xhr.responseText, type);
+};
 
-  var str = shaderScript.firstChild.textContent;
-
-  var shader;
-  if (shaderScript.type == 'x-shader/x-fragment') {
-    shader = gl.createShader(gl.FRAGMENT_SHADER);
-  } else if (shaderScript.type == 'x-shader/x-vertex') {
-    shader = gl.createShader(gl.VERTEX_SHADER);
-  } else {
-    return null;
-  }
-
-  gl.shaderSource(shader, str);
+ShaderProgram.createShader = function(gl, shaderString, type) {
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, shaderString);
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     alert(gl.getShaderInfoLog(shader));
     return null;
   }
+
   return shader;
 };
 
-ShaderProgram.createShaderProgram = function(gl) {
+ShaderProgram.createProgramWithDefaultShaders = function(gl) {
+  var fragmentShader = ShaderProgram.loadExternalShader(gl,
+      // 'http://njpg.me/quantum/shaders/fragment.shader',
+      '/quantum/shaders/fragment.shader',
+      gl.FRAGMENT_SHADER);
+  var vertexShader = ShaderProgram.loadExternalShader(gl,
+      // 'http://njpg.me/quantum/shaders/vertex.shader',
+      '/quantum/shaders/vertex.shader',
+      gl.VERTEX_SHADER);
+  return ShaderProgram.createShaderProgram(gl,
+      vertexShader,
+      fragmentShader);
+};
+
+ShaderProgram.createShaderProgram = function(gl, vertexShader, fragmentShader) {
   var shaderProgram = gl.createProgram();
-  var fragmentShader = ShaderProgram.getShader(gl, 'fragment-shader');
-  var vertexShader = ShaderProgram.getShader(gl, 'vertex-shader');
+  shaderProgram.gl = gl;
 
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
@@ -84,7 +90,6 @@ ShaderProgram.createShaderProgram = function(gl) {
   shaderProgram.loadedNormalBuffer = null;
   shaderProgram.loadedIndexBuffer = null;
   shaderProgram.loadedPositionBuffer = null;
-  shaderProgram.reset();
   return shaderProgram;
 };
 
@@ -96,25 +101,23 @@ ShaderProgram.prototype.reset = function() {
 };
 
 ShaderProgram.prototype.setUseLighting = function(useLighting) {
-  gl.uniform1i(this.useLightingUniform, useLighting);
+  this.gl.uniform1i(this.useLightingUniform, useLighting);
 };
 
 ShaderProgram.prototype.setUseTexture = function(useTexture) {
-  gl.uniform1i(this.useTextureUniform, useTexture);
+  this.gl.uniform1i(this.useTextureUniform, useTexture);
 };
 
 ShaderProgram.prototype.setUniformColor = function(uniformColor) {
   if (vec4.equals(uniformColor, this.loadedColor)) return;
   this.loadedColor = uniformColor;
-  // // debugger;
-  // console.log(uniformColor);
-  gl.uniform4fv(this.uniformColor, uniformColor);
+  this.gl.uniform4fv(this.uniformColor, uniformColor);
 };
 
 ShaderProgram.prototype.setUniformScale = function(uniformScale) {
   if (vec4.equals(uniformScale, this.loadedScale)) return;
   this.loadedScale = uniformScale;
-  gl.uniform3fv(this.uniformScale, uniformScale);
+  this.gl.uniform3fv(this.uniformScale, uniformScale);
 };
 
 ShaderProgram.prototype.bindVertexPositionBuffer = function(buffer) {
@@ -144,18 +147,18 @@ ShaderProgram.prototype.bindVertexTextureBuffer = function(buffer) {
 ShaderProgram.prototype.bindVertexIndexBuffer = function(buffer) {
   if (this.loadedIndexBuffer == buffer) return;
   this.loadedIndexBuffer = buffer;
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+  this.gl.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer);
 };
 
 ShaderProgram.prototype.bindAttributeBuffer_ = function(buffer, location) {
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.vertexAttribPointer(location, buffer.itemSize, gl.FLOAT, false, 0, 0); 
+  this.gl.bindBuffer(GL.ARRAY_BUFFER, buffer);
+  this.gl.vertexAttribPointer(location, buffer.itemSize, GL.FLOAT, false, 0, 0); 
 };
 
 ShaderProgram.prototype.bindTexture = function(texture) {
   if (this.loadedTexture == texture) return;
   this.loadedTexture = texture;
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
+  this.gl.activeTexture(GL.TEXTURE0);
+  this.gl.bindTexture(GL.TEXTURE_2D, texture);
 };
 

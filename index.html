@@ -20,7 +20,9 @@
     <script src="util/key_code.js"></script>
     <script src="util/types.js"></script>
     <script src="util/controlled_list.js"></script>
-    <script src="input/hero_listener.js"></script>
+    <script src="util/full_window_resizer.js"></script>
+    <script src="input/container_manager.js"></script>
+    <script src="input/world_input_adapter.js"></script>
     <script src="population/light.js"></script>
     <script src="population/thing.js"></script>
     <script src="population/leaf_thing.js"></script>
@@ -49,163 +51,44 @@
     <script src="ui/hud.js"></script>
     <script src="ui/camera.js"></script>
     <script src="world.js"></script>
+    <script src="env.js"></script>
     <script src="collision_manager.js"></script>
     <script src="animator.js"></script>
 
-    <audio src="media/sounds/walk.m4a" preload="auto"> </audio>
-    <audio src="media/sounds/shu.m4a" preload="auto"> </audio>
-    <audio src="media/sounds/jump.m4a" preload="auto"> </audio>
-
-    <script id="fragment-shader" type="x-shader/x-fragment">
-      precision highp float;
-
-      uniform mat4 uViewMatrix;
-
-      varying vec2 vTextureCoord;
-      varying vec3 vTransformedNormal;
-      varying vec4 vPosition;
-      varying vec3 vEyeDirection;
-
-      uniform bool uUseLighting;
-      uniform bool uUseTexture;
-
-      uniform vec3 uPointLightingLocation;
-      uniform vec4 uColor;
-      uniform vec3 uAmbientColor;
-      uniform vec3 uPointLightingColor;
-
-      uniform sampler2D uSampler;
-
-      void main(void) {
-        vec3 lightWeighting;
-        if (!uUseLighting) {
-          lightWeighting = vec3(1.0, 1.0, 1.0);
-        } else {
-          vec3 relativeLightPosition = uPointLightingLocation - vPosition.xyz;
-          vec3 lightDirection = normalize(relativeLightPosition);
-          vec3 normal = normalize(vTransformedNormal);
-          vec3 reflectionDirection = reflect(-lightDirection, normal);
-
-          float directionalLightWeighting = max(0.0, dot(normal, lightDirection));
-
-          float specularLightWeighting = 0.0;
-          if (directionalLightWeighting > 0.0) {
-            specularLightWeighting = pow(
-                max(0.0, dot(reflectionDirection, vEyeDirection)), 8.0);
-          }
-          // TODO: Maybe need different dropoff factors for diffuse/specular
-          // Right now specular dropoff only factors light -> thing distance, not
-          // thing -> eye.  Think about this some more.
-          float distance = length(relativeLightPosition);
-          float distanceDropoff = 1.0/(distance*distance/50625.0 + 1.0);
-          
-          lightWeighting = uAmbientColor + 
-              uPointLightingColor * specularLightWeighting * distanceDropoff +
-              uPointLightingColor * directionalLightWeighting * distanceDropoff;
-        }
-
-        vec4 fragmentColor;
-        if (uUseTexture) {
-          fragmentColor = texture2D(uSampler, vTextureCoord) * uColor;
-        } else {
-          fragmentColor = uColor;
-        }
-        gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
-      }
-    </script>
-
-    <script id="vertex-shader" type="x-shader/x-vertex">
-      precision highp float;
-
-      attribute vec3 aVertexPosition;
-      attribute vec3 aVertexNormal;
-      attribute vec2 aTextureCoord;
-
-      uniform mat4 uModelMatrix;
-      uniform mat4 uViewMatrix;
-      uniform mat4 uPerspectiveMatrix;
-      uniform mat3 uNormalMatrix;
-      uniform vec3 uEyeLocation;
-      uniform vec3 uScale;
-
-      varying vec2 vTextureCoord;
-      varying vec3 vTransformedNormal;
-      varying vec4 vPosition;
-      varying vec3 vEyeDirection;
-
-      void main(void) {
-        vPosition = uModelMatrix * vec4(uScale * aVertexPosition, 1.0);
-        
-        gl_Position = uPerspectiveMatrix * uViewMatrix * vPosition;
-        vTextureCoord = aTextureCoord;
-        vTransformedNormal = uNormalMatrix * aVertexNormal;
-        vEyeDirection = normalize(uEyeLocation - vPosition.xyz);
-      }
-    </script>
-
+    <!--     
+        <audio src="media/sounds/walk.m4a" preload="auto"> </audio>
+        <audio src="media/sounds/shu.m4a" preload="auto"> </audio>
+        <audio src="media/sounds/jump.m4a" preload="auto"> </audio> 
+    -->
 
     <script type="text/javascript">
-      var gl;
-      var shaderProgram;
-      var world;
-      var hud;
-      var animator;
-      var heroListener;
-
-
       function init() {
-        var hudCanvas = document.getElementById('hud-canvas')
-        var glCanvas = document.getElementById('gl-canvas');
-        gl = GL.createGL(glCanvas);        
-        window.addEventListener('resize',
-            util.partial(resize, hudCanvas, glCanvas, gl));
-
-        shaderProgram = ShaderProgram.createShaderProgram(gl);
-        gl.useProgram(shaderProgram);
-
-        Textures.initTextures();
-
-
-        var framerate = new Framerate('framerate');
         var gameDiv = document.getElementById('game-div');
-        heroListener = new HeroListener(gameDiv);
-        heroListener.attachEvents();
-        world = new World();
+        ContainerManager.initSingleton(gameDiv);
+
+        var hudCanvas = document.getElementById('hud-canvas')
+        var hud = new HUD(hudCanvas);
+        
+        var glCanvas = document.getElementById('gl-canvas');
+        var gl = GL.createGLWithDefaultShaders(glCanvas);
+
+        var resizer = new FullWindowResizer(gl, glCanvas, hud, hudCanvas);
+        resizer.attachEventListener();
+
+        var world = new World();
+        Env.setEnvironment(world, hud, gl);
+        Animator.initSingleton(world, hud);   
+
         world.populate();
-        hud = new HUD(world, hudCanvas, heroListener, framerate);
-        resize(hudCanvas, glCanvas, gl);
-
-        animator = new Animator(world, hud, gl, framerate);
-        animator.setPaused(true);
-        animator.start();
+        resizer.resize();
+        Animator.getInstance().start();
       }
-
-      function resize(hudCanvas, glCanvas, gl) {
-        hudCanvas.width = window.innerWidth;
-        hudCanvas.height = window.innerHeight;
-        hud.resize();
-        hud.render();
-        glCanvas.width = window.innerWidth;
-        glCanvas.height = window.innerHeight;
-        gl.viewportWidth = window.innerWidth;
-        gl.viewportHeight = window.innerHeight;
-      };
-
-
-      function profile(t) {
-        animator.paused = false;
-        console.profile();
-        setTimeout(function(){
-          console.profileEnd();
-          animator.paused = true;
-        }, t*1000);
-      };
     </script>
   </head>
 
 
   <body onload="init();">
-    <div id="game-div">
+    <div id="game-div" tabindex="1">
       <canvas id="gl-canvas"></canvas>
       <canvas id="hud-canvas"></canvas>
     </div>

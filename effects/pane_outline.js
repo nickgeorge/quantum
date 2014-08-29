@@ -1,7 +1,7 @@
 PaneOutline = function(message){
-  this.super(this, message);
+  util.base(this, message);
 
-  this.elementType = gl.LINES;
+  this.elementType = GL.LINES;
 
   this.pane = message.pane;
   this.color = message.color;
@@ -11,7 +11,7 @@ PaneOutline = function(message){
   }
 
   this.position = this.pane.position;
-  this.vertexBuffer = util.generateBuffer(this.pane.verticies, 3);
+  this.vertexBuffer = Env.gl.generateBuffer(this.pane.verticies, 3);
   this.indexBuffer = PaneOutline.indexBuffer;
   this.normalBuffer = this.pane.normalBuffer;
 
@@ -30,7 +30,7 @@ PaneOutline.init = function() {
     0.0,  0.0,  1.0,
     0.0,  0.0,  1.0,
   ];
-  PaneOutline.normalBuffer = util.generateBuffer(vertexNormals, 3);
+  PaneOutline.normalBuffer = Env.gl.generateBuffer(vertexNormals, 3);
 
   var vertexIndices = [
     0, 1, 
@@ -38,5 +38,5 @@ PaneOutline.init = function() {
     2, 3,
     3, 0
   ];
-  PaneOutline.indexBuffer = util.generateIndexBuffer(vertexIndices);
+  PaneOutline.indexBuffer = Env.gl.generateIndexBuffer(vertexIndices);
 };

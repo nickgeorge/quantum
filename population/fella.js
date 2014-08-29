@@ -25,6 +25,7 @@ Fella = function(message) {
   this.buildBody();
 
   this.healthBar = new HealthBar({
+    
     refThing: this,
     position: [0, .8, 0]
   });
@@ -76,7 +77,7 @@ Fella.prototype.die = function() {
         Math.random()/2,
         Math.sin(vTheta)*deathSpeed);
   });
-  world.effects.remove(this.healthBar);
+  Env.world.effects.remove(this.healthBar);
 };
 
 

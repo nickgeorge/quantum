@@ -1,6 +1,4 @@
 Thing = function(message) {
-  message = message || {};
-
   this.upOrientation = quat.nullableClone(message.upOrientation);
   quat.rotateY(this.upOrientation, this.upOrientation, message.yaw || 0);
   quat.rotateX(this.upOrientation, this.upOrientation, message.pitch || 0);
@@ -23,7 +21,6 @@ Thing = function(message) {
   this.parts = [];
   this.effects = [];
   this.parent = null;
-
 
   this.isRoot = message.isRoot || false;
   this.isPart = message.isPart || false;
@@ -131,7 +128,7 @@ Thing.prototype.findEncounter = function(p_0_pc, p_1_pc, threshold) {
 
 Thing.prototype.glom = function(thing, point) {
   if (this.glommable) {
-    world.disposables.push(thing);
+    Env.world.disposables.push(thing);
     this.addEffect(thing);
     vec3.copy(thing.velocity, vec3.ZERO);
 
@@ -215,10 +212,10 @@ Thing.prototype.worldToLocalCoords = function(out, v, opt_w) {
 
 Thing.prototype.draw = function() {
   if (this.isDisposed) return;
-  gl.pushModelMatrix();
+  Env.gl.pushModelMatrix();
   this.transform();
   this.render();
-  gl.popModelMatrix();
+  Env.gl.popModelMatrix();
 };
 
 
@@ -233,9 +230,10 @@ Thing.prototype.render = function() {
 
 
 Thing.prototype.transform = function() {
+  var gl = Env.gl;
   gl.translate(this.position);
   gl.rotate(this.upOrientation);
-  shaderProgram.setUniformScale(this.scale);
+  gl.getActiveProgram().setUniformScale(this.scale);
 };
 
 
@@ -251,11 +249,12 @@ Thing.prototype.dispose = function() {
   this.position = null;
   this.isDisposed = true;
 
+  this.world = Env.world;
   if (this.parent) {
     this.parent.removePart(this);
   }
-  world.things.remove(this);
-  world.projectiles.remove(this);
+  Env.world.things.remove(this);
+  Env.world.projectiles.remove(this);
 
   util.array.forEach(this.parts, function(part){
     part.dispose();
@@ -328,7 +327,8 @@ Thing.prototype.getUpNose = function() {
 
 
 Thing.prototype.computeDistanceSquaredToCamera = function() {
-  this.distanceSquaredToCamera = this.distanceSquaredTo(world.hero);
+  this.distanceSquaredToCamera = 
+      this.distanceSquaredTo(Env.world.getHero());
 };
 
 Thing.prototype.getPart = function() {
@@ -354,5 +354,19 @@ Thing.prototype.eachEffect = function(fn) {
   util.array.forEach(this.effects, fn, this);
 };
 
+
+Thing.prototype.setWorld = function(world) {
+  this.world = world;
+};
+
+
+Thing.prototype.getWorld = function() {
+  return this.world;
+};
+
+
+Thing.prototype.getGl = function(gl) {
+  return Env.world.getGl();
+};
 
 

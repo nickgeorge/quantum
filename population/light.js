@@ -13,7 +13,8 @@ Light.prototype.setDirectionalColor = function(rgb) {
 };
 
 Light.prototype.apply = function() {
-  gl.uniform3fv(shaderProgram.ambientColorUniform, this.ambientColor);
-  gl.uniform3fv(shaderProgram.pointLightingLocationUniform, this.anchor.position);
-  gl.uniform3fv(shaderProgram.pointLightingColorUniform, this.directionalColor);
+  var shaderProgram = Env.gl.getActiveProgram();
+  Env.gl.uniform3fv(shaderProgram.ambientColorUniform, this.ambientColor);
+  Env.gl.uniform3fv(shaderProgram.pointLightingLocationUniform, this.anchor.position);
+  Env.gl.uniform3fv(shaderProgram.pointLightingColorUniform, this.directionalColor);
 };

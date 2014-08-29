@@ -1,23 +1,21 @@
+/**************************************/
+/* Required to run in uncompiled mode */
+/**************************************/
+goog = {};
+goog.provide = function(){};
+goog.require = function(){};
+//------------------------------------//
+
+goog.provide('util');
+
 PI = Math.PI;
 ROOT_2 = Math.sqrt(2);
-ROOT_POINT_5 = Math.sqrt(1/2);
 ROOT_3 = Math.sqrt(3);
 
 util = {};
 
 util.degToRad = function(degrees) {
   return degrees * Math.PI / 180;
-};
-
-util.inherits = function(childCtor, parentCtor) {
-  /** @constructor */
-  function tempCtor() {};
-  tempCtor.prototype = parentCtor.prototype;
-  childCtor.superClass_ = parentCtor.prototype;
-  childCtor.prototype = new tempCtor();
-  /** @override */
-  childCtor.prototype.constructor = childCtor;
-  childCtor.prototype.super = parentCtor;
 };
 
 util.unimplemented = function() {
@@ -48,6 +46,18 @@ util.bind = function(fn, thisObj, var_args) {
 
 util.emptyArray_ = [];
 
+// Copied from goog.inherits in closure
+util.inherits = function(childCtor, parentCtor) {
+  /** @constructor */
+  function tempCtor() {};
+  tempCtor.prototype = parentCtor.prototype;
+  childCtor.superClass_ = parentCtor.prototype;
+  childCtor.prototype = new tempCtor();
+  /** @override */
+  childCtor.prototype.constructor = childCtor;
+};
+
+// Copied from goog.base in closure
 util.base = function(me, opt_methodName, var_args) {
   var caller = arguments.callee.caller;
   if (caller.superClass_) {
@@ -115,6 +125,12 @@ util.assertNotNull = function(ref, message) {
   }
 };
 
+util.assertNull = function(ref, message) {
+  if (ref !== null) {
+    throw new Error(message);
+  }
+};
+
 util.assertEquals = function(a, b, message) {
   if (a != b) {
     throw new Error(message);
@@ -124,38 +140,6 @@ util.assertEquals = function(a, b, message) {
 util.sqr = function(x) {
   return x*x;
 };
-
-util.generateBuffer = function(
-    primitives, itemSize, opt_bufferType, opt_drawType) {
-  var drawType = opt_drawType || gl.STATIC_DRAW;
-  var bufferType = opt_bufferType || gl.ARRAY_BUFFER;
-  var buffer = gl.createBuffer();
-  gl.bindBuffer(bufferType, buffer);
-  gl.bufferData(bufferType,
-      new Float32Array(primitives), drawType);
-  buffer.itemSize = itemSize;
-  buffer.numItems = primitives.length / itemSize;
-  return buffer;
-};
-
-util.generateIndexBuffer = function(primitives) {
-  var buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-      new Uint16Array(primitives), gl.STATIC_DRAW);
-  buffer.itemSize = 1;
-  buffer.numItems = primitives.length;
-
-  return buffer;
-};
-
-util.square = function(x) {
-  return x*x;
-};
-
-util.log = function(star) {
-  console.log(star);
-}
 
 /*********************/
 /*    util.style     */
@@ -189,6 +173,8 @@ util.dom.expandToFit = function(elm, text, isUpExpand) {
   var finalHeight = getComputedStyle(textSection).height;
 
   textSection.style.height = initialHeight;
+  
+  /** @suppress {suspiciousCode} */
   textSection.offsetHeight; // Forces render
   textSection.style.transition = 'height .4s ease-in-out';
   textSection.style.height = finalHeight;
@@ -313,7 +299,7 @@ util.fn.pluckEquals = function(attr, ref) {
   }
 };
 
-util.fn.not  = function(f) {
+util.fn.not = function(f) {
   return function() {
     return !f.apply(this, arguments);
   };
@@ -336,6 +322,8 @@ util.fn.goTo = function(url) {
     window.location.href = url;
   };
 };
+
+util.fn.noOp = function(){};
 
 
 /**********************/
@@ -406,24 +394,6 @@ util.array.forEach = function(arr, f, opt_ctx) {
 };
 
 
-util.array.find = function(arr, f, opt_obj) {
-  var i = goog.array.findIndex(arr, f, opt_obj);
-  return i < 0 ? null : arr[i];
-};
-
-
-util.array.findIndex = function(arr, f, opt_obj) {
-  var l = arr.length;
-  var arr2 = goog.isString(arr) ? arr.split('') : arr;
-  for (var i = 0; i < l; i++) {
-    if (i in arr2 && f.call(opt_obj, arr2[i], i, arr)) {
-      return i;
-    }
-  }
-  return -1;
-};
-
-
 util.array.map = function(arr, f, opt_ctx) {
   var l = arr.length;
   var arr2 = arr;
@@ -486,5 +456,3 @@ util.math.random = function(min, max) {
 util.math.clamp = function(value, min, max) {
   return Math.min(Math.max(value, min), max);
 };
-
-

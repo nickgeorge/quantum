@@ -13,8 +13,16 @@ World = function() {
 
   this.collisionManager = new CollisionManager(this);
 
+  this.backgroundColor = [0, 0, 0, 1];
+
   this.paused = false;
   this.G = 62.5;
+
+
+  this.inputAdapter = new WorldInputAdapter().
+      setMouseButtonHandler(this.onMouseButton, this).
+      setKeyHandler(this.onKey, this).
+      setPointerLockChangeHandler(this.onPointerLockChange, this);
 };
 
 
@@ -30,7 +38,7 @@ World.prototype.populate = function() {
   this.shelf = new Shelf({
     position: [0, 0, 0],
     size: [150, 150, 150],
-    texture: Textures.BYZANTINE,
+    texture: Textures.WALL,
     // texturesByFace: {
     //   top: Textures.GRASS
     // },
@@ -48,6 +56,7 @@ World.prototype.populate = function() {
   if (addThings) {
     for (var k = 0; k < 20; k++) {
       var dumbCrate = new DumbCrate({
+  
         position: [
           (Math.random() - .5) * this.shelf.size[0],
           (Math.random() - .5) * this.shelf.size[1],
@@ -71,6 +80,7 @@ World.prototype.populate = function() {
     }
     for (var k = 0; k < 5; k++) {
       var sphere = new Sphere({
+  
         position: [
           (Math.random() - .5) * this.shelf.size[0],
           (Math.random() - .5) * this.shelf.size[1],
@@ -90,10 +100,11 @@ World.prototype.populate = function() {
 
   for (var i = 0; i < 300; i++) {
     var fella = new Fella({
+
       position: [
         0, 0, 0
         // util.math.random(-40, 40),
-        // -world.shelf.size[1]/2 + 5,
+        // -this.shelf.size[1]/2 + 5,
         // util.math.random(-40, 40)
       ],
     // speed: .25 + Math.random() * .1,
@@ -123,9 +134,13 @@ World.prototype.populate = function() {
     position: [0, -this.shelf.size[1]/2+5, 0]
   });
   this.camera.setAnchor(this.hero);
-  heroListener.hero = this.hero;
   this.addDrawableThing(this.hero);
   // this.add(this.hero.gimble);
+};
+
+
+World.prototype.getHero = function() {
+  return this.hero;
 };
 
 
@@ -137,6 +152,7 @@ World.prototype.addDrawableThing = function(thing) {
 
 World.prototype.addThing = function(thing) {
   this.things.add(thing);
+  thing.setWorld(this);
 };
 
 
@@ -148,6 +164,7 @@ World.prototype.addDrawableProjectile = function(projectile) {
 
 World.prototype.addProjectile = function(projectile) {
   this.projectiles.add(projectile);
+  projectile.setWorld(this);
 };
 
 
@@ -159,10 +176,13 @@ World.prototype.addDrawableEffect = function(effect) {
 
 World.prototype.addEffect = function(effect) {
   this.effects.add(effect);
+  effect.setWorld(this);
 };
 
 
 World.prototype.draw = function() {
+  Env.gl.reset(this.backgroundColor);
+
   util.array.forEach(this.drawables.elements, function(thing) {
     if (thing.isDisposed) return;
     thing.computeDistanceSquaredToCamera();
@@ -173,16 +193,18 @@ World.prototype.draw = function() {
         thingA.distanceSquaredToCamera;
   });
 
-  gl.pushViewMatrix();
+  Env.gl.pushViewMatrix();
 
-  world.applyLights();
+  this.applyLights();
   this.camera.transform();
-  gl.setViewMatrixUniforms();
+  Env.gl.setViewMatrixUniforms();
 
-  shaderProgram.reset();
-  util.array.apply(this.drawables.elements, 'draw');
+  Env.gl.getActiveProgram().reset();
+  this.drawables.forEach(function(drawable) {
+    drawable.draw();
+  }, this);
 
-  gl.popViewMatrix();
+  Env.gl.popViewMatrix();
 };
 
 
@@ -217,11 +239,11 @@ World.prototype.applyLights = function() {
 
 
 World.prototype.reset = function() {
-  world.things = [];
-  world.effects = [];
-  world.projectiles = [];
+  this.things = [];
+  this.effects = [];
+  this.projectiles = [];
 
-  world.populate();
+  this.populate();
 };
 
 
@@ -233,5 +255,35 @@ World.prototype.updateLists = function() {
 
   while (this.disposables.length > 100) {
     this.disposables.shift().dispose();
+  }
+};
+
+
+World.prototype.onMouseButton = function(event) {
+  if (!this.inputAdapter.isPointerLocked()) {
+    ContainerManager.getInstance().setPointerLock(true);
+    Animator.getInstance().setPaused(false);
+  }
+};
+
+
+World.prototype.onKey = function(event) {
+  if (event.type == 'keydown') {
+    switch (event.keyCode) {
+      case KeyCode.F:
+        ContainerManager.getInstance().setFullScreen(true);
+        break;
+
+      case KeyCode.ESC:
+        Animator.getInstance().setPaused(true);
+        break
+    }
+  }
+};
+
+
+World.prototype.onPointerLockChange = function(event) {
+  if (!ContainerManager.getInstance().isPointerLocked()) {
+    Animator.getInstance().setPaused(true);
   }
 };
