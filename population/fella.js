@@ -10,7 +10,7 @@ Fella = function(message) {
     this.speed
   ];
 
-  util.base(this, message);
+  goog.base(this, message);
 
   this.color = vec4.nullableClone(message.color);
 
@@ -25,16 +25,16 @@ Fella = function(message) {
   this.buildBody();
 
   this.healthBar = new HealthBar({
-    
+
     refThing: this,
     position: [0, .8, 0]
   });
   this.addEffect(this.healthBar);
 };
-util.inherits(Fella, Walker);
+goog.inherits(Fella, Walker);
 Fella.type = Types.FELLA;
 
-Fella.MAX_LEG_ANGLE = PI/6;
+Fella.MAX_LEG_ANGLE = Math.PI/6;
 
 
 Fella.prototype.advance = function(dt) {
@@ -51,9 +51,9 @@ Fella.prototype.advance = function(dt) {
   if (this.legAngle <= -Fella.MAX_LEG_ANGLE) {
     this.stepDirection = 1;
   }
-  
+
   this.leftLeg.setPitchOnly(this.legAngle);
-  this.rightLeg.setPitchOnly(-this.legAngle); 
+  this.rightLeg.setPitchOnly(-this.legAngle);
   this.rightArm.setPitchOnly(this.legAngle);
   this.leftArm.setPitchOnly(-this.legAngle);
 };
@@ -64,6 +64,8 @@ Fella.prototype.getOuterRadius = function() {
 };
 
 Fella.prototype.die = function() {
+
+  Sounds.getAndPlay(SoundList.GLASS);
   this.alive = false;
   this.velocity = [0, 0, 0];
   this.rYaw = this.rPitch = this.rRoll = 0;
@@ -72,7 +74,7 @@ Fella.prototype.die = function() {
     this.alive = false;
     part.isStatic = false;
     var vTheta = Math.random()*2*Math.PI;
-    vec3.set(part.velocity, 
+    vec3.set(part.velocity,
         Math.cos(vTheta)*deathSpeed,
         Math.random()/2,
         Math.sin(vTheta)*deathSpeed);
@@ -88,7 +90,7 @@ Fella.prototype.hit = function(bullet, part) {
     vec3.copy(
         part.velocity,
         part.worldToLocalCoords(vec3.temp,
-            vec3.scale(vec3.temp, 
+            vec3.scale(vec3.temp,
                 vec3.transformQuat(vec3.temp,
                     bullet.velocity,
                     bullet.upOrientation),
@@ -100,24 +102,22 @@ Fella.prototype.hit = function(bullet, part) {
 };
 
 
-Fella.prototype.buildBody = function() {  
+Fella.prototype.buildBody = function() {
   this.leftLeg = new OffsetBox({
     size: [.2, 1, .2],
     color: this.color,
     offset: [0, -.5, 0],
     name: "left leg",
     position: [.1875, -Hero.HEIGHT + 1.1, 0],
-    isPart: true,
     isStatic: true,
   });
-      
+
   this.rightLeg = new OffsetBox({
     size: [.2, 1, .2],
     color: this.color,
     offset: [0, -.5, 0],
     name: "left leg",
     position: [-.1875, -Hero.HEIGHT + 1.1, 0],
-    isPart: true,
     isStatic: true,
   });
 
@@ -126,9 +126,8 @@ Fella.prototype.buildBody = function() {
     position: [.355, -Hero.HEIGHT + 1.95, 0],
     color: this.color,
     offset: [0, -.45, 0],
-    roll: PI/32,
+    roll: Math.PI/32,
     name: "left leg",
-    isPart: true,
     isStatic: true,
     damageMultiplier: .85
   });
@@ -137,9 +136,8 @@ Fella.prototype.buildBody = function() {
     position: [-.355, -Hero.HEIGHT + 1.95, 0],
     color: this.color,
     offset: [0, -.45, 0],
-    roll: -PI/32,
+    roll: -Math.PI/32,
     name: "right leg",
-    isPart: true,
     isStatic: true,
     damageMultiplier: .85
   });
@@ -147,20 +145,18 @@ Fella.prototype.buildBody = function() {
   this.head = new Sphere({
     radius: .25,
     position: [0, -Hero.HEIGHT + 2.2, 0],
-    texture: Textures.KARL,
+    texture: Textures.get(TextureList.KARL),
     name: "head",
-    isPart: true,
     isStatic: true,
     damageMultiplier: 4,
   });
 
-  this.torso = new LeafBox({
+  this.torso = new Box({
     size: [.6, 1, .2],
     position: [0, -Hero.HEIGHT + 1.5, 0],
     color: this.color,
     name: "torso",
     textureCounts: [1, 1],
-    isPart: true,
     isStatic: true,
     damageMultiplier: 1.7,
   });

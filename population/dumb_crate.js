@@ -1,21 +1,22 @@
 DumbCrate = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
   this.size = message.size;
-  this.box = new LeafBox({
+  this.box = new Box({
     size: message.size,
     texture: message.texture,
     texturesByFace: message.texturesByFace,
     textureCounts: message.textureCounts,
     textureCountsByFace: message.textureCountsByFace,
+    color: [1, 1, 1, 1],
     isStatic: true,
     glommable: false,
   });
 
   this.addPart(this.box);
 };
-util.inherits(DumbCrate, Thing);
+goog.inherits(DumbCrate, Thing);
 DumbCrate.type = Types.DUMB_CRATE;
 
 DumbCrate.prototype.getOuterRadius = function() {
-  return this.box.getOuterRadius();  
+  return this.box.getOuterRadius();
 };

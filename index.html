@@ -6,30 +6,10 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" type="text/css" />
 
-    <script src="gl-matrix/common.js"></script>
-    <script src="gl-matrix/mat3.js"></script>
-    <script src="gl-matrix/mat4.js"></script>
-    <script src="gl-matrix/vec2.js"></script>
-    <script src="gl-matrix/vec3.js"></script>
-    <script src="gl-matrix/vec4.js"></script>
-    <script src="gl-matrix/quat.js"></script>
-    <script src="gl-matrix/extensions.js"></script>
-    <script src="util/util.js"></script>
-    <script src="util/framerate.js"></script>
-    <script src="util/quadratic.js"></script>
-    <script src="util/key_code.js"></script>
-    <script src="util/types.js"></script>
-    <script src="util/controlled_list.js"></script>
-    <script src="util/full_window_resizer.js"></script>
-    <script src="input/container_manager.js"></script>
-    <script src="input/world_input_adapter.js"></script>
-    <script src="population/light.js"></script>
-    <script src="population/thing.js"></script>
-    <script src="population/leaf_thing.js"></script>
+    <script src="/rootworld/gl-matrix.js"></script>
+    <script src="/rootworld/rootworld.js"></script>
+
     <script src="population/offset_container.js"></script>
-    <script src="population/pane.js"></script>
-    <script src="population/box.js"></script>
-    <script src="population/leaf_box.js"></script>
     <script src="population/dumb_crate.js"></script>
     <script src="population/sun.js"></script>
     <script src="population/bullet.js"></script>
@@ -42,45 +22,37 @@
     <script src="population/gimble.js"></script>
     <script src="population/bounding_sphere.js"></script>
     <script src="effects/health_bar.js"></script>
-    <script src="effects/pane_outline.js"></script>
-    <script src="gl/gl.js"></script>
-    <script src="gl/matrix_stack.js"></script>
-    <script src="gl/shader_program.js"></script>
-    <script src="media/texture.js"></script>
-    <script src="media/sound_manager.js"></script>
-    <script src="ui/hud.js"></script>
-    <script src="ui/camera.js"></script>
-    <script src="world.js"></script>
-    <script src="env.js"></script>
-    <script src="collision_manager.js"></script>
-    <script src="animator.js"></script>
-
-    <!--
-        <audio src="media/sounds/walk.m4a" preload="auto"> </audio>
-        <audio src="media/sounds/shu.m4a" preload="auto"> </audio>
-        <audio src="media/sounds/jump.m4a" preload="auto"> </audio>
-    -->
+    <script src="media/texture_list.js"></script>
+    <script src="media/sound_list.js"></script>
+    <script src="quantum_world.js"></script>
+    <script src="quantum_collision_manager.js"></script>
 
     <script type="text/javascript">
       function init() {
-        var gameDiv = document.getElementById('game-div');
-        ContainerManager.initSingleton(gameDiv);
+        ContainerManager.initSingleton(document.getElementById('game-div'));
 
         var hudCanvas = document.getElementById('hud-canvas')
-        var hud = new HUD(hudCanvas);
+        var hud = new HUD(hudCanvas).
+            addWidget(new Crosshair()).
+            addWidget(new Fraps(-100, 25)).
+            addWidget(new StartButton());
 
         var glCanvas = document.getElementById('gl-canvas');
+        ShaderProgram.defaultDomain = '';
         var gl = GL.createGLWithDefaultShaders(glCanvas);
 
         var resizer = new FullWindowResizer(gl, glCanvas, hud, hudCanvas);
         resizer.attachEventListener();
 
-        var world = new World();
+        var world = new QuantumWorld();
+        Thing.defaultVelocityType = Thing.VelocityType.RELATIVE;
         Env.setEnvironment(world, hud, gl);
+        Textures.initTextures(TextureList);
         Animator.initSingleton(world, hud);
 
         world.populate();
         resizer.resize();
+        Animator.getInstance().setPaused(true);
         Animator.getInstance().start();
       }
     </script>

@@ -1,14 +1,14 @@
 OffsetContainer = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
   this.thing = message.thing;
 
   this.addPart(this.thing);
 };
-util.inherits(OffsetContainer, Thing);
+goog.inherits(OffsetContainer, Thing);
 
 
 OffsetBox = function(message) {
-  util.base(this, {
+  goog.base(this, {
     world: message.world,
     position: vec3.nullableClone(message.position),
     name: message.name,
@@ -19,7 +19,7 @@ OffsetBox = function(message) {
 
   message.position = message.offset;
   message.offset = null;
-  this.thing = new LeafBox(message);
+  this.thing = new Box(message);
   this.addPart(this.thing);
 };
-util.inherits(OffsetBox, Thing);
+goog.inherits(OffsetBox, Thing);

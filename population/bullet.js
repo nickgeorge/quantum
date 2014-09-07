@@ -1,10 +1,10 @@
 Bullet = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
   this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
     position: [0, 0, 0],
-    texture: Textures.PLASMA,
+    texture: Textures.get(TextureList.PLASMA),
     rYaw: 100,
     rPitch: 100,
     rRoll: 100,
@@ -16,8 +16,8 @@ Bullet = function(message) {
 
   this.alive = true;
 };
-util.inherits(Bullet, Thing);
-Bullet.type = Types.BULLET;
+goog.inherits(Bullet, Thing);
+Bullet.type = UniqueId.generate();
 
 Bullet.prototype.getOuterRadius = function() {
   return this.sphere.getOuterRadius();

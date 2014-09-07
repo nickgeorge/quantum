@@ -1,25 +1,22 @@
 HealthBar = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
 
   this.pane = new Pane({
-    
     size: [1, .2],
     color: [0, 0, 0, 1],
-    // position: [0, .8, 0],
-    // yaw: PI,
   });
 
   this.addPart(new PaneOutline({
-    
     pane: this.pane,
-    color: vec4.WHITE
+    color: vec4.fromValues(1, 1, 1, 1)
   }));
+
   this.addPart(this.pane);
   this.isRoot = true;
 
   this.visible = false;
 };
-util.inherits(HealthBar, Thing);
+goog.inherits(HealthBar, Thing);
 
 
 HealthBar.prototype.advance = function(dt) {
@@ -43,13 +40,13 @@ HealthBar.prototype.getHealthPercent = function() {
 };
 
 
-HealthBar.prototype.updateHealth = function() {  
-  Env.gl.bindBuffer(GL.ARRAY_BUFFER, this.pane.vertexBuffer);
-  this.pane.verticies[3] = 
+HealthBar.prototype.updateHealth = function() {
+  this.pane.verticies[3] =
       this.pane.verticies[0] + this.pane.size[0] * this.getHealthPercent();
-  this.pane.verticies[6] = 
+  this.pane.verticies[6] =
       this.pane.verticies[0] + this.pane.size[0] * this.getHealthPercent();
 
+  Env.gl.bindBuffer(GL.ARRAY_BUFFER, this.pane.vertexBuffer);
   Env.gl.bufferSubData(GL.ARRAY_BUFFER, 0,
       new Float32Array(this.pane.verticies));
 
@@ -61,11 +58,11 @@ HealthBar.prototype.updateHealth = function() {
 HealthBar.prototype.draw = function() {
   if (!this.visible) return;
   Env.gl.getActiveProgram().setUseLighting(false);
-  util.base(this, 'draw');
+  goog.base(this, 'draw');
   Env.gl.getActiveProgram().setUseLighting(true);
 };
 
 
 HealthBar.prototype.setParent = function(parent) {
-  util.base(this, 'setParent', parent);
+  goog.base(this, 'setParent', parent);
 };

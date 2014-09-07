@@ -1,6 +1,6 @@
 Shelf = function(message) {
-  util.base(this, message);
-  
+  goog.base(this, message);
+
   this.size = message.size;
   this.box = new Box({
     size: message.size,
@@ -10,15 +10,14 @@ Shelf = function(message) {
     textureCountsByFace: message.textureCountsByFace,
     invert: true,
     color: message.color,
+    isStatic: true
   });
 
   this.addPart(this.box);
 };
-util.inherits(Shelf, Thing);
+goog.inherits(Shelf, Thing);
 Shelf.type = Types.SHELF;
 
 Shelf.prototype.getOuterRadius = function() {
-  return this.box.getOuterRadius();  
+  return this.box.getOuterRadius();
 };
-
-// Shelf.prototype.render = function(){}

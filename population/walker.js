@@ -1,19 +1,20 @@
 Walker = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
 
   this.ground = null;
   this.gravity = vec3.create();
 
   this.isRoot = true;
-  
+
   this.landed = false;
 
   this.objectCache.land = {
     rotation: quat.create(),
     viewMultiplier: quat.create(),
+    conjugateRotation: quat.create()
   };
 };
-util.inherits(Walker, Thing);
+goog.inherits(Walker, Thing);
 
 Walker.prototype.advanceWalker = function(dt) {
   this.advanceBasics(dt);
@@ -33,6 +34,7 @@ Walker.prototype.advanceWalker = function(dt) {
   }
 };
 
+// TODO: Adjust height
 Walker.prototype.land = function(ground) {
   var cache = this.objectCache.land;
   if (this.speed) {
@@ -45,16 +47,15 @@ Walker.prototype.land = function(ground) {
   var rotation = quat.rotationTo(cache.rotation,
       this.getNormal(),
       this.ground.getNormal());
-  var conjugateRotation = quat.conjugate([], rotation);
-  var conjugateUp = quat.conjugate(this.objectCache.conjugateUp,
-      this.upOrientation);
 
   if (this.viewRotation) {
     if (this.isViewTransitioning) {
       quat.copy(this.viewRotation, this.terminalViewRotation);
     }
+    var conjugateRotation = quat.conjugate(cache.conjugateRotation, rotation);
     var viewMultiplier = quat.multiply(cache.viewMultiplier,
-        conjugateUp, 
+        quat.conjugate(quat.temp,
+            this.upOrientation),
         conjugateRotation);
     quat.multiply(viewMultiplier, viewMultiplier, this.upOrientation);
 

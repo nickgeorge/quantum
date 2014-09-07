@@ -1,5 +1,5 @@
 Hero = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
 
   this.keyMove = vec3.create();
 
@@ -13,6 +13,12 @@ Hero = function(message) {
   this.v_ground = 20;
   this.v_air = 30;
   this.bobAge = 0;
+
+  this.walkAudio = Sounds.get(SoundList.STEP);
+  this.walkAudio.loop = true;
+  this.landAudio = Sounds.get(SoundList.LAND);
+  this.jumpAudio = Sounds.get(SoundList.JUMP);
+
 
   // this.gimble = new Gimble({
   //   referenceObject: this
@@ -31,7 +37,7 @@ Hero = function(message) {
       setMouseButtonHandler(this.onMouseButton, this).
       setMouseMoveHandler(this.onMouseMove, this);
 };
-util.inherits(Hero, Walker);
+goog.inherits(Hero, Walker);
 Hero.type = Types.HERO;
 
 Hero.objectCache = {
@@ -66,11 +72,22 @@ Hero.prototype.advance = function(dt) {
 
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
-    var factor = sum == 2 ? 1/ROOT_2 : 1;
+    var factor = sum == 2 ? 1/util.math.ROOT_2 : 1;
     this.velocity[0] = factor * this.v_ground * (this.keyMove[0]);
     this.velocity[1] = 0;
     this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
-    if (sum) this.bobAge += dt;
+    if (sum) {
+      this.bobAge += dt * 2 * Math.PI / .522;
+      if (this.walkAudio.paused) {
+        this.walkAudio.loop = true;
+        this.walkAudio.currentTime = 0;
+        this.walkAudio.play();
+      }
+    } else {
+      this.walkAudio.loop = false;
+      this.bobAge = 0;
+    }
+
   } else {
 
     var deltaV = vec3.set(cache.advance.deltaV,
@@ -82,13 +99,27 @@ Hero.prototype.advance = function(dt) {
     vec3.add(this.velocity,
         this.velocity,
         vec3.scale(deltaV, deltaV, dt));
+
+    this.walkAudio.loop = false;;
+    this.bobAge = 0;
   }
+};
+
+
+Hero.prototype.land = function(ground) {
+  goog.base(this, 'land', ground);
+
+  this.landAudio.currentTime = 0;
+  this.landAudio.play();
 };
 
 Hero.prototype.jump = function() {
   if (!this.isLanded()) return;
   vec3.copy(this.velocity, Hero.JUMP_VELOCITY);
   this.unland();
+
+  this.jumpAudio.currentTime = 0;
+  this.jumpAudio.play();
 };
 
 
@@ -128,18 +159,21 @@ Hero.prototype.onMouseButton = function(event) {
     var v_shot = [0, 0, -130];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    Env.world.addDrawableProjectile(new Bullet({
+    Env.world.addProjectile(new Bullet({
 
       position: this.position,
       velocity: v_shot,
       radius: .075 * 1.5,
       upOrientation: this.upOrientation
     }));
+
+    Sounds.getAndPlay(SoundList.ARROW);
+
   } else {
     var v_shot = [0, 0, -100];
     vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    Env.world.addDrawableProjectile(new ThrowinGurnade({
+    Env.world.addProjectile(new ThrowinGurnade({
 
       position: this.position,
       velocity: v_shot,
@@ -164,8 +198,8 @@ Hero.prototype.onMouseMove = function(event) {
       rotY,
       this.upOrientation);
 
-  if ((this.viewRotation[0] < 1/ROOT_2 || movementY > 0) &&
-      (this.viewRotation[0] > -1/ROOT_2 || movementY < 0)) {
+  if ((this.viewRotation[0] < 1/util.math.ROOT_2 || movementY > 0) &&
+      (this.viewRotation[0] > -1/util.math.ROOT_2 || movementY < 0)) {
     quat.rotateX(this.viewRotation,
         this.viewRotation,
         -movementY * this.sensitivityY);

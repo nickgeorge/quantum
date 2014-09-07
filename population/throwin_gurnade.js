@@ -1,24 +1,22 @@
-ThrowinGurnade = function(message) {  
-  util.base(this, message);
+ThrowinGurnade = function(message) {
+  goog.base(this, message);
   this.radius = message.radius;
   this.sphere = new Sphere({
     radius: this.radius,
-    // color: [.3, 1, .3, 1],
     position: [0, 0, 0],
-    texture: Textures.PLASMA,
+    texture: Textures.get(TextureList.PLASMA),
     rYaw: 100,
     rPitch: 100,
     rRoll: 100,
     color: [.3, 1, .8, 1],
   });
-  // this.sphere.scale = [1, 2, 1];
   this.parts = [this.sphere];
 
   this.stage = ThrowinGurnade.Stage.TICKING;
 
   this.alive = true;
 };
-util.inherits(ThrowinGurnade, Thing);
+goog.inherits(ThrowinGurnade, Thing);
 ThrowinGurnade.type = Types.THROWIN_GURNADE;
 
 ThrowinGurnade.Stage = {
@@ -53,7 +51,7 @@ ThrowinGurnade.prototype.advance = function(dt) {
 };
 
 ThrowinGurnade.prototype.getOuterRadius = function() {
-  return this.stage == ThrowinGurnade.Stage.EXPLODING ? 
-      25 : 
+  return this.stage == ThrowinGurnade.Stage.EXPLODING ?
+      25 :
       this.sphere.getOuterRadius();
 };

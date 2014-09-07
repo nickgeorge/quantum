@@ -1,16 +1,16 @@
 Sun = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
   this.radius = message.radius || 5;
   this.sphere = new Sphere({
     radius: this.radius,
-    texture: Textures.SUN,
+    texture: Textures.get(TextureList.SUN),
     longitudeCount: 20,
     latitudeCount: 20
   });
 
   this.addPart(this.sphere);
 };
-util.inherits(Sun, Thing);
+goog.inherits(Sun, Thing);
 Sun.type = Types.SUN;
 
 Sun.prototype.advance = function(dt) {

@@ -1,5 +1,5 @@
 Gimble = function(message) {
-  util.base(this, message);
+  goog.base(this, message);
   this.referenceObject = message.referenceObject;
 
   this.sphere = new Sphere({
@@ -18,7 +18,7 @@ Gimble = function(message) {
     offset: [0, .004, 0],
     position: [0, 0, 0]
   });
-  this.plane = new LeafBox({
+  this.plane = new Box({
     size: [.012, .0005, .012],
     color: [0, 0, 1, .5],
     position: [0, 0, 0]
@@ -33,7 +33,7 @@ Gimble = function(message) {
 
   this.isRoot = true;
 };
-util.inherits(Gimble, Thing);
+goog.inherits(Gimble, Thing);
 Gimble.type = Types.Gimble;
 
 
