@@ -1,9 +1,16 @@
+/**
+ * @constructor
+ * @extends {Walker}
+ * @inherites {FpsAnchor}
+ * @struct
+ */
 Hero = function(message) {
   goog.base(this, message);
 
   this.keyMove = vec3.create();
 
   this.viewRotation = quat.create();
+  this.jumpViewRotation = quat.create();
 
   this.initialViewRotation = quat.create();
   this.terminalViewRotation = quat.create();
@@ -20,16 +27,18 @@ Hero = function(message) {
   this.jumpAudio = Sounds.get(SoundList.JUMP);
 
 
-  // this.gimble = new Gimble({
-  //   referenceObject: this
-  // });
+  this.gimble = new Gimble({
+    referenceObject: this
+  });
+  Env.world.addEffect(this.gimble);
 
   this.sensitivityX = .0035;
   this.sensitivityY = .0035;
 
 
-  this.objectCache.onMouseMove = {
-    rotY: quat.create()
+  this.objectCache.thing = {
+    rotY: quat.create(),
+    bobOffset: vec3.create()
   };
 
   this.inputAdapter = new WorldInputAdapter().
@@ -49,7 +58,7 @@ Hero.objectCache = {
   normal: vec3.create()
 };
 
-Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, 0);
+Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, -40);
 Hero.HEIGHT = 2;
 Hero.WIDTH = .5;
 
@@ -90,17 +99,17 @@ Hero.prototype.advance = function(dt) {
 
   } else {
 
-    var deltaV = vec3.set(cache.advance.deltaV,
-      this.v_air * this.keyMove[0],
-      0,
-      this.v_air * this.keyMove[2]
-    );
+    // var deltaV = vec3.set(cache.advance.deltaV,
+    //   this.v_air * this.keyMove[0],
+    //   0,
+    //   this.v_air * this.keyMove[2]
+    // );
 
-    vec3.add(this.velocity,
-        this.velocity,
-        vec3.scale(deltaV, deltaV, dt));
+    // vec3.add(this.velocity,
+    //     this.velocity,
+    //     vec3.scale(deltaV, deltaV, dt));
 
-    this.walkAudio.loop = false;;
+    this.walkAudio.loop = false;
     this.bobAge = 0;
   }
 };
@@ -189,7 +198,7 @@ Hero.prototype.onMouseMove = function(event) {
   var movementX = this.inputAdapter.getMovementX(event);
   var movementY = this.inputAdapter.getMovementY(event);
 
-  var rotY = this.objectCache.onMouseMove.rotY;
+  var rotY = this.objectCache.thing.rotY;
   quat.setAxisAngle(rotY,
       vec3.transformQuat(vec3.temp, vec3.J, this.upOrientation),
       -movementX * this.sensitivityX);
@@ -209,4 +218,15 @@ Hero.prototype.onMouseMove = function(event) {
 
 Hero.prototype.getViewOrientation = function(out) {
   return quat.multiply(out, this.upOrientation, this.viewRotation);
+};
+
+
+Hero.prototype.getEyePosition = function(out) {
+  var bobOffset = vec3.set(this.objectCache.thing.bobOffset,
+      0, Math.sin(-this.bobAge)/2, 0);
+  vec3.transformQuat(bobOffset,
+      bobOffset,
+      this.upOrientation);
+
+  return vec3.add(out, this.position, bobOffset);
 };

@@ -1,4 +1,5 @@
 Gimble = function(message) {
+  message.rYaw = -2.76;
   goog.base(this, message);
   this.referenceObject = message.referenceObject;
 
@@ -24,7 +25,7 @@ Gimble = function(message) {
     position: [0, 0, 0]
   });
 
-  this.offset = [-.08, 0, -.2];
+  this.offset = [-.12, 0, -.2];
 
   this.addPart(this.downPointer);
   this.addPart(this.upPointer);
@@ -32,21 +33,29 @@ Gimble = function(message) {
   this.addPart(this.sphere);
 
   this.isRoot = true;
+
+  this.objectCache.gimble = {
+    eyePosition: vec3.create()
+  };
 };
 goog.inherits(Gimble, Thing);
 Gimble.type = Types.Gimble;
 
 
 Gimble.prototype.advance = function(dt) {
-  this.advanceBasics(dt);
-  this.saveLastPosition();
   if (this.referenceObject) {
-    vec3.add(this.position, this.referenceObject.position,
+    var cache = this.objectCache.gimble;
+    vec3.add(this.position,
+        this.referenceObject.getEyePosition(cache.eyePosition),
         vec3.transformQuat(vec3.temp,
-            this.offset,
-            this.referenceObject.viewRotation));
+            vec3.transformQuat(vec3.temp,
+                this.offset,
+                this.referenceObject.viewRotation),
+            this.referenceObject.upOrientation));
 
-    quat.copy(this.upOrientation, this.referenceObject.upOrientation);
+    quat.rotateY(this.upOrientation,
+        this.referenceObject.upOrientation,
+        2.6);
   }
 };
 

@@ -9,12 +9,8 @@ goog.inherits(OffsetContainer, Thing);
 
 OffsetBox = function(message) {
   goog.base(this, {
-    world: message.world,
     position: vec3.nullableClone(message.position),
     name: message.name,
-
-    //TODO: Unhack!!
-    isStatic: false
   });
 
   message.position = message.offset;

@@ -148,7 +148,6 @@ QuantumWorld.prototype.populate = function() {
   });
   this.camera.setAnchor(this.hero);
   this.addThing(this.hero);
-  // this.add(this.hero.gimble);
 };
 
 
