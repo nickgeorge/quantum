@@ -10,7 +10,6 @@ Hero = function(message) {
   this.keyMove = vec3.create();
 
   this.viewRotation = quat.create();
-  this.jumpViewRotation = quat.create();
 
   this.initialViewRotation = quat.create();
   this.terminalViewRotation = quat.create();
@@ -26,7 +25,6 @@ Hero = function(message) {
   this.landAudio = Sounds.get(SoundList.LAND);
   this.jumpAudio = Sounds.get(SoundList.JUMP);
 
-
   this.gimble = new Gimble({
     referenceObject: this
   });
@@ -34,6 +32,9 @@ Hero = function(message) {
 
   this.sensitivityX = .0035;
   this.sensitivityY = .0035;
+
+  this.boosting = false;
+  this.boostVelocity = [0, 0, -50];
 
 
   this.objectCache.thing = {
@@ -49,16 +50,8 @@ Hero = function(message) {
 goog.inherits(Hero, Walker);
 Hero.type = Types.HERO;
 
-Hero.objectCache = {
-  advance: {
-    velocityInView: vec3.create(),
-    thisNormal: vec3.create(),
-    deltaV: vec3.create(),
-  },
-  normal: vec3.create()
-};
-
-Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, -40);
+// Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, -40);
+Hero.JUMP_MODIFIER = 10;
 Hero.HEIGHT = 2;
 Hero.WIDTH = .5;
 
@@ -82,11 +75,12 @@ Hero.prototype.advance = function(dt) {
   if (this.landed) {
     var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
     var factor = sum == 2 ? 1/util.math.ROOT_2 : 1;
-    this.velocity[0] = factor * this.v_ground * (this.keyMove[0]);
-    this.velocity[1] = 0;
-    this.velocity[2] = factor * this.v_ground * (this.keyMove[2]);
+    vec3.set(this.velocity,
+        factor * this.v_ground * (this.keyMove[0]),
+        0,
+        factor * this.v_ground * (this.keyMove[2]));
     if (sum) {
-      this.bobAge += dt * 2 * Math.PI / .522;
+      this.bobAge += dt * 2 * Math.PI / .55;
       if (this.walkAudio.paused) {
         this.walkAudio.loop = true;
         this.walkAudio.currentTime = 0;
@@ -99,15 +93,16 @@ Hero.prototype.advance = function(dt) {
 
   } else {
 
-    // var deltaV = vec3.set(cache.advance.deltaV,
-    //   this.v_air * this.keyMove[0],
-    //   0,
-    //   this.v_air * this.keyMove[2]
-    // );
-
-    // vec3.add(this.velocity,
-    //     this.velocity,
-    //     vec3.scale(deltaV, deltaV, dt));
+    if (this.boosting) {
+      vec3.add(this.velocity,
+          this.velocity,
+          (
+              vec3.temp,
+              vec3.scale(vec3.temp,
+                  this.boostVelocity,
+                  dt),
+              this.viewRotation));
+    }
 
     this.walkAudio.loop = false;
     this.bobAge = 0;
@@ -118,18 +113,34 @@ Hero.prototype.advance = function(dt) {
 Hero.prototype.land = function(ground) {
   goog.base(this, 'land', ground);
 
+
   this.landAudio.currentTime = 0;
   this.landAudio.play();
 };
 
+
 Hero.prototype.jump = function() {
   if (!this.isLanded()) return;
-  vec3.copy(this.velocity, Hero.JUMP_VELOCITY);
+  vec3.set(this.velocity,
+      this.velocity[0] * 1.5,
+      70,
+      this.velocity[2] * 1.5);
   this.unland();
 
   this.jumpAudio.currentTime = 0;
   this.jumpAudio.play();
 };
+
+
+/** @override */
+Hero.prototype.getMovementUp = function() {
+  var result = quat.create();
+  return function() {
+    return this.isLanded() ?
+        quat.copy(result, this.upOrientation) :
+        quat.copy(result, this.movementUp);
+  }
+}();
 
 
 Hero.prototype.onKey = function(event) {
@@ -157,6 +168,9 @@ Hero.prototype.onKey = function(event) {
     case KeyCode.SPACE:
       isKeydown && this.jump();
       break;
+    case KeyCode.SHIFT:
+      // this.boosting = isKeydown;
+      break;
   }
 };
 
@@ -165,13 +179,9 @@ Hero.prototype.onMouseButton = function(event) {
   if (Animator.getInstance().isPaused()) return;
   if (event.type != 'mousedown') return;
   if (event.button == 0) {
-    var v_shot = [0, 0, -130];
-    vec3.transformQuat(v_shot, v_shot, this.viewRotation);
-
     Env.world.addProjectile(new Bullet({
-
       position: this.position,
-      velocity: v_shot,
+      velocity: this.fromViewOrientation([0, 0, -130]),
       radius: .075 * 1.5,
       upOrientation: this.upOrientation
     }));
@@ -219,6 +229,16 @@ Hero.prototype.onMouseMove = function(event) {
 Hero.prototype.getViewOrientation = function(out) {
   return quat.multiply(out, this.upOrientation, this.viewRotation);
 };
+
+
+Hero.prototype.fromViewOrientation = function() {
+  var viewOrientation = quat.create();
+  var result = vec3.create();
+  return function(a) {
+    this.getViewOrientation(viewOrientation);
+    return vec3.transformQuat(result, a, viewOrientation);
+  };
+}();
 
 
 Hero.prototype.getEyePosition = function(out) {

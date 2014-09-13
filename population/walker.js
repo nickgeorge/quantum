@@ -8,6 +8,8 @@ Walker = function(message) {
 
   this.landed = false;
 
+  this.movementUp = quat.create();
+
   this.objectCache.land = {
     rotation: quat.create(),
     viewMultiplier: quat.create(),
@@ -71,6 +73,8 @@ Walker.prototype.land = function(ground) {
 Walker.prototype.unland = function() {
   this.landed = false;
   this.ground = null;
+
+  quat.copy(this.movementUp, this.upOrientation);
 };
 
 Walker.prototype.isLandedOn = function(ground) {

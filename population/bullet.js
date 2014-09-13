@@ -1,4 +1,5 @@
 Bullet = function(message) {
+  message.velocityType = Thing.VelocityType.ABSOLUTE;
   goog.base(this, message);
   this.radius = message.radius;
   this.sphere = new Sphere({
