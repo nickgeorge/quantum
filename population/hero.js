@@ -22,6 +22,7 @@ Hero = function(message) {
 
   this.walkAudio = Sounds.get(SoundList.STEP);
   this.walkAudio.loop = true;
+  this.walkAudio.volume = 1
   this.landAudio = Sounds.get(SoundList.LAND);
   this.jumpAudio = Sounds.get(SoundList.JUMP);
 
@@ -179,8 +180,12 @@ Hero.prototype.onMouseButton = function(event) {
   if (Animator.getInstance().isPaused()) return;
   if (event.type != 'mousedown') return;
   if (event.button == 0) {
+    var origin = vec3.copy(vec3.create(), this.position);
+    vec3.add(origin,
+        origin,
+        this.fromViewOrientation([0, -.2, 0]));
     Env.world.addProjectile(new Bullet({
-      position: this.position,
+      position: origin,
       velocity: this.fromViewOrientation([0, 0, -130]),
       radius: .075 * 1.5,
       upOrientation: this.upOrientation
@@ -189,16 +194,20 @@ Hero.prototype.onMouseButton = function(event) {
     Sounds.getAndPlay(SoundList.ARROW);
 
   } else {
-    var v_shot = [0, 0, -100];
-    vec3.transformQuat(v_shot, v_shot, this.viewRotation);
+    // var v_shot = [0, 0, -100];
+    // vec3.transformQuat(v_shot, v_shot, this.viewRotation);
 
-    Env.world.addProjectile(new ThrowinGurnade({
+    // Env.world.addProjectile(new ThrowinGurnade({
 
-      position: this.position,
-      velocity: v_shot,
-      radius: .075 * 1.5,
-      upOrientation: this.upOrientation
+    //   position: this.position,
+    //   velocity: v_shot,
+    //   radius: .075 * 1.5,
+    //   upOrientation: this.upOrientation
+    // }));
+    Env.world.addProjectile(new Rail({
+      anchor: this,
     }));
+    Sounds.getAndPlay(SoundList.ZAP);
   }
 };
 
@@ -231,6 +240,12 @@ Hero.prototype.getViewOrientation = function(out) {
 };
 
 
+Hero.prototype.getConjugateViewOrientation = function(out) {
+  return quat.conjugate(out,
+      this.getViewOrientation(out));
+};
+
+
 Hero.prototype.fromViewOrientation = function() {
   var viewOrientation = quat.create();
   var result = vec3.create();
@@ -243,7 +258,7 @@ Hero.prototype.fromViewOrientation = function() {
 
 Hero.prototype.getEyePosition = function(out) {
   var bobOffset = vec3.set(this.objectCache.thing.bobOffset,
-      0, Math.sin(-this.bobAge)/2, 0);
+      0, Math.sin(-this.bobAge)/2.5, 0);
   vec3.transformQuat(bobOffset,
       bobOffset,
       this.upOrientation);

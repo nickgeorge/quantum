@@ -1,4 +1,5 @@
 Walker = function(message) {
+  // message.velocityType = Thing.VelocityType.ABSOLUTE;
   goog.base(this, message);
 
   this.ground = null;

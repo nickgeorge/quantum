@@ -14,7 +14,7 @@ QuantumWorld = function() {
   this.setBackgroundColor([0, 0, 0, 1]);
   this.setCollisionManager(new QuantumCollisionManager(this));
 
-  this.playMusic = false;
+  this.playMusic = true;
   this.music = Sounds.get(SoundList.SPLIT_YOUR_INFINITIVES);
   this.music.loop = true;
 

@@ -38,6 +38,9 @@ QuantumCollisionManager.prototype.registerCollisionConditions = function() {
   this.registerCollisionCondition(Fella, Bullet,
       util.fn.constant(0),
       CollisionFunctions.FELLA_AND_BULLET);
+  this.registerCollisionCondition(Fella, Rail,
+      util.fn.constant(0),
+      CollisionFunctions.FELLA_AND_RAIL);
 
   this.registerCollisionCondition(Shelf, Hero,
       util.fn.constant(Hero.HEIGHT),
@@ -57,17 +60,6 @@ QuantumCollisionManager.prototype.registerCollisionConditions = function() {
 };
 
 
-// TODO: This is a really degenerate function.  Kill it.
-QuantumCollisionManager.maybeGlom = function(glomee, glomer) {
-  var encounter = glomee.findThingEncounter(glomer, 0);
-  if (encounter) {
-    encounter.part.glom(glomer, encounter.point);
-    glomer.alive = false;
-    glomer.landed = true;
-  }
-};
-
-
 // TODO: Move these into individual things.
 CollisionFunctions = {
   FELLA_AND_BULLET: function(fella, bullet) {
@@ -80,9 +72,23 @@ CollisionFunctions = {
     }
   },
 
+  FELLA_AND_RAIL: function(fella, rail) {
+    var encounter = fella.findEncounter(rail.getP0(), rail.getP1(), .2);
+    if (encounter) {
+      var bodyPart = encounter.part.getGlommable();
+      fella.deathSpeed = 5;
+      fella.hit(rail, bodyPart);
+    }
+  },
+
   GLOM: function(glomee, glomer) {
     if (!glomer.alive) return;
-    QuantumCollisionManager.maybeGlom(glomee, glomer);
+    var encounter = glomee.findThingEncounter(glomer, 0);
+    if (encounter) {
+      encounter.part.glom(glomer, encounter.point);
+      glomer.alive = false;
+      glomer.landed = true;
+    }
   },
 
   BOXLIKE_AND_HERO: function(boxlike, hero) {

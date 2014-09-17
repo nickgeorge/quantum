@@ -4,13 +4,10 @@ Fella = function(message) {
   this.stepDirection = 1;
   this.speed = message.speed || 0;
 
-  this.velocity = [
-    0,
-    0,
-    this.speed
-  ];
 
   goog.base(this, message);
+
+  this.velocity = vec3.fromValues(0, 0, this.speed);
 
   this.color = vec4.nullableClone(message.color);
 
@@ -22,6 +19,7 @@ Fella = function(message) {
   this.leftLeg = null;
   this.rightArm = null;
   this.leftArm = null;
+  this.deathSpeed = 1;
   this.buildBody();
 
   this.healthBar = new HealthBar({
@@ -69,15 +67,11 @@ Fella.prototype.die = function() {
   this.alive = false;
   this.velocity = [0, 0, 0];
   this.rYaw = this.rPitch = this.rRoll = 0;
-  deathSpeed = 1;
   this.eachPart(function(part) {
     this.alive = false;
     part.isStatic = false;
     var vTheta = Math.random()*2*Math.PI;
-    vec3.set(part.velocity,
-        Math.cos(vTheta)*deathSpeed,
-        Math.random()/2,
-        Math.sin(vTheta)*deathSpeed);
+    vec3.random(part.velocity, this.deathSpeed);
   });
   Env.world.effects.remove(this.healthBar);
 };
@@ -87,15 +81,15 @@ Fella.prototype.hit = function(bullet, part) {
   this.health -= bullet.damage * part.damageMultiplier;
   if (this.health <= 0) {
     if (this.alive) this.die();
-    vec3.copy(
-        part.velocity,
-        part.worldToLocalCoords(vec3.temp,
-            vec3.scale(vec3.temp,
-                vec3.transformQuat(vec3.temp,
-                    bullet.velocity,
-                    bullet.upOrientation),
-                1/25),
-            0));
+    // vec3.copy(
+    //     part.velocity,
+    //     part.worldToLocalCoords(vec3.temp,
+    //         vec3.scale(vec3.temp,
+    //             vec3.transformQuat(vec3.temp,
+    //                 bullet.velocity,
+    //                 bullet.upOrientation),
+    //             1/25),
+    //         0));
   } else {
     this.healthBar.updateHealth();
   }
