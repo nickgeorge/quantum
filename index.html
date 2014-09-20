@@ -24,6 +24,7 @@
     <script src="effects/health_bar.js"></script>
     <script src="media/texture_list.js"></script>
     <script src="media/sound_list.js"></script>
+    <script src="hud/ammo_counter.js"></script>
     <script src="quantum_world.js"></script>
     <script src="quantum_collision_manager.js"></script>
 
@@ -35,7 +36,16 @@
         var hud = new HUD(hudCanvas).
             addWidget(new Crosshair()).
             addWidget(new Fraps(-100, 25)).
-            addWidget(new StartButton());
+            addWidget(new StartButton()).
+            addWidget(new UpdatingWriter(25, -200, function() {
+              return 'Rails: ' + Env.world.hero.railAmmo;
+            })).
+            addWidget(new UpdatingWriter(25, 25, function() {
+              return 'Time: ' + Math.floor(Env.world.age);
+            })).
+            addWidget(new UpdatingWriter(300, 25, function() {
+              return 'Score: ' + Env.world.score;
+            }));
 
         var glCanvas = document.getElementById('gl-canvas');
         ShaderProgram.defaultDomain = '';

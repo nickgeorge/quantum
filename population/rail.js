@@ -18,6 +18,7 @@ Rail = function(message) {
   message.color = [1, 1, 0, 1];
   goog.base(this, message);
 
+  this.owner = message.owner;
   this.anchor = message.anchor;
   this.alive = true;
   this.firstFrame = true;
@@ -47,7 +48,7 @@ Rail.prototype.advance = function(dt) {
     Env.world.projectiles.remove(this);
     Env.world.drawables.remove(this);
   }
-  if (Math.random() < .4) {
+  if (Math.random() < .7) {
     quat.rotateZ(this.upOrientation,
         this.upOrientation,
         Math.random() * 2 * Math.PI);
@@ -64,8 +65,8 @@ Rail.prototype.makeCenters = function() {
   var centers = [];
   for (var i = -300; i < -1; i += .5) {
     centers.push([
-      Math.random() * .4 - .2,
-      Math.random() * .4 - .2,
+      (Math.random()*2 - 1) * .17,
+      (Math.random()*2 - 1) * .17,
       i
     ]);
   }
@@ -78,43 +79,44 @@ Rail.prototype.makeCenters = function() {
 
 Rail.prototype.getPositionBuffer = function() {
   var vertexPositionCoordinates = [];
+  var size = .025;
   for (var i = 0; i < this.centers.length - 1; i++) {
     util.array.pushAll(vertexPositionCoordinates, [
       // Top (y = 1)
-      this.centers[i+1][0] - .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
-      this.centers[i+1][0] + .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
-      this.centers[i  ][0] + .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
-      this.centers[i  ][0] - .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
+      this.centers[i+1][0] - size, this.centers[i+1][1] + size, this.centers[i+1][2],
+      this.centers[i+1][0] + size, this.centers[i+1][1] + size, this.centers[i+1][2],
+      this.centers[i  ][0] + size, this.centers[i  ][1] + size, this.centers[i  ][2],
+      this.centers[i  ][0] - size, this.centers[i  ][1] + size, this.centers[i  ][2],
 
       // Bottom (y = -1)
-      this.centers[i  ][0] - .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
-      this.centers[i  ][0] + .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
-      this.centers[i+1][0] + .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
-      this.centers[i+1][0] - .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
+      this.centers[i  ][0] - size, this.centers[i  ][1] - size, this.centers[i  ][2],
+      this.centers[i  ][0] + size, this.centers[i  ][1] - size, this.centers[i  ][2],
+      this.centers[i+1][0] + size, this.centers[i+1][1] - size, this.centers[i+1][2],
+      this.centers[i+1][0] - size, this.centers[i+1][1] - size, this.centers[i+1][2],
 
       // Right (x = 1)
-      this.centers[i  ][0] + .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
-      this.centers[i  ][0] + .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
-      this.centers[i+1][0] + .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
-      this.centers[i+1][0] + .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
+      this.centers[i  ][0] + size, this.centers[i  ][1] - size, this.centers[i  ][2],
+      this.centers[i  ][0] + size, this.centers[i  ][1] + size, this.centers[i  ][2],
+      this.centers[i+1][0] + size, this.centers[i+1][1] + size, this.centers[i+1][2],
+      this.centers[i+1][0] + size, this.centers[i+1][1] - size, this.centers[i+1][2],
 
       // Left (x = -1)
-      this.centers[i+1][0] - .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
-      this.centers[i+1][0] - .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
-      this.centers[i  ][0] - .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
-      this.centers[i  ][0] - .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
+      this.centers[i+1][0] - size, this.centers[i+1][1] - size, this.centers[i+1][2],
+      this.centers[i+1][0] - size, this.centers[i+1][1] + size, this.centers[i+1][2],
+      this.centers[i  ][0] - size, this.centers[i  ][1] + size, this.centers[i  ][2],
+      this.centers[i  ][0] - size, this.centers[i  ][1] - size, this.centers[i  ][2],
 
       // // // Front (z = 1)
-      // this.centers[i+1][0] - .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
-      // this.centers[i+1][0] + .035, this.centers[i+1][1] - .035, this.centers[i+1][2],
-      // this.centers[i+1][0] + .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
-      // this.centers[i+1][0] - .035, this.centers[i+1][1] + .035, this.centers[i+1][2],
+      // this.centers[i+1][0] - size, this.centers[i+1][1] - size, this.centers[i+1][2],
+      // this.centers[i+1][0] + size, this.centers[i+1][1] - size, this.centers[i+1][2],
+      // this.centers[i+1][0] + size, this.centers[i+1][1] + size, this.centers[i+1][2],
+      // this.centers[i+1][0] - size, this.centers[i+1][1] + size, this.centers[i+1][2],
 
       // // Back (z = -1)
-      // this.centers[i  ][0] - .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
-      // this.centers[i  ][0] + .035, this.centers[i  ][1] + .035, this.centers[i  ][2],
-      // this.centers[i  ][0] + .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
-      // this.centers[i  ][0] - .035, this.centers[i  ][1] - .035, this.centers[i  ][2],
+      // this.centers[i  ][0] - size, this.centers[i  ][1] + size, this.centers[i  ][2],
+      // this.centers[i  ][0] + size, this.centers[i  ][1] + size, this.centers[i  ][2],
+      // this.centers[i  ][0] + size, this.centers[i  ][1] - size, this.centers[i  ][2],
+      // this.centers[i  ][0] - size, this.centers[i  ][1] - size, this.centers[i  ][2],
     ]);
   }
   return Env.gl.generateBuffer(vertexPositionCoordinates, 3);

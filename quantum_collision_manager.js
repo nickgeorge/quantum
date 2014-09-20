@@ -92,6 +92,9 @@ CollisionFunctions = {
   },
 
   BOXLIKE_AND_HERO: function(boxlike, hero) {
+    // if (hero.isLanded() && hero.ground.getRoot() == boxlike) {
+    //   return;
+    // }
     var encounter = boxlike.findThingEncounter(hero, Hero.HEIGHT);
     if (!encounter) return;
     var part = encounter.part;
@@ -102,6 +105,7 @@ CollisionFunctions = {
       var plumb = vec3.set(vec3.temp, 0, -Hero.HEIGHT, 0);
       vec3.transformQuat(plumb, plumb, hero.upOrientation);
       part.worldToLocalCoords(plumb, plumb, 0);
+      // TODO: wha?!
       if (plumb[2] < 0 || true) {
         var cosAngle = vec3.dot(plumb, vec3.NEG_K)/Hero.HEIGHT;
         if (cosAngle > .55 || true) {
@@ -109,13 +113,6 @@ CollisionFunctions = {
           hero.land(part);
           isOnGround = true;
         }
-      }
-      if (!isOnGround) {
-        encounter = boxlike.findThingEncounter(hero, Hero.WIDTH);
-        if (!encounter) {
-          return;
-        }
-        var part = encounter.part;
       }
     }
 

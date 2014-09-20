@@ -2,6 +2,7 @@ Bullet = function(message) {
   message.velocityType = Thing.VelocityType.ABSOLUTE;
   goog.base(this, message);
   this.radius = message.radius;
+  this.owner = message.owner;
   this.sphere = new Sphere({
     radius: this.radius,
     position: [0, 0, 0],

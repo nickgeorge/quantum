@@ -26,6 +26,8 @@ Hero = function(message) {
   this.landAudio = Sounds.get(SoundList.LAND);
   this.jumpAudio = Sounds.get(SoundList.JUMP);
 
+  this.railAmmo = 3;
+
   this.gimble = new Gimble({
     referenceObject: this
   });
@@ -35,7 +37,7 @@ Hero = function(message) {
   this.sensitivityY = .0035;
 
   this.boosting = false;
-  this.boostVelocity = [0, 0, -50];
+  this.boostVelocity = [0, 0, -1];
 
 
   this.objectCache.thing = {
@@ -94,16 +96,26 @@ Hero.prototype.advance = function(dt) {
 
   } else {
 
-    if (this.boosting) {
+    // if (this.boosting) {
+
+      var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
+      var factor = sum == 2 ? 1/util.math.ROOT_2 : 1;
+      var effBoost = vec3.fromValues(
+          factor * (this.keyMove[0]),
+          0,
+          factor * (this.keyMove[2]));
+      vec3.scale(effBoost, effBoost, 20);
+
+      var v_mp = vec3.transformQuat(vec3.temp,
+          this.fromUpOrientation(effBoost),
+          quat.conjugate([],this.getMovementUp()));
+
       vec3.add(this.velocity,
           this.velocity,
-          (
-              vec3.temp,
-              vec3.scale(vec3.temp,
-                  this.boostVelocity,
-                  dt),
-              this.viewRotation));
-    }
+          vec3.scale(vec3.temp,
+              v_mp,
+              dt));
+    // }
 
     this.walkAudio.loop = false;
     this.bobAge = 0;
@@ -123,9 +135,9 @@ Hero.prototype.land = function(ground) {
 Hero.prototype.jump = function() {
   if (!this.isLanded()) return;
   vec3.set(this.velocity,
-      this.velocity[0] * 1.5,
-      70,
-      this.velocity[2] * 1.5);
+      this.velocity[0] * 1.25,
+      60,
+      this.velocity[2] * 1.25);
   this.unland();
 
   this.jumpAudio.currentTime = 0;
@@ -170,7 +182,7 @@ Hero.prototype.onKey = function(event) {
       isKeydown && this.jump();
       break;
     case KeyCode.SHIFT:
-      // this.boosting = isKeydown;
+      this.boosting = isKeydown;
       break;
   }
 };
@@ -188,7 +200,8 @@ Hero.prototype.onMouseButton = function(event) {
       position: origin,
       velocity: this.fromViewOrientation([0, 0, -130]),
       radius: .075 * 1.5,
-      upOrientation: this.upOrientation
+      upOrientation: this.upOrientation,
+      owner: this,
     }));
 
     Sounds.getAndPlay(SoundList.ARROW);
@@ -204,10 +217,14 @@ Hero.prototype.onMouseButton = function(event) {
     //   radius: .075 * 1.5,
     //   upOrientation: this.upOrientation
     // }));
-    Env.world.addProjectile(new Rail({
-      anchor: this,
-    }));
-    Sounds.getAndPlay(SoundList.ZAP);
+    if (this.railAmmo > 0) {
+      Env.world.addProjectile(new Rail({
+        anchor: this,
+        owner: this
+      }));
+      Sounds.getAndPlay(SoundList.ZAP);
+      this.railAmmo--;
+    }
   }
 };
 

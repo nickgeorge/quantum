@@ -80,16 +80,37 @@ Fella.prototype.die = function() {
 Fella.prototype.hit = function(bullet, part) {
   this.health -= bullet.damage * part.damageMultiplier;
   if (this.health <= 0) {
-    if (this.alive) this.die();
-    // vec3.copy(
-    //     part.velocity,
-    //     part.worldToLocalCoords(vec3.temp,
-    //         vec3.scale(vec3.temp,
-    //             vec3.transformQuat(vec3.temp,
-    //                 bullet.velocity,
-    //                 bullet.upOrientation),
-    //             1/25),
-    //         0));
+
+    if (this.alive) {
+      this.die();
+      var owner = bullet.owner;
+      owner.railAmmo += 1;
+
+      var score = 10;
+      if (bullet.getType() == Bullet.type) score *= 1.5;
+      if (!owner.isLanded()) score *= 20;
+      else if (owner.ground != this.ground) score *= 5;
+
+      Env.world.score += score;
+
+      if (owner.isLanded()) {
+        var groundRoot = owner.ground.getRoot();
+        if (groundRoot.getType() == DumbCrate.type && !groundRoot.claimed) {
+          groundRoot.claimed = true;
+          groundRoot.box.color = [0, 0, 1, 1];
+        }
+      }
+
+      // vec3.copy(
+      //     part.velocity,
+      //     part.worldToLocalCoords(vec3.temp,
+      //         vec3.scale(vec3.temp,
+      //             vec3.transformQuat(vec3.temp,
+      //                 bullet.velocity,
+      //                 bullet.upOrientation),
+      //             1/25),
+      //         0));
+    }
   } else {
     this.healthBar.updateHealth();
   }

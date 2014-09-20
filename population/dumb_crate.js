@@ -1,4 +1,5 @@
 DumbCrate = function(message) {
+  message.isRoot = true;
   goog.base(this, message);
   this.size = message.size;
   this.box = new Box({
@@ -11,6 +12,8 @@ DumbCrate = function(message) {
     isStatic: true,
     glommable: false,
   });
+
+  this.claimed = false;
 
   this.addPart(this.box);
 };

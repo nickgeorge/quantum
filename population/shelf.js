@@ -1,4 +1,5 @@
 Shelf = function(message) {
+  message.isRoot = true;
   goog.base(this, message);
 
   this.size = message.size;

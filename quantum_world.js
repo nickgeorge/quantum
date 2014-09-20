@@ -14,11 +14,14 @@ QuantumWorld = function() {
   this.setBackgroundColor([0, 0, 0, 1]);
   this.setCollisionManager(new QuantumCollisionManager(this));
 
-  this.playMusic = true;
+  this.playMusic = false;
   this.music = Sounds.get(SoundList.SPLIT_YOUR_INFINITIVES);
   this.music.loop = true;
 
-  this.G = 62.5;
+  this.score = 0;
+  this.maxTime = 180;
+
+  this.G = 35;
 
   this.inputAdapter = new WorldInputAdapter().
       setMouseButtonHandler(this.onMouseButton, this).
@@ -48,6 +51,11 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
 };
 
 
+QuantumWorld.prototype.advance = function(dt) {
+  goog.base(this, 'advance', dt);
+};
+
+
 QuantumWorld.prototype.populate = function() {
   var light = new Light({
     ambientColor: [.32, .32, .32],
@@ -69,7 +77,7 @@ QuantumWorld.prototype.populate = function() {
   var addThings = true;
 
   if (addThings) {
-    for (var k = 0; k < 20; k++) {
+    for (var k = 0; k < 10; k++) {
       var dumbCrate = new DumbCrate({
 
         position: [
