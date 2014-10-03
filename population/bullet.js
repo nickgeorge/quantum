@@ -19,7 +19,7 @@ Bullet = function(message) {
   this.alive = true;
 };
 goog.inherits(Bullet, Thing);
-Bullet.type = UniqueId.generate();
+Types.registerType(Bullet, QuantumTypes.BULLET);
 
 Bullet.prototype.getOuterRadius = function() {
   return this.sphere.getOuterRadius();

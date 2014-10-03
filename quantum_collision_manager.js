@@ -17,9 +17,9 @@ QuantumCollisionManager.prototype.registerCollisionConditions = function() {
   this.registerCollisionCondition(DumbCrate, Bullet,
       util.fn.constant(0),
       CollisionFunctions.GLOM);
-  this.registerCollisionCondition(Sphere, Bullet,
-      util.fn.constant(0),
-      CollisionFunctions.GLOM);
+  // this.registerCollisionCondition(Sphere, Bullet,
+  //     util.fn.constant(0),
+  //     CollisionFunctions.GLOM);
   this.registerCollisionCondition(Shelf, Bullet,
       util.fn.constant(0),
       CollisionFunctions.GLOM);
@@ -54,9 +54,9 @@ QuantumCollisionManager.prototype.registerCollisionConditions = function() {
   this.registerCollisionCondition(DumbCrate, Hero,
       util.fn.constant(Hero.HEIGHT),
       CollisionFunctions.BOXLIKE_AND_HERO);
-  this.registerCollisionCondition(Sphere, Hero,
-      util.fn.constant(Hero.HEIGHT),
-      CollisionFunctions.SPHERELIKE_AND_HERO);
+  // this.registerCollisionCondition(Sphere, Hero,
+  //     util.fn.constant(Hero.HEIGHT),
+  //     CollisionFunctions.SPHERELIKE_AND_HERO);
 };
 
 

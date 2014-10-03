@@ -11,7 +11,7 @@ Sun = function(message) {
   this.addPart(this.sphere);
 };
 goog.inherits(Sun, Thing);
-Sun.type = Types.SUN;
+Types.registerType(Sun, QuantumTypes.SUN);
 
 Sun.prototype.advance = function(dt) {
   this.advanceBasics(dt);

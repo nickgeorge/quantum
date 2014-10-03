@@ -45,13 +45,15 @@ Hero = function(message) {
     bobOffset: vec3.create()
   };
 
+  this.kills = 0;
+
   this.inputAdapter = new WorldInputAdapter().
       setKeyHandler(this.onKey, this).
       setMouseButtonHandler(this.onMouseButton, this).
       setMouseMoveHandler(this.onMouseMove, this);
 };
 goog.inherits(Hero, Walker);
-Hero.type = Types.HERO;
+Types.registerType(Hero, QuantumTypes.HERO);
 
 // Hero.JUMP_VELOCITY = vec3.fromValues(0, 70, -40);
 Hero.JUMP_MODIFIER = 10;

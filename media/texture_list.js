@@ -6,6 +6,7 @@ var textureRoot_ = 'media/images/';
 TextureList = {
   CRATE: textureRoot_ + 'crate.png',
   THWOMP: textureRoot_ + 'adambw.png',
+  // THWOMP: textureRoot_ + 'Ostrich_D.tga',
   GRASS: textureRoot_ + 'grass.png',
   SPARK: textureRoot_ + 'spark.png',
   ENERGY: textureRoot_ + 'energybwa.png',

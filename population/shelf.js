@@ -17,7 +17,7 @@ Shelf = function(message) {
   this.addPart(this.box);
 };
 goog.inherits(Shelf, Thing);
-Shelf.type = Types.SHELF;
+Types.registerType(Shelf, QuantumTypes.SHELF);
 
 Shelf.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();

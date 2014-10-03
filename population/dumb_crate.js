@@ -18,8 +18,9 @@ DumbCrate = function(message) {
   this.addPart(this.box);
 };
 goog.inherits(DumbCrate, Thing);
-DumbCrate.type = Types.DUMB_CRATE;
+Types.registerType(DumbCrate, QuantumTypes.DUMB_CRATE);
 
 DumbCrate.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();
 };
+

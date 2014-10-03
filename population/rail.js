@@ -18,6 +18,8 @@ Rail = function(message) {
   message.color = [1, 1, 0, 1];
   goog.base(this, message);
 
+  this.transluscent = true;
+
   this.owner = message.owner;
   this.anchor = message.anchor;
   this.alive = true;
@@ -28,7 +30,7 @@ Rail = function(message) {
 
 };
 goog.inherits(Rail, LeafThing);
-Rail.type = Types.RAIL;
+Types.registerType(Rail, QuantumTypes.RAIL);
 
 Rail.offset = vec3.fromValues(0, -.2, 0);
 

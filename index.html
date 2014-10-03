@@ -9,6 +9,7 @@
     <script src="/worldJS/gl-matrix.js"></script>
     <script src="/worldJS/rootworld.js"></script>
 
+    <script src="types.js"></script>
     <script src="population/offset_container.js"></script>
     <script src="population/dumb_crate.js"></script>
     <script src="population/sun.js"></script>
@@ -21,6 +22,8 @@
     <script src="population/fella.js"></script>
     <script src="population/gimble.js"></script>
     <script src="population/bounding_sphere.js"></script>
+    <script src="population/head.js"></script>
+    <script src="data/head_data.js"></script>
     <script src="effects/health_bar.js"></script>
     <script src="media/texture_list.js"></script>
     <script src="media/sound_list.js"></script>
@@ -41,10 +44,19 @@
               return 'Rails: ' + Env.world.hero.railAmmo;
             })).
             addWidget(new UpdatingWriter(25, 25, function() {
-              return 'Time: ' + Math.floor(Env.world.age);
+              var t = Math.floor(Env.world.age);
+              return  Math.floor(t/60) + (t%60 < 10 ? ':0' : ':') + t%60;
             })).
-            addWidget(new UpdatingWriter(300, 25, function() {
-              return 'Score: ' + Env.world.score;
+            addWidget(new UpdatingWriter(25, 50, function() {
+              if (!Env.world) return;
+              var left = Env.world.killsLeft;
+              this.font = 'bold 18px courier';
+              if (left == 0) {
+                this.font = 'bold 28px wolfenstein';
+                this.fillStyle = '#F00';
+                return 'Der Job ist Kompl' + String.fromCharCode(235) + 'ten';
+              }
+              return left + ' crate' + (left == 1 ? '' : 's') + ' left!';
             }));
 
         var glCanvas = document.getElementById('gl-canvas');

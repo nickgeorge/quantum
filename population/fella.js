@@ -3,6 +3,7 @@ Fella = function(message) {
   this.legAngle = (Math.random()*2 - 1) * Fella.MAX_LEG_ANGLE;
   this.stepDirection = 1;
   this.speed = message.speed || 0;
+  // vec3.set(this.velocity, 0, 0, this.speed);
 
 
   goog.base(this, message);
@@ -30,7 +31,7 @@ Fella = function(message) {
   this.addEffect(this.healthBar);
 };
 goog.inherits(Fella, Walker);
-Fella.type = Types.FELLA;
+Types.registerType(Fella, QuantumTypes.FELLA);
 
 Fella.MAX_LEG_ANGLE = Math.PI/6;
 
@@ -97,7 +98,9 @@ Fella.prototype.hit = function(bullet, part) {
         var groundRoot = owner.ground.getRoot();
         if (groundRoot.getType() == DumbCrate.type && !groundRoot.claimed) {
           groundRoot.claimed = true;
-          groundRoot.box.color = [0, 0, 1, 1];
+          Env.world.killsLeft--;
+          groundRoot.box.color = [0, 0, 1, .75];
+          groundRoot.transluscent = true;
         }
       }
 
@@ -157,11 +160,10 @@ Fella.prototype.buildBody = function() {
     damageMultiplier: .85
   });
 
-  this.head = new Sphere({
-    radius: .25,
+  this.head = new Head({
     position: [0, -Hero.HEIGHT + 2.2, 0],
-    texture: Textures.get(TextureList.KARL),
     name: "head",
+    color: this.color,
     isStatic: true,
     damageMultiplier: 4,
   });

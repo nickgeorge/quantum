@@ -20,6 +20,7 @@ QuantumWorld = function() {
 
   this.score = 0;
   this.maxTime = 180;
+  this.killsLeft = 15;
 
   this.G = 35;
 
@@ -53,13 +54,18 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
 
 QuantumWorld.prototype.advance = function(dt) {
   goog.base(this, 'advance', dt);
+
+  if (this.killsLeft == 0) {
+    Animator.getInstance().setPaused(true);
+    Animator.getInstance().setPaused = function(){};
+  }
 };
 
 
 QuantumWorld.prototype.populate = function() {
   var light = new Light({
-    ambientColor: [.32, .32, .32],
-    directionalColor: [.7, .5, .3]
+    ambientColor: [.4, .4, .4],
+    directionalColor: [.8, .6, .4]
   });
   this.addLight(light);
 
@@ -67,7 +73,7 @@ QuantumWorld.prototype.populate = function() {
   texturesByFace
   this.shelf = new Shelf({
     position: [0, 0, 0],
-    size: [150, 150, 150],
+    size: [200, 200, 200],
     texture: Textures.get(TextureList.WALL),
     textureCounts: [50, 50],
     color: [1, 1, 1, 1]
@@ -77,7 +83,7 @@ QuantumWorld.prototype.populate = function() {
   var addThings = true;
 
   if (addThings) {
-    for (var k = 0; k < 10; k++) {
+    for (var k = 0; k < 15; k++) {
       var dumbCrate = new DumbCrate({
 
         position: [

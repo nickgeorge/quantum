@@ -17,7 +17,7 @@ ThrowinGurnade = function(message) {
   this.alive = true;
 };
 goog.inherits(ThrowinGurnade, Thing);
-ThrowinGurnade.type = Types.THROWIN_GURNADE;
+Types.registerType(ThrowinGurnade, QuantumTypes.THROWIN_GURNADE);
 
 ThrowinGurnade.Stage = {
   TICKING: 'TICKING',
