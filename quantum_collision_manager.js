@@ -17,9 +17,9 @@ QuantumCollisionManager.prototype.registerCollisionConditions = function() {
   this.registerCollisionCondition(DumbCrate, Bullet,
       util.fn.constant(0),
       CollisionFunctions.GLOM);
-  // this.registerCollisionCondition(Sphere, Bullet,
-  //     util.fn.constant(0),
-  //     CollisionFunctions.GLOM);
+  this.registerCollisionCondition(Head, Bullet,
+      util.fn.constant(0),
+      CollisionFunctions.GLOM);
   this.registerCollisionCondition(Shelf, Bullet,
       util.fn.constant(0),
       CollisionFunctions.GLOM);

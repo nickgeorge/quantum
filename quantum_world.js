@@ -106,7 +106,7 @@ QuantumWorld.prototype.populate = function() {
       this.addThing(dumbCrate);
 
     }
-    for (var k = 0; k < 5; k++) {
+    for (var k = 0; k < 0; k++) {
       var sphere = new Sphere({
 
         position: [
