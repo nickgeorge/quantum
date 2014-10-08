@@ -160,7 +160,9 @@ Fella.prototype.buildBody = function() {
     damageMultiplier: .85
   });
 
-  this.head = new Head({
+  this.head = new DataThing({
+    data: HeadData,
+    uScale: .015,
     position: [0, -Hero.HEIGHT + 2.2, 0],
     name: "head",
     color: this.color,

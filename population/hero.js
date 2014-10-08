@@ -245,6 +245,14 @@ Hero.prototype.onMouseMove = function(event) {
       rotY,
       this.upOrientation);
 
+  var magSqr = Math.abs(
+      util.sqr(upOrientation[0]) +
+      util.sqr(upOrientation[1]) +;
+      util.sqr(upOrientation[2])));
+  if (magSqr < .999) {
+    quat.calculateW(upOrientation);
+  }
+
   if ((this.viewRotation[0] < 1/util.math.ROOT_2 || movementY > 0) &&
       (this.viewRotation[0] > -1/util.math.ROOT_2 || movementY < 0)) {
     quat.rotateX(this.viewRotation,
