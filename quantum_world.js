@@ -265,20 +265,24 @@ QuantumWorld.prototype.draw = function() {
           thingA.distanceSquaredToCamera;
     });
 
-    for (var type in this.thingsByType) {
-      var things = this.thingsByType[type];
-      if (type == Fella.type && false) {
-        this.drawFellas(things);
-      } else {
-        util.array.forEach(things, function(thing) {
-          thing.draw();
-        });
-      }
-    }
+    // for (var type in this.thingsByType) {
+    //   var things = this.thingsByType[type];
+    //   if (type == Fella.type && false) {
+    //     this.drawFellas(things);
+    //   } else {
+    //     util.array.forEach(things, function(thing) {
+    //       thing.draw();
+    //     });
+    //   }
+    // }
+    util.array.forEach(this.opaque, function(opaqueDrawable) {
+      opaqueDrawable.draw();
+    });
 
     util.array.forEach(this.transluscent, function(transluscentDrawable) {
       transluscentDrawable.draw();
     });
+
   } else {
     this.drawables.forEach(function(drawable) {
       drawable.draw();
