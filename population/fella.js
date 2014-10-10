@@ -87,22 +87,7 @@ Fella.prototype.hit = function(bullet, part) {
       var owner = bullet.owner;
       owner.railAmmo += 1;
 
-      var score = 10;
-      if (bullet.getType() == Bullet.type) score *= 1.5;
-      if (!owner.isLanded()) score *= 20;
-      else if (owner.ground != this.ground) score *= 5;
-
-      Env.world.score += score;
-
-      if (owner.isLanded()) {
-        var groundRoot = owner.ground.getRoot();
-        if (groundRoot.getType() == DumbCrate.type && !groundRoot.claimed) {
-          groundRoot.claimed = true;
-          Env.world.killsLeft--;
-          groundRoot.box.color = [0, 0, 1, .75];
-          groundRoot.transluscent = true;
-        }
-      }
+      owner.registerKill(this, bullet);
 
       // vec3.copy(
       //     part.velocity,
@@ -188,4 +173,13 @@ Fella.prototype.buildBody = function() {
     this.rightArm,
     this.leftArm,
   ]);
+};
+
+
+Fella.prototype.drawPartByName = function(name) {
+  if (this.isDisposed || !this.visible) return;
+  Env.gl.pushModelMatrix();
+  this.transform();
+  this[name].draw();
+  Env.gl.popModelMatrix();
 };

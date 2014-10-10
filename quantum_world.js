@@ -20,7 +20,8 @@ QuantumWorld = function() {
 
   this.score = 0;
   this.maxTime = 180;
-  this.killsLeft = 15;
+
+  this.thingsByType = {};
 
   this.G = 35;
 
@@ -30,6 +31,25 @@ QuantumWorld = function() {
       setPointerLockChangeHandler(this.onPointerLockChange, this);
 };
 goog.inherits(QuantumWorld, World);
+
+
+QuantumWorld.prototype.addThing = function(thing) {
+  goog.base(this, 'addThing', thing);
+
+  var key = thing.getType();
+  if (!this.thingsByType[key]) {
+    this.thingsByType[key] = [];
+  }
+  this.thingsByType[key].push(thing);
+};
+
+
+QuantumWorld.prototype.removeThing = function(thing) {
+  goog.base(this, 'removeThing', thing);
+
+  var key = thing.getType();
+  util.array.remove(this.thingsByType[key], thing);
+};
 
 
 /**
@@ -54,6 +74,15 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
 
 QuantumWorld.prototype.advance = function(dt) {
   goog.base(this, 'advance', dt);
+
+  var claimedCrates = 0;
+
+  this.things.forEach(function(thing) {
+    if (thing.getType() == DumbCrate.type) {
+      if (thing.claimed) claimedCrates++;
+    }
+  });
+  this.killsLeft = 15 - claimedCrates;
 
   if (this.killsLeft == 0) {
     Animator.getInstance().setPaused(true);
@@ -202,3 +231,82 @@ QuantumWorld.prototype.onPointerLockChange = function(event) {
     Animator.getInstance().setPaused(true);
   }
 };
+
+
+
+
+QuantumWorld.prototype.draw = function() {
+  Env.gl.reset(this.backgroundColor);
+
+  Env.gl.pushViewMatrix();
+
+  this.applyLights();
+  this.camera.transform();
+  Env.gl.setViewMatrixUniforms();
+
+  if (this.sortBeforeDrawing) {
+    var cameraPosition = this.camera.getPosition();
+
+    this.transluscent.length = 0;
+    this.opaque.length = 0;
+
+    this.drawables.forEach(function(drawable) {
+      if (drawable.isDisposed) return;
+      drawable.computeDistanceSquaredToCamera(cameraPosition);
+      if (drawable.transluscent) {
+        this.transluscent.push(drawable);
+      } else {
+        this.opaque.push(drawable);
+      }
+    }, this);
+
+    this.transluscent.sort(function(thingA, thingB) {
+      return thingB.distanceSquaredToCamera -
+          thingA.distanceSquaredToCamera;
+    });
+
+    for (var type in this.thingsByType) {
+      var things = this.thingsByType[type];
+      if (type == Fella.type && false) {
+        this.drawFellas(things);
+      } else {
+        util.array.forEach(things, function(thing) {
+          thing.draw();
+        });
+      }
+    }
+
+    util.array.forEach(this.transluscent, function(transluscentDrawable) {
+      transluscentDrawable.draw();
+    });
+  } else {
+    this.drawables.forEach(function(drawable) {
+      drawable.draw();
+    });
+  }
+
+  Env.gl.popViewMatrix();
+};
+
+QuantumWorld.prototype.drawFellas = function(fellas) {
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('head');
+  });
+
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('torso');
+  });
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('rightLeg');
+  });
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('leftLeg');
+  });
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('rightArm');
+  });
+  util.array.forEach(fellas, function(fella) {
+    fella.drawPartByName('leftArm');
+  });
+};
+
