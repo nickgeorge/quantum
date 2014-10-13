@@ -25,6 +25,7 @@ Hero = function(message) {
   this.walkAudio.volume = 1
   this.landAudio = Sounds.get(SoundList.LAND);
   this.jumpAudio = Sounds.get(SoundList.JUMP);
+  this.captureAudio = Sounds.get(SoundList.CAPTURE);
 
   this.railAmmo = 3;
 
@@ -319,6 +320,10 @@ Hero.prototype.registerKill = function(fella, bullet) {
   if (this.isLanded()) {
     var groundRoot = this.ground.getRoot();
     if (groundRoot.getType() == DumbCrate.type && !groundRoot.claimed) {
+
+
+      this.captureAudio.currentTime = 0;
+      this.captureAudio.play();
       groundRoot.claimed = true;
       groundRoot.box.color = [0, 0, 1, .75];
       groundRoot.transluscent = true;

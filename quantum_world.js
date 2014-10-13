@@ -21,7 +21,7 @@ QuantumWorld = function() {
   this.score = 0;
   this.maxTime = 180;
 
-  this.thingsByType = {};
+  this.drawablesByType = {};
 
   this.G = 35;
 
@@ -33,22 +33,22 @@ QuantumWorld = function() {
 goog.inherits(QuantumWorld, World);
 
 
-QuantumWorld.prototype.addThing = function(thing) {
-  goog.base(this, 'addThing', thing);
+QuantumWorld.prototype.addDrawable = function(drawable) {
+  goog.base(this, 'addDrawable', drawable);
 
-  var key = thing.getType();
-  if (!this.thingsByType[key]) {
-    this.thingsByType[key] = [];
+  var key = drawable.getType();
+  if (!this.drawablesByType[key]) {
+    this.drawablesByType[key] = [];
   }
-  this.thingsByType[key].push(thing);
+  this.drawablesByType[key].push(drawable);
 };
 
 
-QuantumWorld.prototype.removeThing = function(thing) {
-  goog.base(this, 'removeThing', thing);
+QuantumWorld.prototype.removeDrawable = function(drawable) {
+  goog.base(this, 'removeDrawable', drawable);
 
-  var key = thing.getType();
-  util.array.remove(this.thingsByType[key], thing);
+  var key = drawable.getType();
+  util.array.remove(this.drawablesByType[key], drawable);
 };
 
 
@@ -73,7 +73,7 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
 
 
 QuantumWorld.prototype.advance = function(dt) {
-  goog.base(this, 'advance', dt);
+  this.advanceBasics(dt);
 
   var claimedCrates = 0;
 
@@ -235,62 +235,62 @@ QuantumWorld.prototype.onPointerLockChange = function(event) {
 
 
 
-QuantumWorld.prototype.draw = function() {
-  Env.gl.reset(this.backgroundColor);
+// QuantumWorld.prototype.draw = function() {
+//   Env.gl.reset(this.backgroundColor);
 
-  Env.gl.pushViewMatrix();
+//   Env.gl.pushViewMatrix();
 
-  this.applyLights();
-  this.camera.transform();
-  Env.gl.setViewMatrixUniforms();
+//   this.applyLights();
+//   this.camera.transform();
+//   Env.gl.setViewMatrixUniforms();
 
-  if (this.sortBeforeDrawing) {
-    var cameraPosition = this.camera.getPosition();
+//   if (this.sortBeforeDrawing) {
+//     var cameraPosition = this.camera.getPosition();
 
-    this.transluscent.length = 0;
-    this.opaque.length = 0;
+//     this.transluscent.length = 0;
+//     this.opaque.length = 0;
 
-    this.drawables.forEach(function(drawable) {
-      if (drawable.isDisposed) return;
-      drawable.computeDistanceSquaredToCamera(cameraPosition);
-      if (drawable.transluscent) {
-        this.transluscent.push(drawable);
-      } else {
-        this.opaque.push(drawable);
-      }
-    }, this);
+//     this.drawables.forEach(function(drawable) {
+//       if (drawable.isDisposed) return;
+//       drawable.computeDistanceSquaredToCamera(cameraPosition);
+//       if (drawable.transluscent) {
+//         this.transluscent.push(drawable);
+//       } else {
+//         this.opaque.push(drawable);
+//       }
+//     }, this);
 
-    this.transluscent.sort(function(thingA, thingB) {
-      return thingB.distanceSquaredToCamera -
-          thingA.distanceSquaredToCamera;
-    });
+//     this.transluscent.sort(function(thingA, thingB) {
+//       return thingB.distanceSquaredToCamera -
+//           thingA.distanceSquaredToCamera;
+//     });
 
-    // for (var type in this.thingsByType) {
-    //   var things = this.thingsByType[type];
-    //   if (type == Fella.type && false) {
-    //     this.drawFellas(things);
-    //   } else {
-    //     util.array.forEach(things, function(thing) {
-    //       thing.draw();
-    //     });
-    //   }
-    // }
-    util.array.forEach(this.opaque, function(opaqueDrawable) {
-      opaqueDrawable.draw();
-    });
+//     for (var type in this.drawablesByType) {
+//       var things = this.drawablesByType[type];
+//       if (type == Fella.type && false) {
+//         this.drawFellas(things);
+//       } else {
+//         util.array.forEach(things, function(thing) {
+//           if (!thing.transluscent) thing.draw();
+//         });
+//       }
+//     }
+//     // util.array.forEach(this.opaque, function(opaqueDrawable) {
+//     //   opaqueDrawable.draw();
+//     // });
 
-    util.array.forEach(this.transluscent, function(transluscentDrawable) {
-      transluscentDrawable.draw();
-    });
+//     util.array.forEach(this.transluscent, function(transluscentDrawable) {
+//       transluscentDrawable.draw();
+//     });
 
-  } else {
-    this.drawables.forEach(function(drawable) {
-      drawable.draw();
-    });
-  }
+//   } else {
+//     this.drawables.forEach(function(drawable) {
+//       drawable.draw();
+//     });
+//   }
 
-  Env.gl.popViewMatrix();
-};
+//   Env.gl.popViewMatrix();
+// };
 
 QuantumWorld.prototype.drawFellas = function(fellas) {
   util.array.forEach(fellas, function(fella) {

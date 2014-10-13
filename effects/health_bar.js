@@ -4,6 +4,7 @@ HealthBar = function(message) {
   this.pane = new Pane({
     size: [1, .2],
     color: [0, 0, 0, 1],
+    dynamic: true
   });
 
   this.addPart(new PaneOutline({

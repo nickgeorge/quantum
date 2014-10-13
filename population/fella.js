@@ -183,3 +183,17 @@ Fella.prototype.drawPartByName = function(name) {
   this[name].draw();
   Env.gl.popModelMatrix();
 };
+
+
+Fella.prototype.drawNotHead = function() {
+  if (this.isDisposed || !this.visible) return;
+  Env.gl.pushModelMatrix();
+  this.transform();
+  this.torso.draw();
+  this.leftLeg.draw();
+  this.rightLeg.draw();
+  this.leftArm.draw();
+  this.rightArm.draw();
+  this.healthBar.draw();
+  Env.gl.popModelMatrix();
+};

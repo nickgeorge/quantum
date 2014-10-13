@@ -15,4 +15,5 @@ SoundList = {
   LAND: soundRoot_ + 'land.mp3',
   SPLIT_YOUR_INFINITIVES: soundRoot_ + 'split_your_infinitives.mp3',
   ZAP: soundRoot_ + 'zap.mp3',
+  CAPTURE: soundRoot_ + 'capture.mp3',
 }

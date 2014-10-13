@@ -33,7 +33,9 @@
 
     <script type="text/javascript">
       function init() {
-        ContainerManager.initSingleton(document.getElementById('game-div'));
+        var fullscreenDiv = document.getElementById('fullscreen-tab');
+        ContainerManager.initSingleton(fullscreenDiv,
+            document.getElementById('game-div'));
 
         var hudCanvas = document.getElementById('hud-canvas')
         var hud = new HUD(hudCanvas).
@@ -82,10 +84,12 @@
 
 
   <body onload="init();">
-    <div id="game-div" tabindex="1">
-      <canvas id="gl-canvas"></canvas>
-      <canvas id="hud-canvas"></canvas>
-    </div>
-    <canvas id="hidden-canvas"></canvas>
+    <div id="fullscreen-tab">
+      <div id="game-div" tabindex="1">
+        <canvas id="gl-canvas"></canvas>
+        <canvas id="hud-canvas"></canvas>
+      </div>
+      <canvas id="hidden-canvas"></canvas>
+    <div>
   </body>
 </html>
