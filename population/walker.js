@@ -8,6 +8,7 @@ Walker = function(message) {
   this.isRoot = true;
 
   this.landed = false;
+  this.magLock = false;
 
   this.movementUp = quat.create();
 
@@ -18,6 +19,10 @@ Walker = function(message) {
   };
 };
 goog.inherits(Walker, Thing);
+
+
+Walker.HEIGHT = 2;
+Walker.WIDTH = .5;
 
 Walker.prototype.advanceWalker = function(dt) {
   this.advanceBasics(dt);
@@ -36,6 +41,7 @@ Walker.prototype.advanceWalker = function(dt) {
             dt));
   }
 };
+
 
 // TODO: Adjust height
 Walker.prototype.land = function(ground) {
@@ -71,9 +77,37 @@ Walker.prototype.land = function(ground) {
   quat.multiply(this.upOrientation, rotation, this.upOrientation);
 };
 
+
 Walker.prototype.unland = function() {
+  var oldGround = this.ground;
   this.landed = false;
   this.ground = null;
+
+  var groundRoot = oldGround.getRoot();
+
+  var closestEncounter = null;
+
+
+  // var p_0_gr = groundRoot.parentToLocalCoords(vec3.create(), this.lastPosition);
+  // var p_1_gr = groundRoot.parentToLocalCoords(vec3.create(), this.position);
+
+  // util.array.forEach(groundRoot.getParts(), function(part) {
+  //   if (part == oldGround) return;
+  //   var encounter = part.findEncounter(p_0_gr, p_1_gr, Walker.HEIGHT * 2, {
+  //     exclude: oldGround,
+  //     tolerance: Walker.HEIGHT * 2,
+  //   });
+
+  //   if (!encounter) return;
+  //   if (!closestEncounter || encounter.distance < closestEncounter.distance) {
+  //     closestEncounter = encounter;
+  //   }
+  // }, this);
+  // if (closestEncounter) {
+  //   closestEncounter.part.snapIn(this);
+  //   this.land(closestEncounter.part);
+  // }
+
 
   quat.copy(this.movementUp, this.upOrientation);
 };

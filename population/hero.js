@@ -37,8 +37,7 @@ Hero = function(message) {
   this.sensitivityX = .0035;
   this.sensitivityY = .0035;
 
-  this.boosting = false;
-  this.boostVelocity = [0, 0, -1];
+  this.magLock = false;
 
 
   this.objectCache.thing = {
@@ -98,27 +97,23 @@ Hero.prototype.advance = function(dt) {
     }
 
   } else {
+    var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
+    var factor = sum == 2 ? 1/util.math.ROOT_2 : 1;
+    var effBoost = vec3.fromValues(
+        factor * (this.keyMove[0]),
+        0,
+        factor * (this.keyMove[2]));
+    vec3.scale(effBoost, effBoost, 20);
 
-    // if (this.boosting) {
+    var v_mp = vec3.transformQuat(vec3.temp,
+        this.fromUpOrientation(effBoost),
+        quat.conjugate([],this.getMovementUp()));
 
-      var sum = Math.abs(this.keyMove[0]) + Math.abs(this.keyMove[2]);
-      var factor = sum == 2 ? 1/util.math.ROOT_2 : 1;
-      var effBoost = vec3.fromValues(
-          factor * (this.keyMove[0]),
-          0,
-          factor * (this.keyMove[2]));
-      vec3.scale(effBoost, effBoost, 20);
-
-      var v_mp = vec3.transformQuat(vec3.temp,
-          this.fromUpOrientation(effBoost),
-          quat.conjugate([],this.getMovementUp()));
-
-      vec3.add(this.velocity,
-          this.velocity,
-          vec3.scale(vec3.temp,
-              v_mp,
-              dt));
-    // }
+    vec3.add(this.velocity,
+        this.velocity,
+        vec3.scale(vec3.temp,
+            v_mp,
+            dt));
 
     this.walkAudio.loop = false;
     this.bobAge = 0;
@@ -198,7 +193,7 @@ Hero.prototype.onKey = function(event) {
       isKeydown && this.jump();
       break;
     case KeyCode.SHIFT:
-      this.boosting = isKeydown;
+      this.magLock = isKeydown;
       break;
   }
 };

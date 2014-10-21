@@ -20,5 +20,7 @@ TextureList = {
   PLASMA: textureRoot_ + 'plasma.jpg',
   FACE: textureRoot_ + 'face.jpg',
   KARL: textureRoot_ + 'karl.jpg',
+  QUICKSILVER: textureRoot_ + 'quicksilver.jpg',
+  GRANITE: textureRoot_ + 'granite_raw.jpg',
 };
 

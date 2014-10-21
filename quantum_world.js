@@ -93,8 +93,10 @@ QuantumWorld.prototype.advance = function(dt) {
 
 QuantumWorld.prototype.populate = function() {
   var light = new Light({
-    ambientColor: [.4, .4, .4],
+    ambientColor: [.42, .42, .42],
+    // ambientColor: [.2, .2, .2],
     directionalColor: [.8, .6, .4]
+    // directionalColor: [1, 0, 0]
   });
   this.addLight(light);
 
@@ -112,7 +114,7 @@ QuantumWorld.prototype.populate = function() {
   var addThings = true;
 
   if (addThings) {
-    for (var k = 0; k < 15; k++) {
+    for (var k = 0; k < 25; k++) {
       var dumbCrate = new DumbCrate({
 
         position: [
@@ -121,9 +123,9 @@ QuantumWorld.prototype.populate = function() {
           (Math.random() - .5) * this.shelf.size[2],
         ],
         size: [
-          10 + Math.random() * 30,
-          10 + Math.random() * 30,
-          10 + Math.random() * 30,
+          5 + Math.random() * 25,
+          5 + Math.random() * 25,
+          5 + Math.random() * 25,
         ],
         texture: Textures.get(TextureList.THWOMP),
         textureCounts: [1, 1],
@@ -161,11 +163,11 @@ QuantumWorld.prototype.populate = function() {
         0, 0, 0
         // util.math.random(-40, 40),
         // -this.shelf.size[1]/2 + 5,
-        // util.math.random(-40, 40)
+      // util.math.random(-40, 40)
       ],
       // speed: 4 + Math.random() * 2,
-      speed: 5,
-      color: vec4.randomColor([]),
+      speed: 3,
+      color: vec4.WHITE,
       yaw: Math.random()*2*Math.PI,
       pitch: Math.random()*2*Math.PI,
       rYaw: Math.random()*2 - 1
