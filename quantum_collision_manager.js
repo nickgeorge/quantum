@@ -13,6 +13,33 @@ QuantumCollisionManager = function(world) {
 goog.inherits(QuantumCollisionManager, CollisionManager);
 
 
+QuantumCollisionManager.prototype.thingOnThing = function() {
+  var crates = this.world.getThingsByClass(DumbCrate);
+  var fellas = this.world.getThingsByClass(Fella);
+  var heros = this.world.getThingsByClass(Hero);
+  var shelves = this.world.getThingsByClass(Shelf);
+
+  shelves.forEachCross(heros, function(shelf, hero) {
+    this.doPerPair(shelf, hero);
+  }, this);
+  crates.forEachCross(heros, function(crate, hero) {
+    this.doPerPair(crate, hero);
+  }, this);
+  shelves.forEachCross(fellas, function(shelf, fella) {
+    this.doPerPair(shelf, fella);
+  }, this);
+  crates.forEachCross(fellas, function(crate, fella) {
+    this.doPerPair(crate, fella);
+  }, this);
+
+  // crates.forEach(function(crate) {
+  //   fellas.forEach(function(fella) {
+  //     this.doPerPair(crate, fella);
+  //   }, this);
+  // }, this);
+};
+
+
 QuantumCollisionManager.prototype.registerCollisionConditions = function() {
   this.registerCollisionCondition(DumbCrate, Bullet,
       util.fn.constant(0),

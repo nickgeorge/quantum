@@ -11,6 +11,7 @@ QuantumWorld = function() {
   goog.base(this);
   this.shelf = null;
   this.hero = null;
+  this.light = null;
   this.setBackgroundColor([0, 0, 0, 1]);
   this.setCollisionManager(new QuantumCollisionManager(this));
 
@@ -24,6 +25,9 @@ QuantumWorld = function() {
   this.drawablesByType = {};
 
   this.G = 35;
+
+  this.ambientCoefficient = .42
+  new Twiddler(this, 'ambientCoefficient', .025);
 
   this.inputAdapter = new WorldInputAdapter().
       setMouseButtonHandler(this.onMouseButton, this).
@@ -75,6 +79,11 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
 QuantumWorld.prototype.advance = function(dt) {
   this.advanceBasics(dt);
 
+  vec3.set(this.light.ambientColor,
+      this.ambientCoefficient,
+      this.ambientCoefficient,
+      this.ambientCoefficient);
+
   var claimedCrates = 0;
 
   this.things.forEach(function(thing) {
@@ -92,13 +101,17 @@ QuantumWorld.prototype.advance = function(dt) {
 
 
 QuantumWorld.prototype.populate = function() {
-  var light = new Light({
-    ambientColor: [.42, .42, .42],
+  this.light = new Light({
+    ambientColor: [this.ambientCoefficient,
+      this.ambientCoefficient,
+      this.ambientCoefficient
+    ],
+
     // ambientColor: [.2, .2, .2],
     directionalColor: [.8, .6, .4]
     // directionalColor: [1, 0, 0]
   });
-  this.addLight(light);
+  this.addLight(this.light);
 
   var texturesByFace = {};
   texturesByFace
@@ -157,7 +170,7 @@ QuantumWorld.prototype.populate = function() {
     }
   }
 
-  for (var i = 0; i < 300; i++) {
+  for (var i = 0; i < 300 * 1; i++) {
     var fella = new Fella({
       position: [
         0, 0, 0
@@ -184,7 +197,7 @@ QuantumWorld.prototype.populate = function() {
     rYaw: 8*.9*Math.PI,
     rRoll: 8*.8*Math.PI,
   });
-  light.anchor = sun;
+  this.light.anchor = sun;
   this.addThing(sun);
 
   this.camera = new FpsCamera();

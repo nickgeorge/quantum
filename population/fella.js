@@ -75,9 +75,9 @@ Fella.prototype.getOuterRadius = function() {
 Fella.prototype.jump = function() {
   if (!this.isLanded()) return;
   vec3.set(this.velocity,
-      this.velocity[0] * 1.25 * 2,
+      this.velocity[0] * 1.25 * 4,
       60,
-      this.velocity[2] * 1.25 * 2);
+      this.velocity[2] * 1.25 * 4);
   this.unland();
   this.rYaw = 0;
 };

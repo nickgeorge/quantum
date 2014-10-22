@@ -37,8 +37,6 @@ Hero = function(message) {
   this.sensitivityX = .0035;
   this.sensitivityY = .0035;
 
-  this.magLock = false;
-
 
   this.objectCache.thing = {
     rotY: quat.create(),
