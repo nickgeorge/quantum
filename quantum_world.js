@@ -91,12 +91,12 @@ QuantumWorld.prototype.advance = function(dt) {
       if (thing.claimed) claimedCrates++;
     }
   });
-  this.killsLeft = 15 - claimedCrates;
+  this.killsLeft = 25 - claimedCrates;
 
-  if (this.killsLeft == 0) {
-    Animator.getInstance().setPaused(true);
-    Animator.getInstance().setPaused = function(){};
-  }
+  // if (this.killsLeft == 0) {
+  //   Animator.getInstance().setPaused(true);
+  //   Animator.getInstance().setPaused = function(){};
+  // }
 };
 
 
@@ -107,8 +107,7 @@ QuantumWorld.prototype.populate = function() {
       this.ambientCoefficient
     ],
 
-    // ambientColor: [.2, .2, .2],
-    directionalColor: [.8, .6, .4]
+    directionalColor: [.8, .6, .4],
     // directionalColor: [1, 0, 0]
   });
   this.addLight(this.light);
