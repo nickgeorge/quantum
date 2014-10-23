@@ -257,7 +257,7 @@ Hero.prototype.onMouseMove = function(event) {
       util.math.sqr(this.upOrientation[1]) +
       util.math.sqr(this.upOrientation[2]) +
       util.math.sqr(this.upOrientation[3]));
-  if (magSqr < .999) {
+  if (magSqr < .999 || magSqr > 1.001) {
     quat.calculateW(this.upOrientation, this.upOrientation);
   }
 
