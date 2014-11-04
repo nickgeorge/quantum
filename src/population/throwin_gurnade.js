@@ -1,3 +1,15 @@
+goog.provide('ThrowinGurnade');
+
+goog.require('QuantumTypes');
+goog.require('TextureList');
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @struct
+ * @extends {Thing}
+ */
 ThrowinGurnade = function(message) {
   goog.base(this, message);
   this.radius = message.radius;
@@ -29,7 +41,7 @@ ThrowinGurnade.prototype.advance = function(dt) {
   if (this.isDisposed) return;
   this.advanceBasics(dt);
   if (this.stage == ThrowinGurnade.Stage.TICKING) {
-    if (!this.landed) this.velocity[1] -= Env.world.G/25;
+    this.velocity[1] -= Env.world.G/25;
     vec3.set(this.sphere.scale,
         .5 + Math.random() * this.age*2,
         .5 + Math.random() * this.age*2,
@@ -44,7 +56,7 @@ ThrowinGurnade.prototype.advance = function(dt) {
     }
   }
   if (this.stage == ThrowinGurnade.Stage.EXPLODING) {
-    this.stage == ThrowinGurnade.Stage.EXPLODING;
+    this.stage = ThrowinGurnade.Stage.EXPLODING;
     vec4.set(this.sphere.color, 0, 0, 0, 1);
     vec3.set(this.sphere.scale, 2, 2, 2);
   }

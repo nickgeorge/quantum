@@ -1,3 +1,14 @@
+goog.provide('Head');
+
+goog.require('HeadData');
+goog.require('LeafThing');
+
+
+/**
+ * @constructor
+ * @extends {LeafThing}
+ * @struct
+ */
 Head = function(msg) {
   goog.base(this, msg);
 
@@ -6,6 +17,7 @@ Head = function(msg) {
   this.finalize();
 };
 goog.inherits(Head, LeafThing);
+
 
 Head.positionBuffer = null;
 Head.prototype.getPositionBuffer = function() {

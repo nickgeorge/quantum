@@ -1,3 +1,14 @@
+goog.provide('Sun');
+
+goog.require('Sphere');
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 Sun = function(message) {
   goog.base(this, message);
   this.radius = message.radius || 5;

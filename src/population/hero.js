@@ -1,7 +1,14 @@
+goog.provide('Hero');
+
+goog.require('Gimble');
+goog.require('QuantumTypes');
+goog.require('Walker');
+goog.require('WorldInputAdapter');
+
+
 /**
  * @constructor
  * @extends {Walker}
- * @inherites {FpsAnchor}
  * @struct
  */
 Hero = function(message) {
@@ -9,12 +16,6 @@ Hero = function(message) {
 
   this.keyMove = vec3.create();
 
-  this.viewRotation = quat.create();
-
-  this.initialViewRotation = quat.create();
-  this.terminalViewRotation = quat.create();
-  this.isViewTransitioning = false;
-  this.viewTransitionT = 0;
 
   this.v_ground = 20;
   this.v_air = 30;
@@ -25,6 +26,7 @@ Hero = function(message) {
   this.walkAudio.volume = 1
   this.landAudio = Sounds.get(SoundList.LAND);
   this.jumpAudio = Sounds.get(SoundList.JUMP);
+  this.shootAudio = Sounds.get(SoundList.ARROW);
   this.captureAudio = Sounds.get(SoundList.CAPTURE);
 
   this.railAmmo = 3;
@@ -61,7 +63,6 @@ Hero.WIDTH = .5;
 
 Hero.prototype.advance = function(dt) {
   this.advanceWalker(dt);
-  var cache = Hero.objectCache;
 
   if (this.isViewTransitioning) {
     this.viewTransitionT += 3 * dt;
@@ -87,7 +88,7 @@ Hero.prototype.advance = function(dt) {
       if (this.walkAudio.paused) {
         this.walkAudio.loop = true;
         this.walkAudio.currentTime = 0;
-        this.walkAudio.play();
+        this.walkAudio.maybePlay();
       }
     } else {
       this.walkAudio.loop = false;
@@ -137,20 +138,19 @@ Hero.prototype.land = function(ground) {
 
 
   this.landAudio.currentTime = 0;
-  this.landAudio.play();
+  this.landAudio.maybePlay();
 };
 
 
 Hero.prototype.jump = function() {
   if (!this.isLanded()) return;
   vec3.set(this.velocity,
-      this.velocity[0] * 1.25,
+      this.velocity[0] * 1,
       60,
-      this.velocity[2] * 1.25);
-  this.unland();
+      this.velocity[2] * 1);
+  this.unland(true);
 
-  this.jumpAudio.currentTime = 0;
-  this.jumpAudio.play();
+  this.jumpAudio.maybePlay();
 };
 
 
@@ -191,7 +191,7 @@ Hero.prototype.onKey = function(event) {
       isKeydown && this.jump();
       break;
     case KeyCode.SHIFT:
-      this.magLock = isKeydown;
+      this.maglock = isKeydown;
       break;
   }
 };
@@ -213,7 +213,7 @@ Hero.prototype.onMouseButton = function(event) {
       owner: this,
     }));
 
-    Sounds.getAndPlay(SoundList.ARROW);
+    this.shootAudio.maybePlay();
 
   } else {
     // var v_shot = [0, 0, -100];
@@ -239,7 +239,6 @@ Hero.prototype.onMouseButton = function(event) {
 
 
 Hero.prototype.onMouseMove = function(event) {
-  if (this.rotating) return;
   var movementX = this.inputAdapter.getMovementX(event);
   var movementY = this.inputAdapter.getMovementY(event);
 
@@ -270,23 +269,37 @@ Hero.prototype.onMouseMove = function(event) {
 };
 
 
-Hero.prototype.getViewOrientation = function(out) {
-  return quat.multiply(out, this.upOrientation, this.viewRotation);
-};
+Hero.prototype.getViewOrientation = function() {
+  var result = quat.create();
+  return function() {
+    return quat.multiply(result, this.upOrientation, this.viewRotation);
+  };
+}();
 
 
-Hero.prototype.getConjugateViewOrientation = function(out) {
-  return quat.conjugate(out,
-      this.getViewOrientation(out));
-};
+Hero.prototype.getConjugateViewOrientation = function() {
+  var result = quat.create();
+  return function() {
+    return quat.conjugate(result, this.getViewOrientation());
+  }
+}();
 
 
 Hero.prototype.fromViewOrientation = function() {
-  var viewOrientation = quat.create();
   var result = vec3.create();
-  return function(a) {
-    this.getViewOrientation(viewOrientation);
+  return function(a, opt_viewOrientation) {
+    var viewOrientation = opt_viewOrientation || this.getViewOrientation();
     return vec3.transformQuat(result, a, viewOrientation);
+  };
+}();
+
+
+Hero.prototype.toViewOrientation = function() {
+  var result = vec3.create();
+  return function(a, opt_conjugateViewOrientation) {
+    var conjugateViewOrientation = opt_conjugateViewOrientation ||
+        this.getConjugateViewOrientation();
+    return vec3.transformQuat(result, a, conjugateViewOrientation);
   };
 }();
 
@@ -315,8 +328,7 @@ Hero.prototype.registerKill = function(fella, bullet) {
     if (groundRoot.getType() == DumbCrate.type && !groundRoot.claimed) {
 
 
-      this.captureAudio.currentTime = 0;
-      this.captureAudio.play();
+      this.captureAudio.maybePlay();
       groundRoot.claimed = true;
       groundRoot.box.color = [0, 0, 1, .75];
       groundRoot.transluscent = true;

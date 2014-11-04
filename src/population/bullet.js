@@ -1,3 +1,16 @@
+goog.provide('Bullet');
+
+goog.require('QuantumTypes');
+goog.require('TextureList');
+goog.require('Thing');
+goog.require('Sphere');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 Bullet = function(message) {
   message.velocityType = Thing.VelocityType.ABSOLUTE;
   goog.base(this, message);

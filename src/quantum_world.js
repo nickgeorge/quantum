@@ -1,16 +1,28 @@
 goog.provide('QuantumWorld');
 
+goog.require('Fella');
+goog.require('Hero');
+goog.require('QuantumCollisionManager');
+goog.require('Shelf');
+goog.require('Sun');
 goog.require('World');
 
 
 /**
  * @constructor
  * @extends {World}
+ * @struct
  */
 QuantumWorld = function() {
   goog.base(this);
   this.shelf = null;
+
+  this.scoreMap = [];
+  this.nameMap = {};
   this.hero = null;
+
+
+
   this.light = null;
   this.setBackgroundColor([0, 0, 0, 1]);
   this.setCollisionManager(new QuantumCollisionManager(this));
@@ -20,11 +32,15 @@ QuantumWorld = function() {
   this.music.loop = true;
 
   this.score = 0;
-  this.maxTime = 180;
+  this.killsLeft = 25
 
   this.drawablesByType = {};
 
   this.G = 35;
+
+
+  this.scoreMap = [];
+  this.nameMap = {};
 
   this.ambientCoefficient = .42
   new Twiddler(this, 'ambientCoefficient', .025);
@@ -71,7 +87,7 @@ QuantumWorld.prototype.setMusicPaused = function(isPaused) {
   if (isPaused) {
     this.music.pause();
   } else {
-    this.music.play();
+    this.music.maybePlay();
   }
 };
 
@@ -92,11 +108,6 @@ QuantumWorld.prototype.advance = function(dt) {
     }
   });
   this.killsLeft = 25 - claimedCrates;
-
-  // if (this.killsLeft == 0) {
-  //   Animator.getInstance().setPaused(true);
-  //   Animator.getInstance().setPaused = function(){};
-  // }
 };
 
 
@@ -112,8 +123,6 @@ QuantumWorld.prototype.populate = function() {
   });
   this.addLight(this.light);
 
-  var texturesByFace = {};
-  texturesByFace
   this.shelf = new Shelf({
     position: [0, 0, 0],
     size: [200, 200, 200],
@@ -169,7 +178,7 @@ QuantumWorld.prototype.populate = function() {
     }
   }
 
-  for (var i = 0; i < 300 * 1; i++) {
+  for (var i = 0; i < 300 * 1 + 0; i++) {
     var fella = new Fella({
       position: [
         0, 0, 0
@@ -199,7 +208,7 @@ QuantumWorld.prototype.populate = function() {
   this.light.anchor = sun;
   this.addThing(sun);
 
-  this.camera = new FpsCamera();
+  this.camera = new FpsCamera({});
   this.hero = new Hero({
     position: [0, -this.shelf.size[1]/2+5, 0]
   });
@@ -228,13 +237,29 @@ QuantumWorld.prototype.onKey = function(event) {
         ContainerManager.getInstance().setFullScreen(true);
         break;
 
+      case KeyCode.N:
+        PromptBox.ask('What\'s your name?', function(name) {
+          if (name) Env.client.myNameIs(name);
+        });
+        break;
+
       case KeyCode.M:
         this.setMusicPaused(!this.music.paused);
         break;
 
+      case KeyCode.ENTER:
+        PromptBox.ask('Speak:', function(msg) {
+          if (msg) Env.client.say(msg);
+        });
+        break;
+
       case KeyCode.ESC:
         Animator.getInstance().setPaused(true);
-        break
+        break;
+
+      case KeyCode.O:
+        Sounds.on = !Sounds.on;
+        break;
     }
   }
 };
@@ -249,82 +274,90 @@ QuantumWorld.prototype.onPointerLockChange = function(event) {
 
 
 
-// QuantumWorld.prototype.draw = function() {
-//   Env.gl.reset(this.backgroundColor);
+QuantumWorld.prototype.draw = function() {
+  Env.gl.reset(this.backgroundColor);
 
-//   Env.gl.pushViewMatrix();
+  Env.gl.pushViewMatrix();
 
-//   this.applyLights();
-//   this.camera.transform();
-//   Env.gl.setViewMatrixUniforms();
+  this.applyLights();
+  this.camera.transform();
+  Env.gl.setViewMatrixUniforms();
 
-//   if (this.sortBeforeDrawing) {
-//     var cameraPosition = this.camera.getPosition();
+  var inFocus = 0;
+  var zCulling = false;
 
-//     this.transluscent.length = 0;
-//     this.opaque.length = 0;
+  if (this.sortBeforeDrawing) {
+    var cameraPosition = this.camera.getPosition();
 
-//     this.drawables.forEach(function(drawable) {
-//       if (drawable.isDisposed) return;
-//       drawable.computeDistanceSquaredToCamera(cameraPosition);
-//       if (drawable.transluscent) {
-//         this.transluscent.push(drawable);
-//       } else {
-//         this.opaque.push(drawable);
-//       }
-//     }, this);
+    this.transluscent.length = 0;
+    this.opaque.length = 0;
 
-//     this.transluscent.sort(function(thingA, thingB) {
-//       return thingB.distanceSquaredToCamera -
-//           thingA.distanceSquaredToCamera;
-//     });
+    var hero = this.camera.getAnchor();
+    var heroConjugateViewOrientation = hero.getConjugateViewOrientation();
+    this.drawables.forEach(function(drawable) {
+      if (drawable.isDisposed) return;
+      drawable.computeDistanceSquaredToCamera(cameraPosition);
+      if (drawable.getType() == Fella.type && zCulling) {
+        var positionInView = hero.toViewOrientation(drawable.position,
+            heroConjugateViewOrientation);
+        if (positionInView[2] < 0) {
+          inFocus++;
+          this.opaque.push(drawable);
+        }
+      } else {
+        if (drawable.transluscent) {
+          this.transluscent.push(drawable);
+        } else {
+          this.opaque.push(drawable);
+        }
+      }
+    }, this);
 
-//     for (var type in this.drawablesByType) {
-//       var things = this.drawablesByType[type];
-//       if (type == Fella.type && false) {
-//         this.drawFellas(things);
-//       } else {
-//         util.array.forEach(things, function(thing) {
-//           if (!thing.transluscent) thing.draw();
-//         });
-//       }
-//     }
-//     // util.array.forEach(this.opaque, function(opaqueDrawable) {
-//     //   opaqueDrawable.draw();
-//     // });
+    this.transluscent.sort(function(thingA, thingB) {
+      return thingB.distanceSquaredToCamera -
+          thingA.distanceSquaredToCamera;
+    });
 
-//     util.array.forEach(this.transluscent, function(transluscentDrawable) {
-//       transluscentDrawable.draw();
-//     });
+    for (var type in this.drawablesByType) {
+      var things = this.drawablesByType[type];
+      if (type == Fella.type) {
+        this.drawFellas(things);
+      } else {
+        util.array.forEach(things, function(thing) {
+          if (!thing.transluscent) thing.draw();
+        });
+      }
+    }
+    // util.array.forEach(this.opaque, function(opaqueDrawable) {
+    //   opaqueDrawable.draw();
+    // });
 
-//   } else {
-//     this.drawables.forEach(function(drawable) {
-//       drawable.draw();
-//     });
-//   }
+    util.array.forEach(this.transluscent, function(transluscentDrawable) {
+      transluscentDrawable.draw();
+    });
 
-//   Env.gl.popViewMatrix();
-// };
+  } else {
+    this.drawables.forEach(function(drawable) {
+      drawable.draw();
+    });
+  }
+
+  // console.log("rendered " + inFocus);
+
+  Env.gl.popViewMatrix();
+};
 
 QuantumWorld.prototype.drawFellas = function(fellas) {
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('head');
-  });
+  for (var i = 0; fellas[i]; i++) {
+    fellas[i].drawHead();
+  }
 
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('torso');
-  });
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('rightLeg');
-  });
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('leftLeg');
-  });
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('rightArm');
-  });
-  util.array.forEach(fellas, function(fella) {
-    fella.drawPartByName('leftArm');
-  });
+  for (var i = 0; fellas[i]; i++) {
+    fellas[i].drawNotHead();
+  }
+
+  for (var i = 0; fellas[i]; i++) {
+    fellas[i].drawHealthBar();
+  }
 };
 

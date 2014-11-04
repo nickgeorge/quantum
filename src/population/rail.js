@@ -1,11 +1,18 @@
+goog.provide('Rail');
+
+goog.require('LeafThing');
+goog.require('QuantumTypes');
+
+
 /**
- * @contstructor
- * @extends {LeafThing)
+ * @constructor
+ * @extends {LeafThing}
+ * @struct
  */
 Rail = function(message) {
   message.drawType = LeafThing.DrawType.ELEMENTS;
   message.upOrientation =
-      message.anchor.getViewOrientation(quat.create());
+      quat.clone(message.anchor.getViewOrientation());
 
   var middle = message.anchor.fromViewOrientation(
       Rail.offset);

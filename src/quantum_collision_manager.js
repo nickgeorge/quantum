@@ -1,11 +1,13 @@
+goog.provide('QuantumCollisionManager');
+goog.provide('CollisionFunctions');
+
 goog.require('CollisionManager');
 
-goog.provide('QuantumCollisionManager');
 
 /**
- * @param {World}
  * @constructor
  * @extends {CollisionManager}
+ * @struct
  */
 QuantumCollisionManager = function(world) {
   goog.base(this, world);

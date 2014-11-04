@@ -1,3 +1,15 @@
+goog.provide('Shelf');
+
+goog.require('Box');
+goog.require('QuantumTypes');
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 Shelf = function(message) {
   message.isRoot = true;
   goog.base(this, message);

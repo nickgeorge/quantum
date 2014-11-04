@@ -5,31 +5,11 @@
 
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="/worldJS/style.css" type="text/css" />
 
     <script src="/worldJS/gl-matrix.js"></script>
-    <script src="/worldJS/rootworld.js"></script>
+    <script src="/quantum/quantum.js"></script>
 
-    <script src="types.js"></script>
-    <script src="population/offset_container.js"></script>
-    <script src="population/dumb_crate.js"></script>
-    <script src="population/sun.js"></script>
-    <script src="population/bullet.js"></script>
-    <script src="population/throwin_gurnade.js"></script>
-    <script src="population/rail.js"></script>
-    <script src="population/shelf.js"></script>
-    <script src="population/walker.js"></script>
-    <script src="population/hero.js"></script>
-    <script src="population/fella.js"></script>
-    <script src="population/gimble.js"></script>
-    <script src="population/bounding_sphere.js"></script>
-    <script src="population/head.js"></script>
-    <script src="data/head_data.js"></script>
-    <script src="effects/health_bar.js"></script>
-    <script src="media/texture_list.js"></script>
-    <script src="media/sound_list.js"></script>
-    <script src="hud/ammo_counter.js"></script>
-    <script src="quantum_world.js"></script>
-    <script src="quantum_collision_manager.js"></script>
 
     <script type="text/javascript">
       function init() {
@@ -42,24 +22,25 @@
             addWidget(new Crosshair()).
             addWidget(new Fraps(-100, 25)).
             addWidget(new StartButton()).
-            addWidget(new UpdatingWriter(25, -200, function() {
+            addWidget(new ScoreCard(25, 25)).
+            addWidget(new UpdatingWriter(25, -100, function() {
               return 'Rails: ' + Env.world.hero.railAmmo;
-            })).
-            addWidget(new UpdatingWriter(25, 25, function() {
-              var t = Math.floor(Env.world.age);
-              return  Math.floor(t/60) + (t%60 < 10 ? ':0' : ':') + t%60;
-            })).
-            addWidget(new UpdatingWriter(25, 50, function() {
-              if (!Env.world) return;
-              var left = Env.world.killsLeft;
-              this.font = 'bold 18px courier';
-              if (left == 0) {
-                this.font = 'bold 28px wolfenstein';
-                this.fillStyle = '#F00';
-                return 'Der Job ist Kompl' + String.fromCharCode(235) + 'ten';
-              }
-              return left + ' crate' + (left == 1 ? '' : 's') + ' left!';
             }));
+            // addWidget(new UpdatingWriter(25, 25, function() {
+            //   var t = Math.floor(Env.world.age);
+            //   return  Math.floor(t/60) + (t%60 < 10 ? ':0' : ':') + t%60;
+            // })).
+            // addWidget(new UpdatingWriter(25, 50, function() {
+            //   if (!Env.world) return;
+            //   var left = Env.world.killsLeft;
+            //   this.font = 'bold 18px courier';
+            //   if (left == 0) {
+            //     this.font = 'bold 28px wolfenstein';
+            //     this.fillStyle = '#F00';
+            //     return 'Der Job ist Kompl' + String.fromCharCode(235) + 'ten';
+            //   }
+            //   return left + ' crate' + (left == 1 ? '' : 's') + ' left!';
+            // }));
 
         var glCanvas = document.getElementById('gl-canvas');
         ShaderProgram.defaultDomain = '';
@@ -68,11 +49,13 @@
         var resizer = new FullWindowResizer(gl, glCanvas, hud, hudCanvas);
         resizer.attachEventListener();
 
-        var world = new QuantumWorld();
         Thing.defaultVelocityType = Thing.VelocityType.RELATIVE;
-        Env.setEnvironment(world, hud, gl);
+        var world = new QuantumWorld();
+        var client = new Client(world, 8008);
+        Env.setEnvironment(world, hud, gl, client);
         Textures.initTextures(TextureList);
         Animator.initSingleton(world, hud);
+
 
         world.populate();
         resizer.resize();

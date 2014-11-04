@@ -1,3 +1,14 @@
+goog.provide('DumbCrate');
+
+goog.require('QuantumTypes');
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 DumbCrate = function(message) {
   message.isRoot = true;
   goog.base(this, message);
@@ -19,6 +30,7 @@ DumbCrate = function(message) {
 };
 goog.inherits(DumbCrate, Thing);
 Types.registerType(DumbCrate, QuantumTypes.DUMB_CRATE);
+
 
 DumbCrate.prototype.getOuterRadius = function() {
   return this.box.getOuterRadius();

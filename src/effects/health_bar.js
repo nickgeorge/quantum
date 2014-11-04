@@ -1,3 +1,15 @@
+goog.provide('HealthBar');
+
+goog.require('Pane');
+goog.require('PaneOutline');
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 HealthBar = function(message) {
   goog.base(this, message);
 

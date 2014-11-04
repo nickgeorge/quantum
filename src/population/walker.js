@@ -1,11 +1,29 @@
+goog.provide('Walker');
+
+goog.require('Thing');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 Walker = function(message) {
-  // message.velocityType = Thing.VelocityType.ABSOLUTE;
   goog.base(this, message);
 
   this.ground = null;
   this.gravity = vec3.create();
 
   this.isRoot = true;
+
+  this.maglock = false;
+
+
+  this.viewRotation = quat.create();
+  this.isViewTransitioning = false;
+  this.viewTransitionT = 0;
+  this.initialViewRotation = quat.create();
+  this.terminalViewRotation = quat.create();
 
   this.landed = false;
   this.magLock = false;
@@ -46,9 +64,6 @@ Walker.prototype.advanceWalker = function(dt) {
 // TODO: Adjust height
 Walker.prototype.land = function(ground) {
   var cache = this.objectCache.land;
-  if (this.speed) {
-    vec3.set(this.velocity, 0, 0, this.speed);
-  }
 
   this.landed = true;
   this.ground = ground;
@@ -78,38 +93,41 @@ Walker.prototype.land = function(ground) {
 };
 
 
-Walker.prototype.unland = function() {
+/**
+ * @param  {boolean=} opt_neverMaglock
+ */
+Walker.prototype.unland = function(opt_neverMaglock) {
+  var maglock = this.maglock && !opt_neverMaglock;
   var oldGround = this.ground;
   this.landed = false;
   this.ground = null;
-
-  var groundRoot = oldGround.getRoot();
-
-  var closestEncounter = null;
-
-
-  // var p_0_gr = groundRoot.parentToLocalCoords(vec3.create(), this.lastPosition);
-  // var p_1_gr = groundRoot.parentToLocalCoords(vec3.create(), this.position);
-
-  // util.array.forEach(groundRoot.getParts(), function(part) {
-  //   if (part == oldGround) return;
-  //   var encounter = part.findEncounter(p_0_gr, p_1_gr, Walker.HEIGHT * 2, {
-  //     exclude: oldGround,
-  //     tolerance: Walker.HEIGHT * 2,
-  //   });
-
-  //   if (!encounter) return;
-  //   if (!closestEncounter || encounter.distance < closestEncounter.distance) {
-  //     closestEncounter = encounter;
-  //   }
-  // }, this);
-  // if (closestEncounter) {
-  //   closestEncounter.part.snapIn(this);
-  //   this.land(closestEncounter.part);
-  // }
-
-
   quat.copy(this.movementUp, this.upOrientation);
+
+
+  if (maglock) {
+    var groundRoot = oldGround.getRoot();
+    var closestEncounter = null;
+    var p_0_gr = groundRoot.worldToLocalCoords(vec3.create(), this.lastPosition);
+    var p_1_gr = groundRoot.worldToLocalCoords(vec3.create(), this.position);
+
+    util.array.forEach(groundRoot.getParts(), function(part) {
+      if (part == oldGround) return;
+      var encounter = part.findEncounter(p_0_gr, p_1_gr, Walker.HEIGHT, {
+        exclude: oldGround,
+        tolerance: Walker.HEIGHT * 2,
+      });
+
+      if (!encounter) return;
+      if (!closestEncounter || encounter.distance < closestEncounter.distance) {
+        closestEncounter = encounter;
+      }
+    }, this);
+    if (closestEncounter) {
+      closestEncounter.part.snapIn(this);
+      this.land(closestEncounter.part);
+    }
+  }
+
 };
 
 Walker.prototype.isLandedOn = function(ground) {

@@ -1,3 +1,7 @@
+goog.provide('BoundingSphere');
+
+
+/** @constructor @struct */
 BoundingSphere = function(message) {
   this.thing = message.thing;
   this.radius = message.radius;

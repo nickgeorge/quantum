@@ -1,3 +1,15 @@
+goog.provide('Fella');
+
+goog.require('QuantumTypes');
+goog.require('SoundList');
+goog.require('Thing');
+goog.require('Walker');
+
+/**
+ * @constructor
+ * @extends {Walker}
+ * @struct
+ */
 Fella = function(message) {
 
   this.legAngle = (Math.random()*2 - 1) * Fella.MAX_LEG_ANGLE;
@@ -15,6 +27,7 @@ Fella = function(message) {
   this.health = 100;
 
   this.head = null;
+  this.sphereHead = null;
   this.torso = null;
   this.rightLeg = null;
   this.leftLeg = null;
@@ -29,6 +42,9 @@ Fella = function(message) {
     position: [0, .8, 0]
   });
   this.addEffect(this.healthBar);
+
+
+  // this.dieAudio = Sounds.get(SoundList.GLASS);
 };
 goog.inherits(Fella, Walker);
 Types.registerType(Fella, QuantumTypes.FELLA);
@@ -67,6 +83,13 @@ Fella.prototype.advance = function(dt) {
 };
 
 
+Fella.prototype.land = function(ground) {
+  goog.base(this, 'land', ground);
+
+  vec3.set(this.velocity, 0, 0, this.speed);
+};
+
+
 Fella.prototype.getOuterRadius = function() {
   return Hero.HEIGHT * 4;
 };
@@ -78,7 +101,7 @@ Fella.prototype.jump = function() {
       this.velocity[0] * 1.25 * 4,
       60,
       this.velocity[2] * 1.25 * 4);
-  this.unland();
+  this.unland(true);
   this.rYaw = 0;
 };
 
@@ -194,8 +217,6 @@ Fella.prototype.buildBody = function() {
 
   this.head = new DataThing({
     texture: boxTexture,
-    // color: [201/256., 189/256., 107/256., 1.0],
-    color: [.5, 1, 1, 1],
     data: HeadData,
     uScale: .015,
     position: [0, -Hero.HEIGHT + 2.2, 0],
@@ -232,11 +253,12 @@ Fella.prototype.buildBody = function() {
 };
 
 
-Fella.prototype.drawPartByName = function(name) {
+
+Fella.prototype.drawHead = function() {
   if (this.isDisposed || !this.visible) return;
   Env.gl.pushModelMatrix();
   this.transform();
-  this[name].draw();
+  this.head.draw();
   Env.gl.popModelMatrix();
 };
 
@@ -250,6 +272,15 @@ Fella.prototype.drawNotHead = function() {
   this.rightLeg.draw();
   this.leftArm.draw();
   this.rightArm.draw();
+  this.healthBar.draw();
+  Env.gl.popModelMatrix();
+};
+
+
+Fella.prototype.drawHealthBar = function() {
+  if (this.isDisposed || !this.visible) return;
+  Env.gl.pushModelMatrix();
+  this.transform();
   this.healthBar.draw();
   Env.gl.popModelMatrix();
 };

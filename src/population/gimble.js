@@ -1,3 +1,17 @@
+goog.provide('Gimble');
+
+goog.require('Box');
+goog.require('OffsetBox');
+goog.require('Thing');
+goog.require('Types');
+goog.require('Sphere');
+
+
+/**
+ * @constructor
+ * @extends {Thing}
+ * @struct
+ */
 Gimble = function(message) {
   message.rYaw = -2.76;
   goog.base(this, message);
@@ -39,7 +53,6 @@ Gimble = function(message) {
   };
 };
 goog.inherits(Gimble, Thing);
-Gimble.type = Types.Gimble;
 
 
 Gimble.prototype.advance = function(dt) {
