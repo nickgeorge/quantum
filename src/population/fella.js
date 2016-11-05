@@ -44,7 +44,7 @@ Fella = function(message) {
   this.addEffect(this.healthBar);
 
 
-  // this.dieAudio = Sounds.get(SoundList.GLASS);
+  this.dieAudio = Sounds.get(SoundList.GLASS);
 };
 goog.inherits(Fella, Walker);
 Types.registerType(Fella, QuantumTypes.FELLA);
@@ -106,8 +106,7 @@ Fella.prototype.jump = function() {
 };
 
 Fella.prototype.die = function() {
-
-  Sounds.getAndPlay(SoundList.GLASS);
+  this.dieAudio.maybePlay();
   this.alive = false;
   this.velocity = [0, 0, 0];
   this.rYaw = this.rPitch = this.rRoll = 0;

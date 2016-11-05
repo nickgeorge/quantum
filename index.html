@@ -51,8 +51,7 @@
 
         Thing.defaultVelocityType = Thing.VelocityType.RELATIVE;
         var world = new QuantumWorld();
-        var client = new Client(world, 8008);
-        Env.setEnvironment(world, hud, gl, client);
+        Env.setEnvironment(world, hud, gl);
         Textures.initTextures(TextureList);
         Animator.initSingleton(world, hud);
 

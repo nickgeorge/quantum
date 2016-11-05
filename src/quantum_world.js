@@ -15,6 +15,8 @@ goog.require('World');
  */
 QuantumWorld = function() {
   goog.base(this);
+
+  console.log("baab");
   this.shelf = null;
 
   this.scoreMap = [];
@@ -25,7 +27,9 @@ QuantumWorld = function() {
 
   this.light = null;
   this.setBackgroundColor([0, 0, 0, 1]);
-  this.setCollisionManager(new QuantumCollisionManager(this));
+  var qm = new QuantumCollisionManager(this);
+  qm.registerCollisionConditions();
+  this.setCollisionManager(qm);
 
   this.playMusic = false;
   this.music = Sounds.get(SoundList.SPLIT_YOUR_INFINITIVES);
@@ -112,23 +116,14 @@ QuantumWorld.prototype.advance = function(dt) {
 
 
 QuantumWorld.prototype.populate = function() {
-  this.light = new Light({
-    ambientColor: [this.ambientCoefficient,
-      this.ambientCoefficient,
-      this.ambientCoefficient
-    ],
-
-    directionalColor: [.8, .6, .4],
-    // directionalColor: [1, 0, 0]
-  });
-  this.addLight(this.light);
 
   this.shelf = new Shelf({
     position: [0, 0, 0],
     size: [200, 200, 200],
     texture: Textures.get(TextureList.WALL),
     textureCounts: [50, 50],
-    color: [1, 1, 1, 1]
+    color: [1, 1, 1, 1],
+    pitch: Math.PI/2
   })
   this.addThing(this.shelf);
 
@@ -196,6 +191,14 @@ QuantumWorld.prototype.populate = function() {
     this.addThing(fella);
   }
 
+  this.light = new Light({
+    ambientColor: [this.ambientCoefficient,
+      this.ambientCoefficient,
+      this.ambientCoefficient
+    ],
+    directionalColor: [.8, .6, .4],
+  });
+
   var sun = new Sun({
     yaw: 0 * Math.random() * 2 * Math.PI,
     pitch: 0 * Math.random() * 2 * Math.PI,
@@ -207,10 +210,11 @@ QuantumWorld.prototype.populate = function() {
   });
   this.light.anchor = sun;
   this.addThing(sun);
+  this.addLight(this.light);
 
   this.camera = new FpsCamera({});
   this.hero = new Hero({
-    position: [0, -this.shelf.size[1]/2+5, 0]
+    position: [0, -95, 0]
   });
   this.camera.setAnchor(this.hero);
   this.addThing(this.hero);
@@ -237,20 +241,8 @@ QuantumWorld.prototype.onKey = function(event) {
         ContainerManager.getInstance().setFullScreen(true);
         break;
 
-      case KeyCode.N:
-        PromptBox.ask('What\'s your name?', function(name) {
-          if (name) Env.client.myNameIs(name);
-        });
-        break;
-
       case KeyCode.M:
         this.setMusicPaused(!this.music.paused);
-        break;
-
-      case KeyCode.ENTER:
-        PromptBox.ask('Speak:', function(msg) {
-          if (msg) Env.client.say(msg);
-        });
         break;
 
       case KeyCode.ESC:
