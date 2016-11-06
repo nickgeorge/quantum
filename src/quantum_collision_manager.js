@@ -121,9 +121,9 @@ CollisionFunctions = {
   },
 
   BOXLIKE_AND_HERO: function(boxlike, hero) {
-    // if (hero.isLanded() && hero.ground.getRoot() == boxlike) {
-    //   return;
-    // }
+    if (hero.isLanded() && hero.ground.getRoot() == boxlike) {
+      return;
+    }
     var encounter = boxlike.findThingEncounter(hero, Hero.HEIGHT);
     if (!encounter) return;
     var part = encounter.part;
@@ -144,12 +144,12 @@ CollisionFunctions = {
         }
       }
     }
-
     var heroPosition_lc = part.worldToLocalCoords(vec3.temp, hero.position);
     heroPosition_lc[2] = isOnGround ?
         Hero.HEIGHT + .001 :
         Math.max(Hero.WIDTH + .001, heroPosition_lc[2]);
     part.localToWorldCoords(hero.position, heroPosition_lc);
+    hero.saveLastPosition();
   },
 
   SPHERELIKE_AND_HERO: function(spherelike, hero) {

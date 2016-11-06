@@ -116,6 +116,8 @@ Hero.prototype.advance = function(dt) {
 Hero.prototype.land = function(ground) {
   goog.base(this, 'land', ground);
 
+  this.velocity[1] = 0;
+
   this.unclaimCrates();
   this.landAudio.maybePlay();
 };

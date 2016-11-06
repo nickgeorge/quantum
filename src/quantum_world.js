@@ -279,7 +279,7 @@ QuantumWorld.prototype.draw = function() {
   Env.gl.setViewMatrixUniforms();
 
   var inFocus = 0;
-  var zCulling = false;
+  var zCulling = true;
 
   if (this.sortBeforeDrawing) {
     var cameraPosition = this.camera.getPosition();
@@ -314,7 +314,7 @@ QuantumWorld.prototype.draw = function() {
     });
 
     // if (this.drawablesByType[QuantumTypes.BULLET]) {
-    //   // debugger;
+    //   debugger;
     // }
 
     for (var type in this.drawablesByType) {

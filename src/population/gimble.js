@@ -53,6 +53,7 @@ Gimble = function(message) {
   };
 };
 goog.inherits(Gimble, Thing);
+Types.registerType(Gimble, QuantumTypes.GIMBLE);
 
 
 Gimble.prototype.advance = function(dt) {
