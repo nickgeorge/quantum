@@ -78,8 +78,6 @@ Walker.prototype.advanceWalker = function(dt) {
 Walker.prototype.land = function(ground) {
   var cache = this.objectCache.land;
 
-  if (this.railAmmo) console.log("landing on " + ground.name);
-
   this.landed = true;
   this.ground = ground;
 
@@ -117,8 +115,6 @@ Walker.prototype.unland = function(opt_neverMaglock) {
   this.landed = false;
   this.ground = null;
   quat.copy(this.movementUp, this.upOrientation);
-
-  if (this.railAmmo) console.log("unlanding from " + oldGround.name);
 
   if (this.maglock && !opt_neverMaglock) {
     this.tryMaglock(oldGround);
