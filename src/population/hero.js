@@ -53,6 +53,9 @@ Hero = function(message) {
       setKeyHandler(this.onKey, this).
       setMouseButtonHandler(this.onMouseButton, this).
       setMouseMoveHandler(this.onMouseMove, this);
+
+
+  this.inputAdapter.attachEvents();
 };
 goog.inherits(Hero, Walker);
 Types.registerType(Hero, QuantumTypes.HERO);

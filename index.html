@@ -59,9 +59,10 @@
 
             world.populate();
             resizer.resize();
+            world.inputAdapter.attachEvents();
             Animator.getInstance().setPaused(true);
             Animator.getInstance().start();
-            world.inputAdapter.attachEvents();
+
 
         });
     }
