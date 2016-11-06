@@ -146,9 +146,6 @@ Walker.prototype.tryMaglock = function(oldGround) {
     }
   }, this);
   if (closestEncounter) {
-    console.log(oldGround.name + " => " + closestEncounter.part.name);
-    console.log(n++);
-    console.log("--");
     this.mark = true;
     closestEncounter.part.snapIn(this);
     this.land(closestEncounter.part);

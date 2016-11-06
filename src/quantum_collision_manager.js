@@ -43,7 +43,6 @@ QuantumCollisionManager.prototype.thingOnThing = function() {
 
 
 QuantumCollisionManager.prototype.registerCollisionConditions = function() {
-  console.log("regall");
   this.registerCollisionCondition(DumbCrate, Bullet,
       util.fn.constant(0),
       CollisionFunctions.GLOM);
