@@ -88,9 +88,9 @@ QuantumWorld.prototype.onPauseChanged = function(isPaused) {
  */
 QuantumWorld.prototype.setMusicPaused = function(isPaused) {
   if (isPaused) {
-    this.music.pause();
+    // this.music.pause();
   } else {
-    this.music.maybePlay();
+    // this.music.maybeResume();
   }
 };
 

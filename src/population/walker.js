@@ -78,6 +78,8 @@ Walker.prototype.advanceWalker = function(dt) {
 Walker.prototype.land = function(ground) {
   var cache = this.objectCache.land;
 
+  if (this.railAmmo) console.log("landing on " + ground.name);
+
   this.landed = true;
   this.ground = ground;
 
@@ -116,6 +118,7 @@ Walker.prototype.unland = function(opt_neverMaglock) {
   this.ground = null;
   quat.copy(this.movementUp, this.upOrientation);
 
+  if (this.railAmmo) console.log("unlanding from " + oldGround.name);
 
   if (this.maglock && !opt_neverMaglock) {
     this.tryMaglock(oldGround);
@@ -123,6 +126,7 @@ Walker.prototype.unland = function(opt_neverMaglock) {
 
 };
 
+var n = 0;
 Walker.prototype.tryMaglock = function(oldGround) {
   var groundRoot = oldGround.getRoot();
   var closestEncounter = null;
@@ -142,6 +146,10 @@ Walker.prototype.tryMaglock = function(oldGround) {
     }
   }, this);
   if (closestEncounter) {
+    console.log(oldGround.name + " => " + closestEncounter.part.name);
+    console.log(n++);
+    console.log("--");
+    this.mark = true;
     closestEncounter.part.snapIn(this);
     this.land(closestEncounter.part);
   }
