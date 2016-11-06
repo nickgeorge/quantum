@@ -140,9 +140,10 @@ Walker.prototype.tryMaglock = function(oldGround) {
       tolerance: Walker.HEIGHT * 2,
     });
 
-    if (!encounter) return;
+    if (!encounter || encounter.distance > 0) return;
     if (!closestEncounter || encounter.distance < closestEncounter.distance) {
       closestEncounter = encounter;
+      console.log(encounter.distance);
     }
   }, this);
   if (closestEncounter) {
