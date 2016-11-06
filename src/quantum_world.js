@@ -79,7 +79,7 @@ QuantumWorld.prototype.removeDrawable = function(drawable) {
  * @param {boolean} isPaused
  */
 QuantumWorld.prototype.onPauseChanged = function(isPaused) {
-  if (this.playMusic) this.setMusicPaused(isPaused);
+  // if (this.playMusic) this.setMusicPaused(isPaused);
 };
 
 
@@ -88,9 +88,9 @@ QuantumWorld.prototype.onPauseChanged = function(isPaused) {
  */
 QuantumWorld.prototype.setMusicPaused = function(isPaused) {
   if (isPaused) {
-    // this.music.pause();
+    this.music.pause();
   } else {
-    // this.music.maybeResume();
+    this.music.maybeResume();
   }
 };
 
@@ -232,7 +232,7 @@ QuantumWorld.prototype.onMouseButton = function(event) {
   if (!this.inputAdapter.isPointerLocked() || Animator.getInstance().isPaused()) {
     ContainerManager.getInstance().setPointerLock(true);
     Animator.getInstance().setPaused(false);
-    console.log(Animator.getInstance().isPaused());
+    // console.log(Animator.getInstance().isPaused());
   }
 };
 
