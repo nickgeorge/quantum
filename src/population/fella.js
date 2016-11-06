@@ -36,6 +36,8 @@ Fella = function(message) {
   this.deathSpeed = 1;
   this.buildBody();
 
+  this.maglock = true;
+
   this.healthBar = new HealthBar({
 
     refThing: this,

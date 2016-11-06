@@ -104,6 +104,11 @@ Walker.prototype.land = function(ground) {
   }
 
   quat.multiply(this.upOrientation, rotation, this.upOrientation);
+
+  var heroPosition_lc = ground.worldToLocalCoords(this.position, this.position);
+  heroPosition_lc[2] = Hero.HEIGHT + .001;
+  ground.localToWorldCoords(this.position, heroPosition_lc);
+  this.saveLastPosition();
 };
 
 
@@ -141,7 +146,6 @@ Walker.prototype.tryMaglock = function(oldGround) {
     }
   }, this);
   if (closestEncounter) {
-    this.mark = true;
     closestEncounter.part.snapIn(this);
     this.land(closestEncounter.part);
   }
