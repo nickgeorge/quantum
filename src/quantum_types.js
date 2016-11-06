@@ -5,8 +5,8 @@ goog.provide('QuantumTypes');
  * @enum
  */
 QuantumTypes = {
-  DUMB_CRATE: 1,
-  BULLET: 2,
+  BULLET: 1,
+  DUMB_CRATE: 2,
   SHELF: 3,
   SUN: 4,
   HERO: 5,

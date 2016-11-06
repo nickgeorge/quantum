@@ -152,8 +152,8 @@ QuantumWorld.prototype.populate = function() {
         roll: Math.random() * 2*Math.PI,
         isStatic: true
       });
+      if (k < 2) dumbCrate.transluscent = true;
       this.addThing(dumbCrate);
-
     }
     for (var k = 0; k < 0; k++) {
       var sphere = new Sphere({
@@ -176,7 +176,6 @@ QuantumWorld.prototype.populate = function() {
   }
 
   var nFellas = Number(util.getCgiParam('f')) || 400;
-  console.log(nFellas);
   for (var i = 0; i < nFellas; i++) {
     var fella = new Fella({
       position: [
@@ -234,7 +233,6 @@ QuantumWorld.prototype.onMouseButton = function(event) {
   if (!this.inputAdapter.isPointerLocked() || Animator.getInstance().isPaused()) {
     ContainerManager.getInstance().setPointerLock(true);
     Animator.getInstance().setPaused(false);
-    // console.log(Animator.getInstance().isPaused());
   }
 };
 
@@ -286,8 +284,8 @@ QuantumWorld.prototype.draw = function() {
   if (this.sortBeforeDrawing) {
     var cameraPosition = this.camera.getPosition();
 
-    this.transluscent.length = 0;
-    this.opaque.length = 0;
+    this.transluscent = [];
+    this.opaque = [];
 
     var hero = this.camera.getAnchor();
     var heroConjugateViewOrientation = hero.getConjugateViewOrientation();
@@ -315,19 +313,23 @@ QuantumWorld.prototype.draw = function() {
           thingA.distanceSquaredToCamera;
     });
 
+    // if (this.drawablesByType[QuantumTypes.BULLET]) {
+    //   // debugger;
+    // }
+
     for (var type in this.drawablesByType) {
       var things = this.drawablesByType[type];
+      // if (type == Bullet.type) continue;
       if (type == Fella.type) {
         this.drawFellas(things);
       } else {
         util.array.forEach(things, function(thing) {
-          if (!thing.transluscent) thing.draw();
+          if (!thing.transluscent) {
+            thing.draw();
+          }
         });
       }
     }
-    // util.array.forEach(this.opaque, function(opaqueDrawable) {
-    //   opaqueDrawable.draw();
-    // });
 
     util.array.forEach(this.transluscent, function(transluscentDrawable) {
       transluscentDrawable.draw();
@@ -338,8 +340,6 @@ QuantumWorld.prototype.draw = function() {
       drawable.draw();
     });
   }
-
-  // console.log("rendered " + inFocus);
 
   Env.gl.popViewMatrix();
 };

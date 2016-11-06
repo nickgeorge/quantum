@@ -30,7 +30,7 @@ Hero = function(message) {
   this.captureAudio = Sounds.get(SoundList.CAPTURE);
   this.zapAudio = Sounds.get(SoundList.ZAP);
 
-  this.railAmmo = 3;
+  this.railAmmo = 30;
   this.shouldViewTransition = true;
 
   this.gimble = new Gimble({
