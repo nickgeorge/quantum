@@ -122,7 +122,6 @@ Walker.prototype.unland = function(opt_neverMaglock) {
 
 };
 
-var n = 0;
 Walker.prototype.tryMaglock = function(oldGround) {
   var groundRoot = oldGround.getRoot();
   var closestEncounter = null;

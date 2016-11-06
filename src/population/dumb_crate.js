@@ -24,6 +24,11 @@ DumbCrate = function(message) {
     glommable: false,
   });
 
+  this.outerRadius = Math.sqrt(
+      this.size[0]/2 * this.size[0]/2 +
+      this.size[1]/2 * this.size[1]/2 +
+      this.size[2]/2 * this.size[2]/2);
+
   this.claimed = false;
 
   this.addPart(this.box);
@@ -51,6 +56,6 @@ DumbCrate.prototype.update = function(message) {
 };
 
 DumbCrate.prototype.getOuterRadius = function() {
-  return this.box.getOuterRadius();
+  return this.outerRadius;
 };
 
