@@ -201,18 +201,15 @@ Fella.prototype.buildBody = function() {
     color: [.5, 1, 1, 1],
   });
 
-  this.sphereHead = new Sphere({
-    data: HeadData,
+  var sphereHead = new Sphere({
     // uScale: .015,
-    position: [0, -Hero.HEIGHT + 2.2, 0],
-    name: "head",
+    position: [0, 0, 0],
+    name: "spherehead",
     // color: this.color,
     isStatic: true,
-    damageMultiplier: 4,
     collideRadius: 1,
     radius: .27,
   });
-  this.sphereHead.visible = false;
 
   this.head = new DataThing({
     texture: boxTexture,
@@ -222,9 +219,8 @@ Fella.prototype.buildBody = function() {
     name: "head",
     color: [.5, 1, 1, 1],
     isStatic: true,
-    // damageMultiplier: 4,
-    // collideRadius: 1,
-    // radius: .27
+    damageMultiplier: 4,
+    refObject: sphereHead,
   });
 
   this.torso = new Box({
@@ -242,7 +238,6 @@ Fella.prototype.buildBody = function() {
 
   this.addParts([
     this.head,
-    this.sphereHead,
     this.torso,
     this.rightLeg,
     this.leftLeg,

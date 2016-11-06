@@ -19,7 +19,7 @@ DumbCrate = function(message) {
     texturesByFace: message.texturesByFace,
     textureCounts: message.textureCounts,
     textureCountsByFace: message.textureCountsByFace,
-    color: [1, 1, 1, 1],
+    color: message.color || [1, 1, 1, 1],
     isStatic: true,
     glommable: false,
   });
@@ -35,7 +35,7 @@ Types.registerType(DumbCrate, QuantumTypes.DUMB_CRATE);
 DumbCrate.readMessage = function(reader) {
   return {
     klass: DumbCrate,
-    alive: reader.readInt8(),
+    alive: reader.readInt(),
     position: reader.readVec3(),
     velocity: reader.readVec3(),
     upOrientation: reader.readVec4(),

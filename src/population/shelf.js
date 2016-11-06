@@ -35,7 +35,7 @@ Types.registerType(Shelf, QuantumTypes.SHELF);
 Shelf.readMessage = function(reader) {
   return {
     klass: Shelf,
-    alive: reader.readInt8(),
+    alive: reader.readInt(),
     position: reader.readVec3(),
     velocity: reader.readVec3(),
     upOrientation: reader.readVec4(),

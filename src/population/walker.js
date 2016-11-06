@@ -17,6 +17,7 @@ Walker = function(message) {
   this.isRoot = true;
 
   this.maglock = false;
+  this.shouldViewTransition = false;
 
 
   this.viewRotation = quat.create();
@@ -84,20 +85,23 @@ Walker.prototype.land = function(ground) {
       this.getNormal(),
       this.ground.getNormal());
 
-  if (this.isViewTransitioning) {
-    quat.copy(this.viewRotation, this.terminalViewRotation);
-  }
-  var conjugateRotation = quat.conjugate(cache.conjugateRotation, rotation);
-  var viewMultiplier = quat.multiply(cache.viewMultiplier,
-      this.getConjugateUp(),
-      conjugateRotation);
-  quat.multiply(viewMultiplier, viewMultiplier, this.upOrientation);
+  if (this.shouldViewTransition) {
 
-  quat.multiply(this.initialViewRotation, viewMultiplier, this.viewRotation);
-  quat.copy(this.terminalViewRotation, this.viewRotation);
-  quat.copy(this.viewRotation, this.initialViewRotation);
-  this.viewTransitionT = 0;
-  this.isViewTransitioning = true;
+    if (this.isViewTransitioning) {
+      quat.copy(this.viewRotation, this.terminalViewRotation);
+    }
+    var conjugateRotation = quat.conjugate(cache.conjugateRotation, rotation);
+    var viewMultiplier = quat.multiply(cache.viewMultiplier,
+        this.getConjugateUp(),
+        conjugateRotation);
+    quat.multiply(viewMultiplier, viewMultiplier, this.upOrientation);
+
+    quat.multiply(this.initialViewRotation, viewMultiplier, this.viewRotation);
+    quat.copy(this.terminalViewRotation, this.viewRotation);
+    quat.copy(this.viewRotation, this.initialViewRotation);
+    this.viewTransitionT = 0;
+    this.isViewTransitioning = true;
+  }
 
   quat.multiply(this.upOrientation, rotation, this.upOrientation);
 };

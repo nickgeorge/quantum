@@ -52,15 +52,19 @@
         Thing.defaultVelocityType = Thing.VelocityType.RELATIVE;
         var world = new QuantumWorld();
         Env.setEnvironment(world, hud, gl);
-        Textures.initTextures(TextureList);
-        Animator.initSingleton(world, hud);
 
+        Textures.initTextures(TextureList).then(function(value) {
 
-        world.populate();
-        resizer.resize();
-        Animator.getInstance().setPaused(true);
-        Animator.getInstance().start();
-      }
+            Animator.initSingleton(world, hud);
+
+            world.populate();
+            resizer.resize();
+            Animator.getInstance().setPaused(true);
+            Animator.getInstance().start();
+
+        });
+    }
+
     </script>
   </head>
 

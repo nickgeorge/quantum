@@ -27,7 +27,7 @@ Bullet = function(message) {
   });
   this.parts = [this.sphere];
 
-  this.damage = 30;
+  this.damage = 20;
 
   this.alive = true;
 };

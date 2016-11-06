@@ -16,7 +16,6 @@ goog.require('World');
 QuantumWorld = function() {
   goog.base(this);
 
-  console.log("baab");
   this.shelf = null;
 
   this.scoreMap = [];
@@ -31,7 +30,7 @@ QuantumWorld = function() {
   qm.registerCollisionConditions();
   this.setCollisionManager(qm);
 
-  this.playMusic = false;
+  this.playMusic = true;
   this.music = Sounds.get(SoundList.SPLIT_YOUR_INFINITIVES);
   this.music.loop = true;
 
@@ -145,6 +144,7 @@ QuantumWorld.prototype.populate = function() {
         ],
         texture: Textures.get(TextureList.THWOMP),
         textureCounts: [1, 1],
+        color: vec4.randomColor(vec4.create()),
         pitch: Math.random() * 2*Math.PI,
         yaw: Math.random() * 2*Math.PI,
         roll: Math.random() * 2*Math.PI,
@@ -173,7 +173,9 @@ QuantumWorld.prototype.populate = function() {
     }
   }
 
-  for (var i = 0; i < 300 * 1 + 0; i++) {
+  var nFellas = Number(util.getCgiParam('f')) || 400;
+  console.log(nFellas);
+  for (var i = 0; i < nFellas; i++) {
     var fella = new Fella({
       position: [
         0, 0, 0
@@ -227,9 +229,10 @@ QuantumWorld.prototype.getHero = function() {
 
 
 QuantumWorld.prototype.onMouseButton = function(event) {
-  if (!this.inputAdapter.isPointerLocked()) {
+  if (!this.inputAdapter.isPointerLocked() || Animator.getInstance().isPaused()) {
     ContainerManager.getInstance().setPointerLock(true);
     Animator.getInstance().setPaused(false);
+    console.log(Animator.getInstance().isPaused());
   }
 };
 

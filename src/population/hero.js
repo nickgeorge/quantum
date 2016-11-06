@@ -31,6 +31,7 @@ Hero = function(message) {
   this.zapAudio = Sounds.get(SoundList.ZAP);
 
   this.railAmmo = 3;
+  this.shouldViewTransition = true;
 
   this.gimble = new Gimble({
     referenceObject: this
