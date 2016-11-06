@@ -55,6 +55,8 @@ QuantumWorld = function() {
 };
 goog.inherits(QuantumWorld, World);
 
+// QuantumWorld.prototype.initializeListeners
+
 
 QuantumWorld.prototype.addDrawable = function(drawable) {
   goog.base(this, 'addDrawable', drawable);
